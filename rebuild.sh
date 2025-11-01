@@ -1,12 +1,17 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 代码更新后重新构建和重启脚本
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR"
 
 echo "=== 无限合成游戏 - 重新构建 ==="
 
 # 检查是否在项目目录
-if [ ! -f "package.json" ]; then
-    echo "错误: 请在项目根目录执行此脚本"
+if [ ! -f "package.json" ] || [ ! -d "client" ]; then
+    echo "错误: 无法定位项目根目录"
     exit 1
 fi
 
@@ -36,15 +41,14 @@ sleep 2
 # 2. 构建前端
 echo ""
 echo "2. 构建前端静态资源..."
-npm run client:build
-if [ $? -ne 0 ]; then
+if ! npm run client:build; then
     echo "❌ 前端构建失败"
     exit 1
 fi
 echo "✓ 前端构建完成"
 
 # 3. 检查依赖（可选，如果需要安装新依赖）
-if [ "$1" = "--install" ]; then
+if [ "${1:-}" = "--install" ]; then
     echo ""
     echo "3. 安装依赖..."
     npm install

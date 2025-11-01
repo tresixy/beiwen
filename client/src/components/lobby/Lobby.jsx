@@ -31,12 +31,20 @@ const FEATURE_CARDS = [
     },
 ];
 
-export function Lobby({ user, onEnterGame, onLogout }) {
+export function Lobby({ user, onEnterGame, onLogout, onEnterCardsDatabase }) {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
     const [cardBookOpen, setCardBookOpen] = useState(false);
     const [cardBook, setCardBook] = useState(() => loadCardBook());
     const [volume, setVolume] = useState(70);
+    const [canvasSize, setCanvasSize] = useState(() => {
+        if (typeof window === 'undefined') {
+            return { width: 1920, height: 1080 };
+        }
+        return { width: window.innerWidth, height: window.innerHeight };
+    });
+
+    const isAdmin = useMemo(() => user?.role === 'admin', [user]);
 
     const greeting = useMemo(() => {
         const hour = new Date().getHours();
@@ -80,11 +88,25 @@ export function Lobby({ user, onEnterGame, onLogout }) {
         setCardBook(loadCardBook());
     }, [cardBookOpen]);
 
+    useEffect(() => {
+        const calcSize = () => {
+            if (typeof window === 'undefined') {
+                return;
+            }
+            setCanvasSize({ width: window.innerWidth, height: window.innerHeight });
+        };
+
+        calcSize();
+        window.addEventListener('resize', calcSize);
+        return () => window.removeEventListener('resize', calcSize);
+    }, []);
+
     return (
         <div className="lobby-shell">
-            <HexCanvas 
-                width={1920} 
-                height={1080}
+            <HexCanvas
+                key="main-hex-canvas"
+                width={canvasSize.width}
+                height={canvasSize.height}
                 onSelectHex={handleSelectHex}
             />
             
@@ -172,6 +194,15 @@ export function Lobby({ user, onEnterGame, onLogout }) {
                             <span className="volume-value">{volume}%</span>
                         </div>
                         <div className="settings-actions">
+                            {isAdmin && onEnterCardsDatabase && (
+                                <button 
+                                    type="button" 
+                                    className="settings-admin" 
+                                    onClick={onEnterCardsDatabase}
+                                >
+                                    🎴 卡牌数据库
+                                </button>
+                            )}
                             <button 
                                 type="button" 
                                 className="settings-logout" 

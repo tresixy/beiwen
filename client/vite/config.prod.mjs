@@ -18,7 +18,7 @@ const phasermsg = () => {
 }
 
 export default defineConfig({
-    base: './',
+    base: '/', // 使用绝对路径，支持子路由
     plugins: [
         react(),
         phasermsg()

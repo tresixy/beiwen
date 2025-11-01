@@ -4,7 +4,7 @@ import { findCustomRule } from '../rules/customRules.js';
 import logger from '../utils/logger.js';
 
 // 规则合成（确定性）
-export async function synthesizeByRule(inputItems, name, profession = null) {
+export async function synthesizeByRule(inputItems, name, profession = null, currentEra = '生存时代') {
   try {
     const inputNames = inputItems.map(item => item.name);
     
@@ -41,6 +41,8 @@ export async function synthesizeByRule(inputItems, name, profession = null) {
         synergyScore,
       };
     }
+
+    attrs.era = currentEra;
 
     return {
       name: name || `合成物-${Date.now()}`,

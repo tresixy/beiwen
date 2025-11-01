@@ -47,34 +47,50 @@ const TERRAIN_TYPES = {
 };
 
 const REGION_ROWS = [
-    ['qinghai', '青海', 'Turquoise Sea', '绿松石海', '西北', false, false, 'NW'],
-    ['xinjiang', '新疆', 'New Frontier', '新边疆', '西北', false, true, 'NW'],
-    ['ningxia', '宁夏', 'Quiet Summer', '宁静之夏', '西北', false, false, 'NW'],
-    ['hongkong', '香港', 'Fragrant Harbour', '芳香的港湾', '华南', true, false, 'SE'],
-    ['hainan', '海南', 'Sea South', '海之南', '华南', true, false, 'S'],
-    ['shaanxi', '陕西', 'Narrow West', '狭窄西部', '西北', false, false, 'NW'],
-    ['yunnan', '云南', 'The South of Cloud', '云之南', '西南', false, true, 'SW'],
-    ['chongqing', '重庆', 'Double Celebration', '双重庆典', '西南', true, true, 'SW'],
-    ['sichuan', '四川', 'Four Circuits of Rivers', '四河洼地', '西南', false, false, 'SW'],
-    ['gansu', '甘肃', 'Sweet Eradicate', '甜根除', '西北', false, true, 'NW'],
-    ['guizhou', '贵州', 'Precious Province', '珍贵大陆', '西南', false, false, 'SW'],
-    ['xizang', '西藏', 'Western Depository', '西部宝藏', '西南', false, true, 'SW'],
-    ['wide_land', '广阔之地', 'Wide land', '广阔之地', '广阔之地', true, true, 'S'],
-    ['jiangzhidongxi', '江之东西', 'The River', '长江腹地', '华东', false, false, 'SE'],
-    ['jufeng', '巨峰之巅', 'The Mountain', '巨峰之巅', '华东', true, false, 'E'],
-    ['zhejiang', '浙江', 'Crooked River', '弯曲河流', '华东', true, false, 'SE'],
-    ['hunan', '湖之南北', 'The Lake', '神秘湖泊', '华中', false, false, 'C'],
-    ['anhui', '安徽', 'Safe Emblem', '安全徽章', '华东', false, false, 'E'],
-    ['henan', '河之南北', 'River South', '黄河身躯', '华中', false, false, 'C'],
-    ['taiwan', '台湾', 'Platform Bay', '高台湾地', '华东', true, false, 'SE'],
-    ['fujian', '福建', 'Fortune Build', '财富建设', '华东', true, false, 'SE'],
-    ['liaoning', '辽宁', 'Distant Peace', '遥远和平', '东北', true, true, 'NE'],
-    ['shanghai', '上海', 'Up Sea', '海上明珠', '华东', true, false, 'E'],
-    ['tianjin', '天津', 'Heavenly Ford', '天国之渡', '华北', true, false, 'NE'],
-    ['beijing', '北京', 'North Capital', '北方之都', '华北', false, false, 'N'],
-    ['neimenggu', '内蒙古', 'Inner Mongolia', '蒙古腹地', '华北', false, true, 'N'],
-    ['jilin', '吉林', 'Lucky Forest', '幸运森林', '东北', false, true, 'NE'],
+    // 右上角区域 - 东北三省
     ['heilongjiang', '黑龙江', 'Black Dragon River', '黑龙之河', '东北', false, true, 'NE'],
+    ['jilin', '吉林', 'Lucky Forest', '幸运森林', '东北', false, true, 'N'],
+    ['liaoning', '辽宁', 'Distant Peace', '遥远和平', '东北', true, true, 'NE'],
+    
+    // 中上区域 - 华北
+    ['beijing', '北京', 'North Capital', '北方之都', '华北', false, false, 'NE'],
+    ['tianjin', '天津', 'Heavenly Ford', '天国之渡', '华北', true, false, 'N'],
+    ['shanxi', '山西', "Mountain's Shadow", '山之影', '华北', false, false, 'N'],
+    ['hezhishouhu', '河之守护', "River's Guardian", '河之卫', '华北', true, false, 'NW'],
+    
+    // 华东区域
+    ['shanghai', '上海', 'Up Sea', '海上明珠', '华东', true, false, 'E'],
+    ['shanzhidong', '山之东', "Mountain's Dawn", '山之晨', '华东', true, false, 'NE'],
+    ['jiangzhidongxi', '江之东西', 'The Great River', '长江腹地', '华东', true, false, 'E'],
+    ['anhui', '安徽', 'Safe Emblem', '安全徽章', '华东', false, false, 'E'],
+    ['zhejiang', '浙江', 'Crooked River', '弯曲河流', '华东', true, false, 'SE'],
+    ['fujian', '福建', 'Fortune Build', '财富建设', '华东', true, false, 'SE'],
+    ['taiwan', '台湾', 'Platform Bay', '高台湾地', '华东', true, false, 'SE'],
+    
+    // 华中区域
+    ['hezhinnanbei', '河之南北', "River's Body", '黄河身躯', '华中', false, false, 'C'],
+    ['huzhinnanbei', '湖之南北', 'The Twin Lakes', '神秘湖泊', '华中', false, false, 'C'],
+    
+    // 西北区域
+    ['neimenggu', '内蒙古', 'Inner Mongolia', '蒙古腹地', '华北', false, true, 'NW'],
+    ['qinghai', '青海', 'Turquoise Sea', '绿松石海', '西北', false, false, 'N'],
+    ['xinjiang', '新疆', 'New Frontier', '新边疆', '西北', false, true, 'W'],
+    ['ningxia', '宁夏', 'Quiet Summer', '宁静之夏', '西北', false, false, 'NW'],
+    ['gansu', '甘肃', 'Sweet Eradicate', '甜根除', '西北', false, true, 'W'],
+    ['shaanxi', '陕西', 'Narrow West', '狭窄西部', '西北', false, false, 'NW'],
+    
+    // 西南区域
+    ['xizang', '西藏', 'Western Depository', '西部宝藏', '西南', false, true, 'W'],
+    ['yunnan', '云南', 'The South of Cloud', '云之南', '西南', false, true, 'SW'],
+    ['sichuan', '四川', 'Four Circuits of Rivers', '四河洼地', '西南', false, false, 'SW'],
+    ['chongqing', '重庆', 'Double Celebration', '双重庆典', '西南', false, false, 'SW'],
+    ['guizhou', '贵州', 'Precious Province', '珍贵大陆', '西南', false, false, 'SW'],
+    
+    // 华南区域
+    ['guangkuozhidi', '广阔之地', 'Wide Land', '岭南大地', '华南', true, true, 'S'],
+    ['hongkong', '香港', 'Fragrant Harbour', '芳香的港湾', '华南', true, false, 'SE'],
+    ['macau', '澳门', 'Bay Gate', '海湾之门', '华南', true, false, 'S'],
+    ['hainan', '海南', 'Sea South', '海之南', '华南', true, false, 'S'],
 ];
 
 const REGION_DEFS = REGION_ROWS.map(([key, name, fantasyName, literalName, zone, coastal, border, direction]) => ({
@@ -96,19 +112,18 @@ const ZONE_COLORS = {
     '华中': '#cedbb1',
     '华北': '#c3d2af',
     '东北': '#bcd2b8',
-    '广阔之地': '#dcdcb2',
 };
 
 const DIRECTION_CENTERS = {
     C: { q: 0, r: 0 },
-    N: { q: 0, r: -10 },
-    NE: { q: 10, r: -8 },
-    E: { q: 12, r: 0 },
-    SE: { q: 8, r: 9 },
-    S: { q: 0, r: 12 },
-    SW: { q: -8, r: 10 },
-    W: { q: -12, r: 0 },
-    NW: { q: -10, r: -6 },
+    N: { q: -2, r: -8 },
+    NE: { q: 9, r: -8 },
+    E: { q: 11, r: 1 },
+    SE: { q: 8, r: 8 },
+    S: { q: 0, r: 11 },
+    SW: { q: -6, r: 9 },
+    W: { q: -11, r: 0 },
+    NW: { q: -9, r: -5 },
 };
 
 const HEX_DIRECTIONS = [
@@ -120,8 +135,9 @@ const HEX_DIRECTIONS = [
     { q: 0, r: 1 },
 ];
 
-const MAP_RADIUS = 35;
-const CLUSTER_SPACING = 6;
+const MAP_RADIUS = 36;
+const CLUSTER_SPACING = 5;
+const LAND_RADIUS = 42;
 
 function keyFromHex(hex) {
     return `${hex.q},${hex.r}`;
@@ -139,6 +155,11 @@ function hexLength(q, r) {
 
 function hexDistance(a, b) {
     return hexLength(a.q - b.q, a.r - b.r);
+}
+
+function pseudoNoise(q, r, seed = 0) {
+    const value = Math.sin((q * 127.1 + r * 311.7 + seed * 71.7) * 12.9898);
+    return value - Math.floor(value);
 }
 
 function hashString(str) {
@@ -298,6 +319,17 @@ function axialRound(q, r) {
     return { q: rq, r: rr };
 }
 
+function isWithinLandShape(q, r) {
+    const { x, y } = axialToIsometric(q, r, 1);
+    const dist = Math.sqrt(x * x + y * y);
+    const angle = Math.atan2(y, x);
+    const angleWave = Math.sin(angle * 3) * 4 + Math.sin(angle * 5 + 1.3) * 3;
+    const noise1 = (pseudoNoise(Math.floor(q / 2), Math.floor(r / 2), 3) - 0.5) * 6;
+    const noise2 = (pseudoNoise(q * 0.8, r * 0.8, 11) - 0.5) * 4;
+    const radius = LAND_RADIUS + angleWave + noise1 + noise2;
+    return dist <= radius;
+}
+
 export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
@@ -314,6 +346,35 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         const claims = new Map();
         const regionCells = new Map();
         const regionLookup = new Map();
+        const isWithinLandMask = ({ q, r }) => isWithinLandShape(q, r);
+
+        const ensureWithinLand = (start) => {
+            if (isWithinLandShape(start.q, start.r) && hexLength(start.q, start.r) <= MAP_RADIUS) {
+                return start;
+            }
+            const visited = new Set();
+            let frontier = [start];
+            let steps = 0;
+            while (frontier.length && steps < MAP_RADIUS * 2) {
+                const next = [];
+                for (const hex of frontier) {
+                    const key = keyFromHex(hex);
+                    if (visited.has(key)) continue;
+                    visited.add(key);
+                    if (isWithinLandShape(hex.q, hex.r) && hexLength(hex.q, hex.r) <= MAP_RADIUS) {
+                        return hex;
+                    }
+                    for (const dir of HEX_DIRECTIONS) {
+                        const neighbor = { q: hex.q + dir.q, r: hex.r + dir.r };
+                        if (hexLength(neighbor.q, neighbor.r) > MAP_RADIUS) continue;
+                        next.push(neighbor);
+                    }
+                }
+                frontier = next;
+                steps += 1;
+            }
+            return start;
+        };
 
         REGION_DEFS.forEach((region) => {
             regionLookup.set(region.key, region);
@@ -337,28 +398,36 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
             directionState[dir] = state;
             const offset = spiralOffsets[state.index] || { q: 0, r: 0 };
             state.index += 1;
-            const center = {
+            let center = {
                 q: baseCenter.q + offset.q * CLUSTER_SPACING,
                 r: baseCenter.r + offset.r * CLUSTER_SPACING,
             };
+            center = ensureWithinLand(center);
             regionCenters.set(region.key, center);
         });
 
         const computeRegionSize = (region) => {
             const zoneSizes = {
-                '西北': 68,
-                '西南': 64,
-                '华南': 58,
-                '华东': 56,
-                '华中': 54,
-                '华北': 60,
-                '东北': 56,
-                '广阔之地': 66,
+                '西北': 55,
+                '西南': 54,
+                '华南': 50,
+                '华东': 48,
+                '华中': 50,
+                '华北': 46,
+                '东北': 50,
             };
-            let size = zoneSizes[region.zone] ?? 56;
-            if (region.coastal) size -= 6;
-            if (region.border) size += 8;
-            return Math.max(40, Math.round(size));
+            let size = zoneSizes[region.zone] ?? 48;
+            if (region.coastal) size -= 2;
+            if (region.border) size += 6;
+            
+            // 特定地区大小调整
+            if (region.key === 'heilongjiang') size = 56;
+            if (region.key === 'neimenggu') size = 62;
+            if (region.key === 'xinjiang') size = 65;
+            if (region.key === 'xizang') size = 60;
+            if (region.key === 'guangkuozhidi') size = 52;
+            
+            return Math.max(36, Math.round(size));
         };
 
         const generateRegionTiles = (region, targetSize) => {
@@ -367,13 +436,14 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
                 return;
             }
             const rng = createRng(hashString(region.key));
-            const queue = [center];
-            const visited = new Set();
             const tiles = [];
             const cellSet = regionCells.get(region.key);
 
             const tryClaim = (hex) => {
                 const key = keyFromHex(hex);
+                if (!isWithinLandMask(hex)) {
+                    return false;
+                }
                 if (hexLength(hex.q, hex.r) > MAP_RADIUS) {
                     return false;
                 }
@@ -388,45 +458,67 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
 
             tryClaim(center);
 
-            while (tiles.length < targetSize && queue.length) {
-                const current = queue.shift();
-                const key = keyFromHex(current);
-                if (visited.has(key)) continue;
-                visited.add(key);
-
-                const neighbors = HEX_DIRECTIONS.map((dir) => ({
-                    q: current.q + dir.q,
-                    r: current.r + dir.r,
-                }));
-                neighbors.sort((a, b) => rng() - 0.5);
-
-                for (const neighbor of neighbors) {
-                    const neighborKey = keyFromHex(neighbor);
-                    if (!visited.has(neighborKey) && hexLength(neighbor.q, neighbor.r) <= MAP_RADIUS) {
-                        queue.push(neighbor);
+            // 使用圆形扩散模式：按距离中心的半径逐层扩展
+            let currentRadius = 0;
+            const maxRadius = Math.ceil(Math.sqrt(targetSize / Math.PI) * 1.5);
+            
+            while (tiles.length < targetSize && currentRadius <= maxRadius) {
+                // 获取当前半径范围内的所有候选格子
+                const candidates = [];
+                for (let q = -currentRadius; q <= currentRadius; q++) {
+                    for (let r = -currentRadius; r <= currentRadius; r++) {
+                        const hex = { q: center.q + q, r: center.r + r };
+                        const dist = hexDistance(hex, center);
+                        
+                        // 只考虑当前半径附近的格子
+                        if (dist >= currentRadius - 0.5 && dist <= currentRadius + 0.5) {
+                            if (!isWithinLandMask(hex)) {
+                                continue;
+                            }
+                            const key = keyFromHex(hex);
+                            if (!claims.has(key) && hexLength(hex.q, hex.r) <= MAP_RADIUS) {
+                                candidates.push({ hex, dist });
+                            }
+                        }
                     }
                 }
-
-                neighbors.forEach((neighbor) => {
-                    if (tiles.length >= targetSize) return;
-                    tryClaim(neighbor);
+                
+                // 添加轻微随机性，但优先选择距离中心近的
+                candidates.sort((a, b) => {
+                    const distDiff = a.dist - b.dist;
+                    const randomFactor = (rng() - 0.5) * 0.3;
+                    return distDiff + randomFactor;
                 });
+                
+                // 尝试占领这一层的格子
+                for (const { hex } of candidates) {
+                    if (tiles.length >= targetSize) break;
+                    tryClaim(hex);
+                }
+                
+                currentRadius += 1;
             }
 
+            // 如果还没达到目标大小，随机填充附近的空缺
             let safety = 0;
-            while (tiles.length < targetSize && safety < targetSize * 10) {
+            while (tiles.length < targetSize && safety < targetSize * 5) {
                 safety += 1;
                 const sample = tiles[Math.floor(rng() * tiles.length)] || center;
                 const neighbors = HEX_DIRECTIONS.map((dir) => ({
                     q: sample.q + dir.q,
                     r: sample.r + dir.r,
                 }));
-                neighbors.sort((a, b) => rng() - 0.5);
+                
+                // 优先选择距离中心近的邻居
+                neighbors.sort((a, b) => {
+                    const distA = hexDistance(a, center);
+                    const distB = hexDistance(b, center);
+                    return distA - distB + (rng() - 0.5) * 0.5;
+                });
+                
                 for (const neighbor of neighbors) {
                     if (tiles.length >= targetSize) break;
-                    if (tryClaim(neighbor)) {
-                        queue.push(neighbor);
-                    }
+                    tryClaim(neighbor);
                 }
             }
         };
@@ -446,6 +538,10 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
                     const neighbor = { q: q + dir.q, r: r + dir.r };
                     if (hexLength(neighbor.q, neighbor.r) > MAP_RADIUS) return;
                     const neighborKey = keyFromHex(neighbor);
+                    if (!isWithinLandMask(neighbor)) {
+                        waterClaims.add(neighborKey);
+                        return;
+                    }
                     if (!claims.has(neighborKey)) {
                         waterClaims.add(neighborKey);
                     }
@@ -458,14 +554,18 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
             const rMin = Math.max(-MAP_RADIUS, -q - MAP_RADIUS);
             const rMax = Math.min(MAP_RADIUS, -q + MAP_RADIUS);
             for (let r = rMin; r <= rMax; r++) {
-                const key = keyFromHex({ q, r });
+                const hex = { q, r };
+                if (!isWithinLandMask(hex)) {
+                    continue;
+                }
+                const key = keyFromHex(hex);
                 if (waterClaims.has(key)) {
                     continue;
                 }
                 if (!claims.has(key)) {
                     let nearest = null;
                     for (const [regionKey, center] of centerEntries) {
-                        const dist = hexDistance({ q, r }, center);
+                        const dist = hexDistance(hex, center);
                         if (!nearest || dist < nearest.dist) {
                             nearest = { regionKey, dist };
                         }
@@ -730,12 +830,12 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         }
 
         // 绘制区域名称标签 - 使用预计算的区域中心
-        const fontSize = Math.max(12, Math.min(24, 16 * scale));
+        const fontSize = Math.max(48, Math.min(96, 64 * scale));
         ctx.font = `bold ${fontSize}px var(--font-game)`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
-        ctx.shadowBlur = 4 * scale;
+        ctx.shadowBlur = 12 * scale;
 
         regionAxialCenters.forEach((axialCenter, regionKey) => {
             const regionDef = REGION_DEFS.find(r => r.key === regionKey);
@@ -752,7 +852,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
                     
                     // 背景描边
                     ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-                    ctx.lineWidth = 4 * scale;
+                    ctx.lineWidth = 12 * scale;
                     ctx.strokeText(labelText, centerX, centerY);
                     // 主文字
                     ctx.fillStyle = '#2a1810';
@@ -871,7 +971,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         const hex = isometricToAxial(canvasX - originX, canvasY - originY, baseSize * scale);
 
         const key = `${hex.q},${hex.r}`;
-        if (terrainMap.has(key)) {
+        if (terrainMap.map.has(key)) {
             setSelectedHex(hex);
             onSelectHex?.(hex);
         }

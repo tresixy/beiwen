@@ -22,8 +22,9 @@ export function CardDock({
         if (!card) {
             return;
         }
+        const normalizedId = `${card.id ?? ''}`.trim();
         event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/plain', card.id);
+        event.dataTransfer.setData('text/plain', normalizedId);
     };
 
     const renderCard = (card, index) => {

@@ -1,5 +1,8 @@
 // 自定义合成规则（覆盖AI）
 // 规则格式：{ inputs: [name1, name2], output: {name, tier, attrs} }
+// 注：现在主要使用 synthesisRules.js 中的时代卡牌合成规则
+
+import { findSynthesisRule } from '../config/synthesisRules.js';
 
 export const customRules = [
   {
@@ -61,6 +64,13 @@ export const customRules = [
 ];
 
 export function findCustomRule(inputNames) {
+  // 优先检查时代卡牌合成规则
+  const synthesisOutput = findSynthesisRule(inputNames);
+  if (synthesisOutput) {
+    return synthesisOutput;
+  }
+  
+  // 再检查旧的自定义规则
   const sortedInputs = inputNames.slice().sort();
   
   for (const rule of customRules) {

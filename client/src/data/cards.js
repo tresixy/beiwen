@@ -5,16 +5,26 @@ export const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
 
 const RARITY_WEIGHTS = [0.38, 0.28, 0.2, 0.1, 0.04];
 
-// 基础元素卡牌
+// 生存时代初始卡牌（游戏开始时发放）
+const STARTER_CARDS = [
+    { name: '人', type: 'inspiration', rarity: 'common', era: '生存时代' },
+    { name: '石头', type: 'inspiration', rarity: 'common', era: '生存时代' },
+];
+
+// 生存时代基础卡牌池
+const SURVIVAL_ERA_CARDS = [
+    { name: '水', type: 'inspiration', rarity: 'common', era: '生存时代' },
+    { name: '木头', type: 'inspiration', rarity: 'common', era: '生存时代' },
+    { name: '土地', type: 'inspiration', rarity: 'common', era: '生存时代' },
+    { name: '种子', type: 'inspiration', rarity: 'common', era: '生存时代' },
+    { name: '冲突', type: 'inspiration', rarity: 'common', era: '生存时代' },
+    { name: '风', type: 'inspiration', rarity: 'common', era: '生存时代' },
+];
+
+// 兼容旧代码的基础元素定义
 const BASIC_ELEMENTS = [
-    { name: '金', type: '元素', rarity: 'common' },
-    { name: '木', type: '元素', rarity: 'common' },
-    { name: '水', type: '元素', rarity: 'common' },
-    { name: '火', type: '元素', rarity: 'common' },
-    { name: '土', type: '元素', rarity: 'common' },
-    { name: '冲突', type: '概念', rarity: 'common' },
-    { name: '人', type: '生命', rarity: 'common' },
-    { name: '石头', type: '物质', rarity: 'common' },
+    ...STARTER_CARDS,
+    ...SURVIVAL_ERA_CARDS,
 ];
 
 let cardIdCursor = 0;
@@ -55,27 +65,24 @@ export function createCard(overrides = {}) {
 }
 
 export function createInitialHand(size = 5) {
-    // 从基础元素中随机选择，确保至少有金木水火土中的几个
-    const elementPool = [...BASIC_ELEMENTS];
+    // 新卡牌系统：从生存时代卡牌中选择初始手牌
     const selected = [];
     
-    // 至少选择3个基础元素
-    const coreElements = ['金', '木', '水', '火', '土'].slice(0, Math.min(3, size));
-    coreElements.forEach(name => {
-        const element = elementPool.find(e => e.name === name);
-        if (element) {
-            selected.push({
-                ...element,
-                id: `card-${cardIdCursor += 1}`,
-            });
-        }
+    // 先加入2张起始卡（人、石头）
+    STARTER_CARDS.forEach(card => {
+        selected.push({
+            ...card,
+            id: `card-${cardIdCursor += 1}`,
+        });
     });
     
-    // 剩余的从所有基础元素中随机选择
-    while (selected.length < size) {
-        const randomElement = elementPool[Math.floor(Math.random() * elementPool.length)];
+    // 从生存时代卡牌池中随机选择剩余卡牌
+    const poolCopy = [...SURVIVAL_ERA_CARDS];
+    while (selected.length < size && poolCopy.length > 0) {
+        const randomIndex = Math.floor(Math.random() * poolCopy.length);
+        const card = poolCopy.splice(randomIndex, 1)[0];
         selected.push({
-            ...randomElement,
+            ...card,
             id: `card-${cardIdCursor += 1}`,
         });
     }
@@ -101,5 +108,20 @@ export function forgeCards(selectedCards, name) {
 
     const rarity = upgradeRarity(selectedCards);
     return createCard({ rarity, name });
+}
+
+// 根据时代获取卡牌池
+export function getCardsByEra(eraName) {
+    // TODO: 实现从服务器获取时代卡牌
+    // 目前返回基础卡牌作为默认
+    return BASIC_ELEMENTS;
+}
+
+// 获取起始卡牌
+export function getStarterCards() {
+    return STARTER_CARDS.map(card => ({
+        ...card,
+        id: `card-${cardIdCursor += 1}`,
+    }));
 }
 

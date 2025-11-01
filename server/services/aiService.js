@@ -3,6 +3,7 @@ import env from '../config/env.js';
 import logger from '../utils/logger.js';
 import { cacheGet, cacheSet } from '../db/redis.js';
 import { generateRecipeHash } from './synthService.js';
+import { TECH_TIERS } from '../config/eraConfig.js';
 
 let openai = null;
 
@@ -31,14 +32,14 @@ if (env.aiEnabled && env.openaiApiKey) {
 }
 
 // AI合成
-export async function synthesizeByAI(inputItems, name, userId, profession = null) {
+export async function synthesizeByAI(inputItems, name, userId, profession = null, currentEra = '生存时代') {
   if (!env.aiEnabled || !openai) {
     throw new Error('AI service not available');
   }
 
   const recipeHash = generateRecipeHash(
     inputItems.map(i => i.id),
-    `${name || '未命名'}${profession?.name ? `#${profession.name}` : ''}`
+    `${name || '未命名'}${profession?.name ? `#${profession.name}` : ''}#${currentEra}`
   );
   const cacheKey = `cache:recipe:${recipeHash}`;
 
@@ -56,10 +57,19 @@ export async function synthesizeByAI(inputItems, name, userId, profession = null
       ? `职业：${profession.name}（偏好：${Array.isArray(profession.focus) && profession.focus.length ? profession.focus.join('、') : '综合'}）`
       : '职业：无';
 
+    // 获取时代限制
+    const techConfig = TECH_TIERS[currentEra] || TECH_TIERS['生存时代'];
+    const techRestriction = [
+      `当前时代：${currentEra}`,
+      `科技限制：最高等级${techConfig.maxTier}，允许的概念包括：${techConfig.allowedConcepts.slice(0, 10).join('、')}等`,
+      `禁止概念：${techConfig.forbiddenConcepts.slice(0, 8).join('、')}等`,
+    ].join('；');
+
     const prompt = [
       `我在做一个游戏，我需要你用json格式回复我：${combinationSentence}可以合成什么东西。`,
       '你需要想象所有可能合成的东西，可以是现实的、魔法的、科幻的、魔幻的等等所有能想象到的内容。',
       professionLine,
+      techRestriction,
       '请确保只返回一个JSON，格式如下：',
       '{',
       '  "combinations": [',
@@ -69,7 +79,8 @@ export async function synthesizeByAI(inputItems, name, userId, profession = null
       '要求：',
       '1. 至少给出3个不同的合成结果设想；',
       '2. results 使用中文详细描述每个合成物，prompt 填写用于生成图标的中文提示词；',
-      '3. 不要输出JSON以外的任何多余文字。'
+      '3. 合成结果必须符合当前时代的科技限制，不能包含禁止的概念；',
+      '4. 不要输出JSON以外的任何多余文字。'
     ].join('\n');
 
     const response = await openai.chat.completions.create({

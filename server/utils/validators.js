@@ -8,6 +8,7 @@ export const registerSchema = z.object({
 
 export const loginSchema = z.object({
   email: z.string().email(),
+  password: z.string().optional(), // 可选，用于向后兼容
 });
 
 export const synthesizeSchema = z.object({

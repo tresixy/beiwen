@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卡牌数据库管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        select, input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        select option {
+            background: #2a2a40;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-base {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+
+        .badge-user {
+            background: rgba(33, 150, 243, 0.3);
+            color: #2196f3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: rgba(255, 59, 48, 0.2);
+            border: 1px solid rgba(255, 59, 48, 0.5);
+            color: #ff3b30;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e1e30 0%, #2a2a40 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-delete {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .btn-edit {
+            background: rgba(33, 150, 243, 0.3);
+            color: #2196f3;
+            border: 1px solid rgba(33, 150, 243, 0.5);
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎴 卡牌数据库管理</h1>
+            <a href="/" class="btn">返回首页</a>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-label">基础卡牌</div>
+                <div class="stat-value" id="baseCards">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">用户生成</div>
+                <div class="stat-value" id="userCards">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">总计</div>
+                <div class="stat-value" id="totalCards">-</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="showCreateModal()">+ 创建新卡牌</button>
+            <button class="btn" onclick="triggerCsvUpload()">导入 CSV</button>
+            <input type="file" id="csvInput" accept=".csv" style="display: none;" />
+            <select id="sourceFilter" onchange="loadCards()">
+                <option value="">全部来源</option>
+                <option value="base">基础卡牌</option>
+                <option value="user_generated">用户生成</option>
+            </select>
+            <select id="eraFilter" onchange="loadCards()">
+                <option value="">全部时代</option>
+                <option value="生存时代">生存时代</option>
+                <option value="城邦时代">城邦时代</option>
+                <option value="分野时代">分野时代</option>
+                <option value="帝国时代">帝国时代</option>
+                <option value="理性时代">理性时代</option>
+                <option value="信仰时代">信仰时代</option>
+                <option value="启蒙时代">启蒙时代</option>
+            </select>
+        </div>
+
+        <div id="loading" class="loading">加载中...</div>
+
+        <table id="cardsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>来源</th>
+                    <th>类型</th>
+                    <th>卡牌类型</th>
+                    <th>稀有度</th>
+                    <th>时代</th>
+                    <th>解锁条件</th>
+                    <th>描述</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="cardsBody"></tbody>
+        </table>
+    </div>
+
+    <!-- 创建/编辑模态框 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">创建新卡牌</h2>
+            <form id="cardForm" onsubmit="return handleSubmit(event)">
+                <div class="form-group">
+                    <label>名称 *</label>
+                    <input type="text" id="cardName" required>
+                </div>
+                <div class="form-group">
+                    <label>类型 *</label>
+                    <input type="text" id="cardType" required placeholder="如: element, material, concept">
+                </div>
+                <div class="form-group">
+                    <label>稀有度 *</label>
+                    <select id="cardRarity" required>
+                        <option value="common">common</option>
+                        <option value="uncommon">uncommon</option>
+                        <option value="rare">rare</option>
+                        <option value="epic">epic</option>
+                        <option value="legendary">legendary</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>卡牌类型</label>
+                    <select id="cardCardType">
+                        <option value="inspiration">灵感卡</option>
+                        <option value="key">钥匙卡</option>
+                        <option value="reward">奖励卡</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>时代</label>
+                    <select id="cardEra">
+                        <option value="">无</option>
+                        <option value="生存时代">生存时代</option>
+                        <option value="城邦时代">城邦时代</option>
+                        <option value="分野时代">分野时代</option>
+                        <option value="帝国时代">帝国时代</option>
+                        <option value="理性时代">理性时代</option>
+                        <option value="信仰时代">信仰时代</option>
+                        <option value="启蒙时代">启蒙时代</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>解锁条件</label>
+                    <input type="text" id="cardUnlockCondition" placeholder="如: 寒冷, branch:order">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="cardIsStarter">
+                        初始手牌
+                    </label>
+                    <label style="margin-left: 20px;">
+                        <input type="checkbox" id="cardIsDecoy">
+                        迷惑卡
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="cardDescription"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let editingCardId = null;
+        const CSV_HEADER_MAP = {
+            'name': 'name',
+            '名称': 'name',
+            'card name': 'name',
+            'type': 'type',
+            '类型': 'type',
+            'rarity': 'rarity',
+            '稀有度': 'rarity',
+            'era': 'era',
+            '时代': 'era',
+            'card_type': 'card_type',
+            '卡牌类型': 'card_type',
+            'cardtype': 'card_type',
+            'unlock_condition': 'unlock_condition',
+            '解锁条件': 'unlock_condition',
+            'unlock': 'unlock_condition',
+            'is_starter': 'is_starter',
+            'starter': 'is_starter',
+            '初始手牌': 'is_starter',
+            'is_decoy': 'is_decoy',
+            'decoy': 'is_decoy',
+            '迷惑卡': 'is_decoy',
+            'description': 'description',
+            '描述': 'description',
+        };
+
+        async function loadCards() {
+            const loading = document.getElementById('loading');
+            const table = document.getElementById('cardsTable');
+            const tbody = document.getElementById('cardsBody');
+            const errorDiv = document.getElementById('error');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            try {
+                const sourceFilter = document.getElementById('sourceFilter').value;
+                const eraFilter = document.getElementById('eraFilter').value;
+                
+                const params = new URLSearchParams({
+                    page: '1',
+                    limit: '100'
+                });
+                if (sourceFilter) params.append('source', sourceFilter);
+                if (eraFilter) params.append('era', eraFilter);
+
+                const response = await fetch(`/api/cards-database-public/?${params}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || '加载失败');
+                }
+
+                // 更新统计
+                document.getElementById('baseCards').textContent = data.stats.baseCards;
+                document.getElementById('userCards').textContent = data.stats.userGeneratedCards;
+                document.getElementById('totalCards').textContent = data.stats.baseCards + data.stats.userGeneratedCards;
+
+                // 渲染表格
+                const cardTypeNames = {
+                    'key': '钥匙卡',
+                    'inspiration': '灵感卡',
+                    'reward': '奖励卡'
+                };
+
+                tbody.innerHTML = data.cards.map(card => `
+                    <tr>
+                        <td>${card.id}</td>
+                        <td><strong>${card.name}</strong></td>
+                        <td><span class="badge ${card.is_base_card ? 'badge-base' : 'badge-user'}">${card.is_base_card ? '基础' : '用户'}</span></td>
+                        <td>${card.type}</td>
+                        <td>${cardTypeNames[card.card_type] || card.card_type || '-'}</td>
+                        <td>${card.rarity}</td>
+                        <td>${card.era || '-'}</td>
+                        <td>${card.unlock_condition || '-'}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${card.attrs_json?.description || '-'}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="editCard(${card.id})">编辑</button>
+                            <button class="btn btn-delete" onclick="deleteCard(${card.id}, '${card.name.replace(/'/g, "\\'")}')">删除</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            } catch (err) {
+                errorDiv.textContent = err.message;
+                errorDiv.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        }
+
+        function showCreateModal() {
+            editingCardId = null;
+            document.getElementById('modalTitle').textContent = '创建新卡牌';
+            document.getElementById('cardForm').reset();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            editingCardId = null;
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            const data = {
+                name: document.getElementById('cardName').value,
+                type: document.getElementById('cardType').value,
+                rarity: document.getElementById('cardRarity').value,
+                card_type: document.getElementById('cardCardType').value,
+                era: document.getElementById('cardEra').value || null,
+                unlock_condition: document.getElementById('cardUnlockCondition').value || null,
+                is_starter: document.getElementById('cardIsStarter').checked,
+                is_decoy: document.getElementById('cardIsDecoy').checked,
+                attrs_json: {
+                    description: document.getElementById('cardDescription').value
+                }
+            };
+
+            try {
+                const url = editingCardId 
+                    ? `/api/cards-database-public/${editingCardId}`
+                    : '/api/cards-database-public/';
+                
+                const response = await fetch(url, {
+                    method: editingCardId ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || '保存失败');
+                }
+
+                alert(editingCardId ? '更新成功' : '创建成功');
+                closeModal();
+                loadCards();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        async function editCard(id) {
+            try {
+                // 从当前表格中查找卡牌数据
+                const response = await fetch(`/api/cards-database-public/?page=1&limit=1000`);
+                const data = await response.json();
+                const card = data.cards.find(c => c.id === id);
+                
+                if (!card) {
+                    alert('未找到卡牌');
+                    return;
+                }
+
+                // 设置编辑模式
+                editingCardId = id;
+                document.getElementById('modalTitle').textContent = '编辑卡牌';
+                
+                // 填充表单
+                document.getElementById('cardName').value = card.name;
+                document.getElementById('cardType').value = card.type;
+                document.getElementById('cardRarity').value = card.rarity;
+                document.getElementById('cardCardType').value = card.card_type || 'inspiration';
+                document.getElementById('cardEra').value = card.era || '';
+                document.getElementById('cardUnlockCondition').value = card.unlock_condition || '';
+                document.getElementById('cardIsStarter').checked = card.is_starter || false;
+                document.getElementById('cardIsDecoy').checked = card.is_decoy || false;
+                document.getElementById('cardDescription').value = card.attrs_json?.description || '';
+                
+                // 显示模态框
+                document.getElementById('modal').classList.add('show');
+            } catch (err) {
+                alert('加载卡牌失败: ' + err.message);
+            }
+        }
+
+        async function deleteCard(id, name) {
+            if (!confirm(`确定要删除卡牌"${name}"吗？`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/cards-database-public/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || '删除失败');
+                }
+
+                alert('删除成功');
+                loadCards();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        // 页面加载时自动加载数据
+        window.addEventListener('DOMContentLoaded', loadCards);
+
+        // 点击模态框外部关闭
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', function() {
+            const csvInput = document.getElementById('csvInput');
+            if (csvInput) {
+                csvInput.addEventListener('change', handleCsvUpload);
+            }
+        });
+
+        function triggerCsvUpload() {
+            const csvInput = document.getElementById('csvInput');
+            if (csvInput) {
+                csvInput.click();
+            }
+        }
+
+        async function handleCsvUpload(event) {
+            const input = event.target;
+            const file = input.files && input.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            try {
+                const text = await file.text();
+                const rows = parseCsv(text);
+
+                if (rows.length < 2) {
+                    throw new Error('CSV 文件缺少表头或数据');
+                }
+
+                const headers = rows[0].map(normalizeHeader);
+                const cards = [];
+
+                for (let i = 1; i < rows.length; i++) {
+                    const rowNumber = i + 1;
+                    const values = rows[i];
+
+                    if (!values.some(value => value && value.trim() !== '')) {
+                        continue;
+                    }
+
+                    const card = buildCardFromRow(headers, values, rowNumber);
+                    if (card) {
+                        cards.push(card);
+                    }
+                }
+
+                if (cards.length === 0) {
+                    throw new Error('未找到有效的卡牌记录');
+                }
+
+                const response = await fetch('/api/cards-database-public/import', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cards })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || '导入失败');
+                }
+
+                let message = `导入成功 ${result.imported} 张卡牌`;
+
+                if (result.errors && result.errors.length) {
+                    const preview = result.errors.slice(0, 5).map(err => {
+                        const rowLabel = err.row ? `第${err.row}行` : '未知行';
+                        const nameLabel = err.name ? `（${err.name}）` : '';
+                        return `${rowLabel}${nameLabel}: ${err.error}`;
+                    });
+
+                    message += `，失败 ${result.errors.length} 行\n` + preview.join('\n');
+                    if (result.errors.length > 5) {
+                        message += '\n...';
+                    }
+                }
+
+                alert(message);
+                loadCards();
+            } catch (err) {
+                alert(err.message || '导入失败');
+            } finally {
+                input.value = '';
+            }
+        }
+
+        function parseCsv(text) {
+            const rows = [];
+            let current = '';
+            let row = [];
+            let inQuotes = false;
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+
+                if (inQuotes) {
+                    if (char === '"') {
+                        if (text[i + 1] === '"') {
+                            current += '"';
+                            i++;
+                        } else {
+                            inQuotes = false;
+                        }
+                    } else {
+                        current += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === ',') {
+                        row.push(current);
+                        current = '';
+                    } else if (char === '\n') {
+                        row.push(current);
+                        rows.push(row);
+                        row = [];
+                        current = '';
+                    } else if (char === '\r') {
+                        continue;
+                    } else {
+                        current += char;
+                    }
+                }
+            }
+
+            if (inQuotes) {
+                throw new Error('CSV 格式错误：缺少结束引号');
+            }
+
+            row.push(current);
+            rows.push(row);
+
+            return rows
+                .map(columns => columns.map(value => value.trim()))
+                .filter(columns => columns.some(value => value !== ''));
+        }
+
+        function normalizeHeader(header) {
+            if (!header) {
+                return '';
+            }
+
+            const key = header.trim().toLowerCase();
+            return CSV_HEADER_MAP[key] || '';
+        }
+
+        function buildCardFromRow(headers, values, rowNumber) {
+            const record = {};
+
+            headers.forEach((header, index) => {
+                if (!header) {
+                    return;
+                }
+
+                record[header] = values[index] ? values[index].trim() : '';
+            });
+
+            const required = ['name', 'type'];
+
+            for (const key of required) {
+                if (!record[key]) {
+                    throw new Error(`第${rowNumber}行缺少必填字段 ${key}`);
+                }
+            }
+
+            return {
+                name: record.name,
+                type: record.type,
+                rarity: normalizeCsvRarity(record.rarity),
+                card_type: record.card_type || 'inspiration',
+                era: record.era || null,
+                unlock_condition: record.unlock_condition || null,
+                is_starter: parseCsvBoolean(record.is_starter),
+                is_decoy: parseCsvBoolean(record.is_decoy),
+                description: record.description || '',
+                sourceRow: rowNumber,
+            };
+        }
+
+        function parseCsvBoolean(value) {
+            if (value === undefined || value === null) {
+                return false;
+            }
+
+            if (typeof value === 'boolean') {
+                return value;
+            }
+
+            const normalized = value.toString().trim().toLowerCase();
+
+            if (!normalized) {
+                return false;
+            }
+
+            if (['false', '0', 'no', 'n', '否'].includes(normalized)) {
+                return false;
+            }
+
+            return ['true', '1', 'yes', 'y', '是', '初始', 'starter', 't', 'on'].includes(normalized);
+        }
+
+        function normalizeCsvRarity(value) {
+            if (value === undefined || value === null) {
+                return 'common';
+            }
+
+            const text = value.toString().trim();
+            if (!text) {
+                return 'common';
+            }
+
+            return text.toLowerCase();
+        }
+    </script>
+</body>
+</html>
+

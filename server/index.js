@@ -21,6 +21,10 @@ import imageRoutes from './routes/image.js';
 import adminRoutes from './routes/admin.js';
 import professionRoutes from './routes/profession.js';
 import gameStateRoutes from './routes/gameState.js';
+import eventsRoutes from './routes/events.js';
+import cardsRoutes from './routes/cards.js';
+import cardsDatabaseRoutes from './routes/cardsDatabase.js';
+import cardsDatabasePublicRoutes from './routes/cardsDatabasePublic.js';
 
 const app = express();
 
@@ -65,6 +69,10 @@ app.use('/api/image', imageRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/profession', professionRoutes);
 app.use('/api/game', gameStateRoutes);
+app.use('/api/events', eventsRoutes);
+app.use('/api/cards', cardsRoutes);
+app.use('/api/cards-database', cardsDatabaseRoutes);
+app.use('/api/cards-database-public', cardsDatabasePublicRoutes);
 
 // 健康检查
 app.get('/health', (req, res) => {

@@ -4,6 +4,7 @@ import { AuthScreen } from './components/auth/AuthScreen.jsx';
 import { GameShell } from './components/game/GameShell.jsx';
 import { Lobby } from './components/lobby/Lobby.jsx';
 import { MessageStack } from './components/common/MessageStack.jsx';
+import { CardsDatabase } from './components/admin/CardsDatabase.jsx';
 import { loginRequest } from './services/api.js';
 
 const STORAGE_KEYS = {
@@ -33,7 +34,12 @@ function App() {
     });
     const [authLoading, setAuthLoading] = useState(false);
     const [messages, setMessages] = useState([]);
-    const [activeView, setActiveView] = useState('lobby');
+    const [activeView, setActiveView] = useState(() => {
+        // 检查URL路径来确定初始视图
+        const path = window.location.pathname;
+        if (path.startsWith('/cardsdatabase')) return 'cardsdatabase';
+        return 'lobby';
+    });
 
     useEffect(() => {
         if (token) {
@@ -105,6 +111,27 @@ function App() {
 
     const handleBackLobby = useCallback(() => {
         setActiveView('lobby');
+        window.history.pushState({}, '', '/');
+    }, []);
+
+    const handleEnterCardsDatabase = useCallback(() => {
+        setActiveView('cardsdatabase');
+        window.history.pushState({}, '', '/cardsdatabase/');
+    }, []);
+
+    // 监听浏览器前进后退
+    useEffect(() => {
+        const handlePopState = () => {
+            const path = window.location.pathname;
+            if (path.startsWith('/cardsdatabase')) {
+                setActiveView('cardsdatabase');
+            } else {
+                setActiveView('lobby');
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
     const screen = useMemo(() => {
@@ -123,6 +150,16 @@ function App() {
                     user={user}
                     onEnterGame={handleEnterGame}
                     onLogout={handleLogout}
+                    onEnterCardsDatabase={handleEnterCardsDatabase}
+                />
+            );
+        }
+
+        if (activeView === 'cardsdatabase') {
+            return (
+                <CardsDatabase
+                    token={token}
+                    onBack={handleBackLobby}
                 />
             );
         }
@@ -136,7 +173,7 @@ function App() {
                 pushMessage={queueMessage}
             />
         );
-    }, [activeView, authLoading, handleBackLobby, handleEnterGame, handleLogin, handleLogout, queueMessage, token, user]);
+    }, [activeView, authLoading, handleBackLobby, handleEnterCardsDatabase, handleEnterGame, handleLogin, handleLogout, queueMessage, token, user]);
 
     useEffect(() => {
         window.dispatchEvent(new Event('app-ready'));

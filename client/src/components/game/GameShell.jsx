@@ -67,6 +67,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         cardBookOpen,
         cardBook,
         stagedPositions,
+        selectCardsForForge,
     } = useGameSimulation({ pushMessage, token });
 
     const [resourcePulse, setResourcePulse] = useState({ food: false, production: false, research: false });
@@ -174,9 +175,13 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     }, [updateStagedPosition]);
 
     const handleSynthesize = useCallback(() => {
+        console.log('handleSynthesize 被调用, selectedCards:', selectedCards.length, selectedCards.map(c => c?.name));
         if (selectedCards.length >= 2) {
             const defaultName = selectedCards.map(c => c.name).join('+');
+            console.log('开始合成:', defaultName);
             submitForge(defaultName);
+        } else {
+            console.log('卡牌数量不足，需要至少2张，当前:', selectedCards.length);
         }
     }, [selectedCards, submitForge]);
 
@@ -228,7 +233,9 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                         <ForgeOverlay overlay={overlayMemo} />
                         <ForgeCanvas
                             cards={selectedCards}
+                            hand={hand}
                             positions={stagedPositions}
+                            onSelectForForge={selectCardsForForge}
                             onDrop={handleCardDrop}
                             onRemove={handleCardRemove}
                             onReposition={handleCardReposition}

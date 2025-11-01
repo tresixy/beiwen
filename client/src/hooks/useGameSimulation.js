@@ -161,6 +161,18 @@ export function useGameSimulation({ pushMessage, token }) {
         }
     }, []);
 
+    const selectCardsForForge = useCallback((cardIds) => {
+        const unique = Array.from(new Set(cardIds)).filter((id) => hand.some((card) => card.id === id)).slice(0, MAX_STAGE_CARDS);
+        setSelectedIds(unique);
+        setStagedPositions((prev) => {
+            const next = {};
+            unique.forEach((id, index) => {
+                next[id] = prev[id] ?? { x: 25 + index * 12, y: 25 + index * 8 };
+            });
+            return next;
+        });
+    }, [hand]);
+
     const updateStagedPosition = useCallback((cardId, position) => {
         setStagedPositions((prev) => {
             if (!prev[cardId]) {
@@ -298,9 +310,11 @@ export function useGameSimulation({ pushMessage, token }) {
                     // 调用统一的合成API
                     const data = await gameStateApi.synthesize(localToken, cardNames, trimmedName, mode, false);
                     
+                    // 使用实际返回的物品名称
+                    const actualName = data.item?.name || trimmedName || '合成物';
                     const resultCard = {
                         id: `card-${Date.now()}`,
-                        name: TEST_FORGE_RESULT_NAME,
+                        name: actualName,
                         type: data.item?.attrs?.type || '合成物',
                         rarity: data.item?.tier ? ['common', 'uncommon', 'rare', 'epic', 'legendary'][Math.min(data.item.tier - 1, 4)] : 'common',
                         attrs: data.item?.attrs,
@@ -312,7 +326,7 @@ export function useGameSimulation({ pushMessage, token }) {
                     if (data.aiUsed && data.ideas && data.ideas.length > 0) {
                         pushMessage?.(`AI灵感：${data.ideas[0].results}`, 'success');
                     } else {
-                        pushMessage?.(`获得新卡牌「${TEST_FORGE_RESULT_NAME}」`, 'success');
+                        pushMessage?.(`获得新卡牌「${actualName}」`, 'success');
                     }
                     
                     stopForgeTimers();
@@ -648,6 +662,7 @@ export function useGameSimulation({ pushMessage, token }) {
         cardBookOpen,
         cardBook,
         stagedPositions,
+        selectCardsForForge,
     };
 }
 

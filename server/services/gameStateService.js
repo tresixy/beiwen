@@ -4,18 +4,21 @@ import { getResources } from '../gameplay/resourceService.js';
 import { getInventory } from './inventoryService.js';
 import { getProfessionState } from './professionService.js';
 import { getDeckState } from '../gameplay/deckService.js';
+import { getEventState, getActiveEvent } from './eventService.js';
 
 // 获取完整游戏状态
 export async function getGameState(userId) {
   try {
     // 并行获取各个模块的数据
-    const [resources, inventory, profession, deck, contract, hand] = await Promise.all([
+    const [resources, inventory, profession, deck, contract, hand, eventState, activeEvent] = await Promise.all([
       getResources(userId),
       getInventory(userId),
       getProfessionState(userId),
       getDeckState(userId),
       getActiveContract(userId),
       getPlayerHand(userId),
+      getEventState(userId),
+      getActiveEvent(userId),
     ]);
 
     logger.info({ userId }, 'Game state loaded');
@@ -27,6 +30,12 @@ export async function getGameState(userId) {
       deck,
       contract,
       hand: hand || [],
+      era: eventState.era,
+      activeEvent,
+      eventProgress: {
+        completed: eventState.completedEvents.length,
+        total: eventState.eventSequence.length,
+      },
     };
   } catch (err) {
     logger.error({ err, userId }, 'GetGameState error');

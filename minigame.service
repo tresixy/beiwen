@@ -1,0 +1,30 @@
+[Unit]
+Description=Infinite Synthesis Game Server
+Documentation=https://github.com/yourusername/minigame
+After=network.target postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/minigame
+ExecStart=/usr/bin/npm start
+Restart=always
+RestartSec=10
+StandardOutput=append:/root/minigame/logs/server.log
+StandardError=append:/root/minigame/logs/server.log
+
+# 环境变量
+Environment=NODE_ENV=production
+Environment=PORT=3000
+
+# 资源限制
+LimitNOFILE=65535
+MemoryLimit=1G
+
+# 安全设置
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+

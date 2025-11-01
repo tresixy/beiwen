@@ -1,11 +1,43 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
+
+import './ForgeCanvas.css';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-export function ForgeCanvas({ cards, positions = {}, onDrop, onRemove, onReposition, onSynthesize }) {
+const MAX_FURNACE_CARDS = 2;
+const PROGRESS_DURATION = 1500;
+const PROGRESS_RESET_DELAY = 220;
+
+const isPointInsideElement = (element, clientX, clientY) => {
+    if (!element) {
+        return false;
+    }
+    const rect = element.getBoundingClientRect();
+    return (
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom
+    );
+};
+
+export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge }) {
     const containerRef = useRef(null);
+    const progressTimerRef = useRef(null);
     const [furnaceCards, setFurnaceCards] = useState([]);
     const [isForging, setIsForging] = useState(false);
+    const [furnaceProgress, setFurnaceProgress] = useState(0);
+    const [isCanvasDragActive, setIsCanvasDragActive] = useState(false);
+    const [isFurnaceDragOver, setIsFurnaceDragOver] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const [draggingCardId, setDraggingCardId] = useState(null);
+
+    const resetDragState = useCallback(() => {
+        setIsDragging(false);
+        setDraggingCardId(null);
+        setIsCanvasDragActive(false);
+        setIsFurnaceDragOver(false);
+    }, []);
 
     const withPositions = useMemo(() => {
         return cards.map((card) => {
@@ -27,110 +59,324 @@ export function ForgeCanvas({ cards, positions = {}, onDrop, onRemove, onReposit
         return { x, y };
     };
 
+    const furnaceStatus = useMemo(() => {
+        if (isForging) {
+            return '合成进行中';
+        }
+        if (furnaceCards.length === 0) {
+            return '等待投放卡牌';
+        }
+        if (furnaceCards.length === 1) {
+            return '继续放入一张卡牌';
+        }
+        return '准备触发合成';
+    }, [furnaceCards.length, isForging]);
+
+    const stopProgressTimer = useCallback(() => {
+        if (progressTimerRef.current) {
+            window.clearInterval(progressTimerRef.current);
+            progressTimerRef.current = null;
+        }
+    }, []);
+
+    const startProgressTimer = useCallback(() => {
+        stopProgressTimer();
+        const startAt = performance.now();
+        setFurnaceProgress(0);
+        progressTimerRef.current = window.setInterval(() => {
+            const elapsed = performance.now() - startAt;
+            const percent = Math.min(100, Math.round((elapsed / PROGRESS_DURATION) * 100));
+            setFurnaceProgress(percent);
+            if (percent >= 100) {
+                stopProgressTimer();
+            }
+        }, 60);
+    }, [stopProgressTimer]);
+
+    useEffect(() => {
+        if (isForging) {
+            startProgressTimer();
+            return stopProgressTimer;
+        }
+        stopProgressTimer();
+        return undefined;
+    }, [isForging, startProgressTimer, stopProgressTimer]);
+
+    useEffect(() => () => stopProgressTimer(), [stopProgressTimer]);
+
+    useEffect(() => {
+        if (!isForging && furnaceProgress > 0) {
+            const timeout = window.setTimeout(() => setFurnaceProgress(0), PROGRESS_RESET_DELAY);
+            return () => window.clearTimeout(timeout);
+        }
+        return undefined;
+    }, [isForging, furnaceProgress]);
+
     const handleDragOver = (event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
+        if (!isCanvasDragActive) {
+            setIsCanvasDragActive(true);
+        }
     };
 
     const handleDrop = (event) => {
         event.preventDefault();
         const cardId = event.dataTransfer.getData('text/plain');
-        if (!cardId) {
+        const normalizedId = `${cardId ?? ''}`.trim();
+        if (!normalizedId) {
             return;
         }
         const position = extractPosition(event);
-        onDrop?.(cardId, position);
+        onDrop?.(normalizedId, position);
+        resetDragState();
+    };
+
+    const handleCanvasDragEnter = () => {
+        if (!isCanvasDragActive) {
+            setIsCanvasDragActive(true);
+        }
+    };
+
+    const handleCanvasDragLeave = (event) => {
+        if (!containerRef.current?.contains(event.relatedTarget)) {
+            setIsCanvasDragActive(false);
+        }
     };
 
     const handleStageDragStart = (event, cardId) => {
+        const normalizedId = `${cardId ?? ''}`.trim();
         event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/plain', cardId);
+        event.dataTransfer.setData('text/plain', normalizedId);
+        setIsDragging(true);
+        setDraggingCardId(normalizedId);
     };
 
     const handleStageDragEnd = (event, cardId) => {
+        const normalizedId = `${cardId ?? ''}`.trim();
         const hovered = document.elementFromPoint(event.clientX, event.clientY);
         
         // 检查是否拖到手牌堆
         const cardDock = document.querySelector('.card-dock__rail');
         if (cardDock && cardDock.contains(hovered)) {
-            onRemove?.(cardId);
+            onRemove?.(normalizedId);
+            resetDragState();
             return;
         }
         
         // 检查是否拖到熔炉
         const furnaceZone = containerRef.current?.querySelector('.forge-furnace');
-        if (furnaceZone && furnaceZone.contains(hovered)) {
-            handleCardDropInFurnace(cardId);
+        const insideFurnace = furnaceZone && (furnaceZone.contains(hovered) || isPointInsideElement(furnaceZone, event.clientX, event.clientY));
+        if (insideFurnace) {
+            handleCardDropInFurnace(normalizedId);
+            resetDragState();
             return;
         }
         
         // 检查是否在画布内
         if (!containerRef.current?.contains(hovered)) {
+            resetDragState();
             return;
         }
         
         if (onReposition) {
             const position = extractPosition(event);
-            onReposition(cardId, position);
+            onReposition(normalizedId, position);
         }
+        resetDragState();
     };
 
-    const handleCardDropInFurnace = (cardId) => {
-        const card = cards.find(c => c.id === cardId);
-        if (!card || isForging) return;
+    const handleCardDropInFurnace = useCallback((cardId) => {
+        const normalizedId = `${cardId ?? ''}`.trim();
+        if (!normalizedId) {
+            console.warn('handleCardDropInFurnace 收到空的 cardId', cardId);
+            return;
+        }
 
-        console.log('卡牌进入熔炉:', card.name);
+        if (isForging) {
+            console.log('正在合成中，无法放入卡牌');
+            return;
+        }
+
+        console.log('卡牌进入熔炉, ID:', normalizedId, 'hand 数组长度:', hand.length);
         
-        // 将卡牌加入熔炉
+        // 从手牌中查找卡牌
+        const card = hand.find((c) => `${c?.id ?? ''}`.trim() === normalizedId);
+        if (!card) {
+            console.log('错误: 卡牌未在 hand 列表中找到:', normalizedId);
+            console.log('hand 内容:', hand.map((c) => c?.id));
+            return;
+        }
+        
+        console.log('找到卡牌:', card.name);
+        
         setFurnaceCards(prev => {
-            const newCards = [...prev, card];
-            
-            // 如果有至少2张卡牌，启动合成
-            if (newCards.length >= 2) {
-                setTimeout(() => {
-                    triggerForge(newCards);
-                }, 300);
+            // 避免重复添加
+            if (prev.some((c) => `${c.id}`.trim() === normalizedId)) {
+                console.log('卡牌已在熔炉中');
+                return prev;
             }
-            
-            return newCards;
+            const updated = [...prev, card].slice(0, MAX_FURNACE_CARDS);
+            const ids = updated.map((c) => c.id);
+            onSelectForForge?.(ids);
+            console.log('✓ 熔炉现有卡牌数:', updated.length, updated.map(c => c.name));
+            // 触发 stageCard 以保持兼容
+            onDrop?.(normalizedId, { x: 10 + updated.length * 4, y: 12 + updated.length * 4 });
+            return updated;
         });
-    };
+        resetDragState();
+    }, [hand, isForging, onDrop, onSelectForForge, resetDragState]);
 
-    const triggerForge = (cardsToForge) => {
-        console.log('开始合成:', cardsToForge.map(c => c.name).join(' + '));
-        setIsForging(true);
-        
-        // 触发合成回调
-        onSynthesize?.();
-        
-        // 清空熔炉
-        setTimeout(() => {
-            setFurnaceCards([]);
-            setIsForging(false);
-        }, 1000);
-    };
+    useEffect(() => {
+        setFurnaceCards(prev => {
+            const filtered = prev.filter(card => hand.some(entry => entry.id === card.id));
+            if (filtered.length === prev.length) {
+                return prev;
+            }
+            return filtered;
+        });
+    }, [hand]);
+
+    // 监听熔炉卡牌数量，达到2张时触发合成
+    useEffect(() => {
+        if (furnaceCards.length >= MAX_FURNACE_CARDS && !isForging) {
+            console.log('========================================');
+            console.log('✓ 触发合成! 熔炉卡牌:', furnaceCards.map(c => c.name).join(' + '));
+            console.log('selectedCards数量:', cards.length);
+            console.log('========================================');
+            onSelectForForge?.(furnaceCards.slice(0, MAX_FURNACE_CARDS).map((c) => c.id));
+            setIsForging(true);
+            
+            // 延迟触发合成
+            setTimeout(() => {
+                console.log('>>> 调用 onSynthesize');
+                onSynthesize?.();
+                
+                // 清空熔炉
+                setTimeout(() => {
+                    console.log('>>> 清空熔炉');
+                    setFurnaceProgress(100);
+                    setFurnaceCards([]);
+                    onSelectForForge?.([]);
+                    setIsForging(false);
+                }, 1000);
+            }, 500);
+        }
+    }, [furnaceCards, isForging, cards.length, onSynthesize, onSelectForForge]);
 
     const handleFurnaceDragOver = (event) => {
         event.preventDefault();
         event.stopPropagation();
         event.dataTransfer.dropEffect = 'copy';
+        if (!isFurnaceDragOver) {
+            setIsFurnaceDragOver(true);
+        }
+    };
+
+    const handleFurnaceDragEnter = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!isFurnaceDragOver) {
+            setIsFurnaceDragOver(true);
+        }
+    };
+
+    const handleFurnaceDragLeave = (event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+            setIsFurnaceDragOver(false);
+        }
     };
 
     const handleFurnaceDrop = (event) => {
         event.preventDefault();
         event.stopPropagation();
         const cardId = event.dataTransfer.getData('text/plain');
-        if (cardId) {
-            handleCardDropInFurnace(cardId);
+        const normalizedId = `${cardId ?? ''}`.trim();
+        if (normalizedId) {
+            console.log('直接拖放到熔炉:', normalizedId);
+            handleCardDropInFurnace(normalizedId);
+        }
+        setIsFurnaceDragOver(false);
+        setIsCanvasDragActive(false);
+    };
+
+    const handleFurnaceCardDragStart = (event, cardId) => {
+        if (isForging) {
+            event.preventDefault();
+            return;
+        }
+        const normalizedId = `${cardId ?? ''}`.trim();
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', normalizedId);
+        setIsDragging(true);
+        setDraggingCardId(normalizedId);
+    };
+
+    const handleFurnaceCardDragEnd = (event, cardId) => {
+        resetDragState();
+
+        if (isForging) {
+            return;
+        }
+
+        const hovered = document.elementFromPoint(event.clientX, event.clientY);
+        const furnaceZone = containerRef.current?.querySelector('.forge-furnace');
+        const insideFurnace = furnaceZone && (furnaceZone.contains(hovered) || isPointInsideElement(furnaceZone, event.clientX, event.clientY));
+        if (insideFurnace) {
+            setIsFurnaceDragOver(false);
+            return;
+        }
+
+        const normalizedId = `${cardId ?? ''}`.trim();
+        const cardDock = document.querySelector('.card-dock__rail');
+        const card = furnaceCards.find((entry) => `${entry.id ?? ''}`.trim() === normalizedId);
+
+        setFurnaceCards((prev) => {
+            const next = prev.filter((entry) => `${entry.id ?? ''}`.trim() !== normalizedId);
+            onSelectForForge?.(next.map((entry) => entry.id));
+            return next;
+        });
+
+        if (!card) {
+            return;
+        }
+
+        if (cardDock && hovered && cardDock.contains(hovered)) {
+            onRemove?.(normalizedId);
+            return;
+        }
+
+        if (containerRef.current?.contains(hovered)) {
+            const position = extractPosition(event);
+            onDrop?.(normalizedId, position);
+            return;
         }
     };
+
+    const canvasClassName = [
+        'forge-canvas',
+        isDragging ? 'forge-canvas--dragging' : '',
+        isCanvasDragActive ? 'forge-canvas--drop-active' : '',
+    ].filter(Boolean).join(' ');
+
+    const furnaceClassName = [
+        'forge-furnace',
+        isForging ? 'forging' : '',
+        furnaceCards.length > 0 ? 'has-cards' : '',
+        isFurnaceDragOver ? 'forge-furnace--drag-over' : '',
+    ].filter(Boolean).join(' ');
+
+    const showProgress = isForging || furnaceProgress > 0;
+    const progressDisplay = Math.min(100, Math.round(furnaceProgress));
 
     return (
         <div
             ref={containerRef}
-            className="forge-canvas"
+            className={canvasClassName}
             onDragOver={handleDragOver}
             onDrop={handleDrop}
+            onDragEnter={handleCanvasDragEnter}
+            onDragLeave={handleCanvasDragLeave}
             role="application"
             aria-label="合成画布"
         >
@@ -138,29 +384,60 @@ export function ForgeCanvas({ cards, positions = {}, onDrop, onRemove, onReposit
             
             {/* 熔炉区域 */}
             <div 
-                className={`forge-furnace ${isForging ? 'forging' : ''} ${furnaceCards.length > 0 ? 'has-cards' : ''}`}
+                className={furnaceClassName}
                 onDragOver={handleFurnaceDragOver}
+                onDragEnter={handleFurnaceDragEnter}
+                onDragLeave={handleFurnaceDragLeave}
                 onDrop={handleFurnaceDrop}
             >
                 <div className="forge-furnace__icon">🔥</div>
                 <div className="forge-furnace__title">熔炉</div>
+                <div className="forge-furnace__status" aria-live="polite">{furnaceStatus}</div>
                 {furnaceCards.length > 0 && (
                     <div className="forge-furnace__count">
                         {furnaceCards.length} 张卡牌
                     </div>
                 )}
-                {furnaceCards.length === 1 && (
-                    <div className="forge-furnace__hint">再放入一张即可合成</div>
+                {showProgress && (
+                    <div className="forge-furnace__progress" role="status" aria-live="polite">
+                        <div className="forge-furnace__progress-track">
+                            <div className="forge-furnace__progress-fill" style={{ width: `${progressDisplay}%` }} />
+                        </div>
+                        <div className="forge-furnace__progress-label">熔炼中 {progressDisplay}%</div>
+                    </div>
                 )}
-                {isForging && (
-                    <div className="forge-furnace__status">合成中...</div>
+                {furnaceCards.length > 0 && (
+                    <div className="forge-furnace__cards" role="list">
+                        {furnaceCards.map((card, index) => {
+                            const rarityClass = card.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
+                            return (
+                                <div
+                                    key={card.id}
+                                    className={`forge-furnace__card ${isForging ? 'is-forging' : ''} ${draggingCardId === card.id ? 'is-dragging' : ''}`}
+                                    role="listitem"
+                                    draggable={!isForging}
+                                    onDragStart={(event) => handleFurnaceCardDragStart(event, card.id)}
+                                    onDragEnd={(event) => handleFurnaceCardDragEnd(event, card.id)}
+                                >
+                                    <div className="forge-furnace__card-index">#{index + 1}</div>
+                                    <div className="forge-furnace__card-name">{card.name}</div>
+                                    <div className="forge-furnace__card-type">{card.type}</div>
+                                    {card.rarity && (
+                                        <div className={`forge-furnace__card-rarity ${rarityClass}`}>
+                                            {card.rarity}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 )}
             </div>
 
             {cards.length === 0 && (
                 <div className="forge-canvas__hint">拖动卡牌到左上角熔炉进行合成</div>
             )}
-            {cards.length === 1 && (
+            {cards.length >= 1 && cards.length < 2 && (
                 <div className="forge-canvas__hint">继续拖入卡牌到熔炉（需要2张）</div>
             )}
             

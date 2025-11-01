@@ -138,6 +138,10 @@ function App() {
         );
     }, [activeView, authLoading, handleBackLobby, handleEnterGame, handleLogin, handleLogout, queueMessage, token, user]);
 
+    useEffect(() => {
+        window.dispatchEvent(new Event('app-ready'));
+    }, []);
+
     return (
         <div id="app">
             {screen}

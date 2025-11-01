@@ -11,10 +11,13 @@ export const loginSchema = z.object({
 });
 
 export const synthesizeSchema = z.object({
-  inputs: z.array(z.number()).min(2),
+  inputs: z.union([z.array(z.number()), z.array(z.string())]).refine(arr => arr.length >= 2, {
+    message: '至少需要2个输入项',
+  }),
   name: z.string().min(1).max(100),
   mode: z.enum(['ai', 'rule', 'auto']).default('auto'),
   generateImage: z.boolean().default(false),
+  preview: z.boolean().default(false),
 });
 
 export const inventoryAddSchema = z.object({

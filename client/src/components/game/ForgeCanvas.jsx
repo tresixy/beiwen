@@ -1,31 +1,18 @@
-import { useMemo, useRef, useState, useEffect } from 'react';
-
-const DEFAULT_POSITIONS = [
-    { x: 25, y: 45 },
-    { x: 50, y: 42 },
-    { x: 75, y: 48 },
-    { x: 35, y: 65 },
-    { x: 65, y: 68 },
-];
+import { useMemo, useRef, useState } from 'react';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
-const OVERLAP_THRESHOLD = 0.5; // 重合超过50%认为是重合
-const OVERLAP_DURATION = 500; // 0.5秒
-
 export function ForgeCanvas({ cards, positions = {}, onDrop, onRemove, onReposition, onSynthesize }) {
     const containerRef = useRef(null);
-    const overlapTimerRef = useRef(null);
-    const [overlapProgress, setOverlapProgress] = useState(0);
-    const [isOverlapping, setIsOverlapping] = useState(false);
+    const [furnaceCards, setFurnaceCards] = useState([]);
+    const [isForging, setIsForging] = useState(false);
 
     const withPositions = useMemo(() => {
-        return cards.map((card, index) => {
-            const fallback = DEFAULT_POSITIONS[index] ?? DEFAULT_POSITIONS[DEFAULT_POSITIONS.length - 1];
+        return cards.map((card) => {
             const stored = positions[card.id];
             return {
                 card,
-                position: stored || fallback,
+                position: stored || { x: 50, y: 50 },
             };
         });
     }, [cards, positions]);
@@ -70,6 +57,13 @@ export function ForgeCanvas({ cards, positions = {}, onDrop, onRemove, onReposit
             return;
         }
         
+        // 检查是否拖到熔炉
+        const furnaceZone = containerRef.current?.querySelector('.forge-furnace');
+        if (furnaceZone && furnaceZone.contains(hovered)) {
+            handleCardDropInFurnace(cardId);
+            return;
+        }
+        
         // 检查是否在画布内
         if (!containerRef.current?.contains(hovered)) {
             return;
@@ -81,83 +75,55 @@ export function ForgeCanvas({ cards, positions = {}, onDrop, onRemove, onReposit
         }
     };
 
-    // 计算两个矩形的重叠面积
-    const calculateOverlap = (rect1, rect2) => {
-        const xOverlap = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
-        const yOverlap = Math.max(0, Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top));
-        const overlapArea = xOverlap * yOverlap;
-        const area1 = rect1.width * rect1.height;
-        const area2 = rect2.width * rect2.height;
-        const minArea = Math.min(area1, area2);
-        return minArea > 0 ? overlapArea / minArea : 0;
+    const handleCardDropInFurnace = (cardId) => {
+        const card = cards.find(c => c.id === cardId);
+        if (!card || isForging) return;
+
+        console.log('卡牌进入熔炉:', card.name);
+        
+        // 将卡牌加入熔炉
+        setFurnaceCards(prev => {
+            const newCards = [...prev, card];
+            
+            // 如果有至少2张卡牌，启动合成
+            if (newCards.length >= 2) {
+                setTimeout(() => {
+                    triggerForge(newCards);
+                }, 300);
+            }
+            
+            return newCards;
+        });
     };
 
-    // 检测卡牌重合 - 支持多张卡牌
-    useEffect(() => {
-        if (cards.length < 2) {
-            setIsOverlapping(false);
-            setOverlapProgress(0);
-            if (overlapTimerRef.current) {
-                clearInterval(overlapTimerRef.current);
-                overlapTimerRef.current = null;
-            }
-            return;
+    const triggerForge = (cardsToForge) => {
+        console.log('开始合成:', cardsToForge.map(c => c.name).join(' + '));
+        setIsForging(true);
+        
+        // 触发合成回调
+        onSynthesize?.();
+        
+        // 清空熔炉
+        setTimeout(() => {
+            setFurnaceCards([]);
+            setIsForging(false);
+        }, 1000);
+    };
+
+    const handleFurnaceDragOver = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.dataTransfer.dropEffect = 'copy';
+    };
+
+    const handleFurnaceDrop = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const cardId = event.dataTransfer.getData('text/plain');
+        if (cardId) {
+            handleCardDropInFurnace(cardId);
         }
-
-        const checkOverlap = () => {
-            const cardElements = containerRef.current?.querySelectorAll('.forge-canvas__card');
-            if (!cardElements || cardElements.length < 2) return;
-
-            // 检测任意两张卡牌是否重合
-            let maxOverlap = 0;
-            for (let i = 0; i < cardElements.length; i++) {
-                for (let j = i + 1; j < cardElements.length; j++) {
-                    const rect1 = cardElements[i].getBoundingClientRect();
-                    const rect2 = cardElements[j].getBoundingClientRect();
-                    const overlapRatio = calculateOverlap(rect1, rect2);
-                    maxOverlap = Math.max(maxOverlap, overlapRatio);
-                }
-            }
-
-            if (maxOverlap >= OVERLAP_THRESHOLD) {
-                if (!overlapTimerRef.current) {
-                    const startTime = Date.now();
-                    setIsOverlapping(true);
-                    
-                    overlapTimerRef.current = setInterval(() => {
-                        const elapsed = Date.now() - startTime;
-                        const progress = Math.min(elapsed / OVERLAP_DURATION, 1);
-                        setOverlapProgress(progress);
-                        
-                        if (progress >= 1) {
-                            clearInterval(overlapTimerRef.current);
-                            overlapTimerRef.current = null;
-                            setIsOverlapping(false);
-                            setOverlapProgress(0);
-                            // 触发合成
-                            onSynthesize?.();
-                        }
-                    }, 16);
-                }
-            } else {
-                if (overlapTimerRef.current) {
-                    clearInterval(overlapTimerRef.current);
-                    overlapTimerRef.current = null;
-                    setIsOverlapping(false);
-                    setOverlapProgress(0);
-                }
-            }
-        };
-
-        const interval = setInterval(checkOverlap, 100);
-        return () => {
-            clearInterval(interval);
-            if (overlapTimerRef.current) {
-                clearInterval(overlapTimerRef.current);
-                overlapTimerRef.current = null;
-            }
-        };
-    }, [cards, positions, onSynthesize]);
+    };
 
     return (
         <div
@@ -169,36 +135,58 @@ export function ForgeCanvas({ cards, positions = {}, onDrop, onRemove, onReposit
             aria-label="合成画布"
         >
             <div className="forge-canvas__halo" />
+            
+            {/* 熔炉区域 */}
+            <div 
+                className={`forge-furnace ${isForging ? 'forging' : ''} ${furnaceCards.length > 0 ? 'has-cards' : ''}`}
+                onDragOver={handleFurnaceDragOver}
+                onDrop={handleFurnaceDrop}
+            >
+                <div className="forge-furnace__icon">🔥</div>
+                <div className="forge-furnace__title">熔炉</div>
+                {furnaceCards.length > 0 && (
+                    <div className="forge-furnace__count">
+                        {furnaceCards.length} 张卡牌
+                    </div>
+                )}
+                {furnaceCards.length === 1 && (
+                    <div className="forge-furnace__hint">再放入一张即可合成</div>
+                )}
+                {isForging && (
+                    <div className="forge-furnace__status">合成中...</div>
+                )}
+            </div>
+
             {cards.length === 0 && (
-                <div className="forge-canvas__hint">拖动卡牌到地图上</div>
+                <div className="forge-canvas__hint">拖动卡牌到左上角熔炉进行合成</div>
             )}
             {cards.length === 1 && (
-                <div className="forge-canvas__hint">拖动更多卡牌，让它们重叠合成</div>
+                <div className="forge-canvas__hint">继续拖入卡牌到熔炉（需要2张）</div>
             )}
-            {isOverlapping && (
-                <div className="forge-canvas__overlap-indicator">
-                    <div className="forge-canvas__overlap-progress" style={{ width: `${overlapProgress * 100}%` }} />
-                    <span className="forge-canvas__overlap-text">合成中...</span>
-                </div>
-            )}
-            {withPositions.map(({ card, position }) => (
-                <div
-                    key={card.id}
-                    className="forge-canvas__card"
-                    style={{
-                        left: `${position.x}%`,
-                        top: `${position.y}%`,
-                    }}
-                    draggable
-                    onDragStart={(event) => handleStageDragStart(event, card.id)}
-                    onDragEnd={(event) => handleStageDragEnd(event, card.id)}
-                >
-                    <div className="forge-canvas__name">{card.name}</div>
-                    <div className="forge-canvas__type">{card.type}</div>
-                </div>
-            ))}
+            
+            {withPositions.map(({ card, position }) => {
+                // 如果卡牌在熔炉中，不在画布上显示
+                if (furnaceCards.some(fc => fc.id === card.id)) {
+                    return null;
+                }
+                
+                return (
+                    <div
+                        key={card.id}
+                        className="forge-canvas__card"
+                        style={{
+                            left: `${position.x}%`,
+                            top: `${position.y}%`,
+                        }}
+                        draggable
+                        onDragStart={(event) => handleStageDragStart(event, card.id)}
+                        onDragEnd={(event) => handleStageDragEnd(event, card.id)}
+                    >
+                        <div className="forge-canvas__name">{card.name}</div>
+                        <div className="forge-canvas__type">{card.type}</div>
+                    </div>
+                );
+            })}
         </div>
     );
 }
-
-

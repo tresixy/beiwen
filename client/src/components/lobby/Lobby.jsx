@@ -94,16 +94,14 @@ export function Lobby({ user, onEnterGame, onLogout }) {
                     <div className="user-panel-avatar">
                         {(user?.username ?? '旅')[0].toUpperCase()}
                     </div>
-                    <div className="user-panel-stats">
-                        <div className="stat-item">
-                            <span className="stat-label">拥有</span>
-                            <span className="stat-value">0</span>
+                    <div className="user-panel-info">
+                        <div className="user-panel-name">
+                            {user?.username ?? '旅者'}
                         </div>
-                        <div className="stat-item">
-                            <span className="stat-label">{user?.username ?? '旅者'}</span>
-                        </div>
-                        <div className="stat-item">
-                            <span className="stat-label">成就</span>
+                        <div className="user-panel-achievement">
+                            <span className="achievement-icon">✨</span>
+                            <span className="achievement-value">0</span>
+                            <span className="achievement-label">AITA</span>
                         </div>
                     </div>
                 </div>

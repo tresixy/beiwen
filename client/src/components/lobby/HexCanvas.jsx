@@ -1,76 +1,271 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+// 羊皮纸风格配色 - 手绘插画风
 const TERRAIN_TYPES = {
+    region: {
+        base: '#b5c99a',
+        shadow: '#97a97c',
+        highlight: '#cfe1b9',
+        border: '#7a8b6c',
+    },
     grassland: { 
-        base: '#8fbc5a', 
-        shadow: '#6a944a', 
-        highlight: '#b5d67f',
-        side: '#7aa050'
+        base: '#b5c99a', 
+        shadow: '#97a97c', 
+        highlight: '#cfe1b9',
+        border: '#8b7355'
     },
     forest: { 
-        base: '#4a7c3a', 
-        shadow: '#355a2a', 
-        highlight: '#6a9c5a',
-        side: '#3d6832'
+        base: '#87986a', 
+        shadow: '#6d7d52', 
+        highlight: '#a4b687',
+        border: '#7a6348'
     },
     mountain: { 
-        base: '#9b8878', 
-        shadow: '#7a6858', 
-        highlight: '#c4b0a0',
-        side: '#8a7868'
+        base: '#c4b5a0', 
+        shadow: '#a89985', 
+        highlight: '#d9cbb7',
+        border: '#8b6f47'
     },
     desert: { 
-        base: '#e8d4a8', 
-        shadow: '#d4b888', 
-        highlight: '#f8e8c8',
-        side: '#dcc898'
+        base: '#e8d8c0', 
+        shadow: '#d4c4ac', 
+        highlight: '#f4e8d8',
+        border: '#9b8878'
     },
     water: { 
-        base: '#5fa8d3', 
-        shadow: '#4888b3', 
-        highlight: '#87ceeb',
-        side: '#4f98c3'
+        base: '#5a8ca8', 
+        shadow: '#4a7890', 
+        highlight: '#6aa0b8',
+        border: '#3a5868'
     },
+    ocean: {
+        base: '#2d4a5c',
+        shadow: '#1d3a4c',
+        highlight: '#3d5a6c',
+        border: '#1d2a3c'
+    }
 };
 
-const getSkyGradient = () => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 7) {
-        return { 
-            top: '#ffb088', 
-            middle: '#ffd4a8', 
-            bottom: '#fff0d8',
-            clouds: 'rgba(255, 240, 220, 0.65)'
-        };
-    } else if (hour >= 7 && hour < 17) {
-        return { 
-            top: '#87ceeb', 
-            middle: '#b8e0f8', 
-            bottom: '#e8f4fc',
-            clouds: 'rgba(255, 255, 255, 0.75)'
-        };
-    } else if (hour >= 17 && hour < 19) {
-        return { 
-            top: '#ff8877', 
-            middle: '#ffb088', 
-            bottom: '#ffd8a8',
-            clouds: 'rgba(255, 220, 200, 0.6)'
-        };
-    } else if (hour >= 19 && hour < 22) {
-        return { 
-            top: '#2d3848', 
-            middle: '#485868', 
-            bottom: '#687888',
-            clouds: 'rgba(120, 140, 160, 0.35)'
-        };
-    } else {
-        return { 
-            top: '#1a2030', 
-            middle: '#2d3848', 
-            bottom: '#3d4858',
-            clouds: 'rgba(60, 80, 100, 0.3)'
-        };
+const REGION_ROWS = [
+    ['qinghai', '青海', 'Turquoise Sea', '绿松石海', '西北', false, false, 'NW'],
+    ['xinjiang', '新疆', 'New Frontier', '新边疆', '西北', false, true, 'NW'],
+    ['ningxia', '宁夏', 'Quiet Summer', '宁静之夏', '西北', false, false, 'NW'],
+    ['hongkong', '香港', 'Fragrant Harbour', '芳香的港湾', '华南', true, false, 'SE'],
+    ['hainan', '海南', 'Sea South', '海之南', '华南', true, false, 'S'],
+    ['shaanxi', '陕西', 'Narrow West', '狭窄西部', '西北', false, false, 'NW'],
+    ['yunnan', '云南', 'The South of Cloud', '云之南', '西南', false, true, 'SW'],
+    ['chongqing', '重庆', 'Double Celebration', '双重庆典', '西南', true, true, 'SW'],
+    ['sichuan', '四川', 'Four Circuits of Rivers', '四河洼地', '西南', false, false, 'SW'],
+    ['gansu', '甘肃', 'Sweet Eradicate', '甜根除', '西北', false, true, 'NW'],
+    ['guizhou', '贵州', 'Precious Province', '珍贵大陆', '西南', false, false, 'SW'],
+    ['xizang', '西藏', 'Western Depository', '西部宝藏', '西南', false, true, 'SW'],
+    ['wide_land', '广阔之地', 'Wide land', '广阔之地', '广阔之地', true, true, 'S'],
+    ['jiangzhidongxi', '江之东西', 'The River', '长江腹地', '华东', false, false, 'SE'],
+    ['jufeng', '巨峰之巅', 'The Mountain', '巨峰之巅', '华东', true, false, 'E'],
+    ['zhejiang', '浙江', 'Crooked River', '弯曲河流', '华东', true, false, 'SE'],
+    ['hunan', '湖之南北', 'The Lake', '神秘湖泊', '华中', false, false, 'C'],
+    ['anhui', '安徽', 'Safe Emblem', '安全徽章', '华东', false, false, 'E'],
+    ['henan', '河之南北', 'River South', '黄河身躯', '华中', false, false, 'C'],
+    ['taiwan', '台湾', 'Platform Bay', '高台湾地', '华东', true, false, 'SE'],
+    ['fujian', '福建', 'Fortune Build', '财富建设', '华东', true, false, 'SE'],
+    ['liaoning', '辽宁', 'Distant Peace', '遥远和平', '东北', true, true, 'NE'],
+    ['shanghai', '上海', 'Up Sea', '海上明珠', '华东', true, false, 'E'],
+    ['tianjin', '天津', 'Heavenly Ford', '天国之渡', '华北', true, false, 'NE'],
+    ['beijing', '北京', 'North Capital', '北方之都', '华北', false, false, 'N'],
+    ['neimenggu', '内蒙古', 'Inner Mongolia', '蒙古腹地', '华北', false, true, 'N'],
+    ['jilin', '吉林', 'Lucky Forest', '幸运森林', '东北', false, true, 'NE'],
+    ['heilongjiang', '黑龙江', 'Black Dragon River', '黑龙之河', '东北', false, true, 'NE'],
+];
+
+const REGION_DEFS = REGION_ROWS.map(([key, name, fantasyName, literalName, zone, coastal, border, direction]) => ({
+    key,
+    name,
+    fantasyName,
+    literalName,
+    zone,
+    coastal,
+    border,
+    direction,
+}));
+
+const ZONE_COLORS = {
+    '西北': '#c3ccb0',
+    '西南': '#c2d6a4',
+    '华南': '#d1dfab',
+    '华东': '#d7e1b7',
+    '华中': '#cedbb1',
+    '华北': '#c3d2af',
+    '东北': '#bcd2b8',
+    '广阔之地': '#dcdcb2',
+};
+
+const DIRECTION_CENTERS = {
+    C: { q: 0, r: 0 },
+    N: { q: 0, r: -10 },
+    NE: { q: 10, r: -8 },
+    E: { q: 12, r: 0 },
+    SE: { q: 8, r: 9 },
+    S: { q: 0, r: 12 },
+    SW: { q: -8, r: 10 },
+    W: { q: -12, r: 0 },
+    NW: { q: -10, r: -6 },
+};
+
+const HEX_DIRECTIONS = [
+    { q: 1, r: 0 },
+    { q: 1, r: -1 },
+    { q: 0, r: -1 },
+    { q: -1, r: 0 },
+    { q: -1, r: 1 },
+    { q: 0, r: 1 },
+];
+
+const MAP_RADIUS = 35;
+const CLUSTER_SPACING = 6;
+
+function keyFromHex(hex) {
+    return `${hex.q},${hex.r}`;
+}
+
+function coordsFromKey(key) {
+    const [q, r] = key.split(',').map(Number);
+    return { q, r };
+}
+
+function hexLength(q, r) {
+    const s = -q - r;
+    return (Math.abs(q) + Math.abs(r) + Math.abs(s)) / 2;
+}
+
+function hexDistance(a, b) {
+    return hexLength(a.q - b.q, a.r - b.r);
+}
+
+function hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i += 1) {
+        hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
     }
+    return hash || 1;
+}
+
+function createRng(seedValue) {
+    let seed = seedValue >>> 0;
+    return () => {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+    };
+}
+
+function generateSpiralOffsets(count) {
+    if (count <= 0) {
+        return [];
+    }
+    const result = [{ q: 0, r: 0 }];
+    let radius = 1;
+    while (result.length < count) {
+        let q = -radius;
+        let r = radius;
+        for (let side = 0; side < 6; side += 1) {
+            for (let step = 0; step < radius; step += 1) {
+                if (result.length >= count) {
+                    break;
+                }
+                result.push({ q, r });
+                q += HEX_DIRECTIONS[side].q;
+                r += HEX_DIRECTIONS[side].r;
+            }
+            if (result.length >= count) {
+                break;
+            }
+        }
+        radius += 1;
+    }
+    return result;
+}
+
+function hexToHsl(hex) {
+    let cleaned = hex.replace('#', '');
+    if (cleaned.length === 3) {
+        cleaned = cleaned.split('').map(ch => ch + ch).join('');
+    }
+    const r = parseInt(cleaned.slice(0, 2), 16) / 255;
+    const g = parseInt(cleaned.slice(2, 4), 16) / 255;
+    const b = parseInt(cleaned.slice(4, 6), 16) / 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
+
+    if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+        case r:
+            h = (g - b) / d + (g < b ? 6 : 0);
+            break;
+        case g:
+            h = (b - r) / d + 2;
+            break;
+        case b:
+            h = (r - g) / d + 4;
+            break;
+        default:
+            break;
+        }
+        h /= 6;
+    }
+
+    return [h, s, l];
+}
+
+function hslToHex(h, s, l) {
+    let r; let g; let b;
+
+    if (s === 0) {
+        r = g = b = l; // achromatic
+    } else {
+        const hue2rgb = (p, q, t) => {
+            let tt = t;
+            if (tt < 0) tt += 1;
+            if (tt > 1) tt -= 1;
+            if (tt < 1 / 6) return p + (q - p) * 6 * tt;
+            if (tt < 1 / 2) return q;
+            if (tt < 2 / 3) return p + (q - p) * (2 / 3 - tt) * 6;
+            return p;
+        };
+
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+    }
+
+    const toHex = (x) => {
+        const hexComponent = Math.round(x * 255).toString(16).padStart(2, '0');
+        return hexComponent;
+    };
+
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function shadeColor(hex, delta) {
+    const [h, s, l] = hexToHsl(hex);
+    const newL = Math.min(1, Math.max(0, l + delta));
+    return hslToHex(h, s, newL);
+}
+
+// 羊皮纸底色 - 复古插画风
+const getParchmentGradient = () => {
+    return { 
+        top: '#f9f3e8',
+        middle: '#f4e8d8', 
+        bottom: '#ede0c8',
+        texture: 'rgba(139, 111, 71, 0.03)'
+    };
 };
 
 // 帝国时代风格 - 45度等距投影
@@ -107,6 +302,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const [scale, setScale] = useState(0.65);
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [hoveredHex, setHoveredHex] = useState(null);
@@ -115,37 +311,224 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
 
     const terrainMap = useMemo(() => {
         const map = new Map();
-        const seed = 12345;
-        const MAP_RADIUS = 15;
-        
-        const pseudoRandom = (x, y, s) => {
-            const hash = ((x * 374761393) + (y * 668265263) + s) % 2147483647;
-            return (hash / 2147483647 + 1) / 2;
+        const claims = new Map();
+        const regionCells = new Map();
+        const regionLookup = new Map();
+
+        REGION_DEFS.forEach((region) => {
+            regionLookup.set(region.key, region);
+            regionCells.set(region.key, new Set());
+        });
+
+        const directionCounts = REGION_DEFS.reduce((acc, region) => {
+            const dir = DIRECTION_CENTERS[region.direction] ? region.direction : 'C';
+            acc[dir] = (acc[dir] || 0) + 1;
+            return acc;
+        }, {});
+        const maxGroupSize = Math.max(...Object.values(directionCounts), 1);
+        const spiralOffsets = generateSpiralOffsets(maxGroupSize + 2);
+        const directionState = {};
+        const regionCenters = new Map();
+
+        REGION_DEFS.forEach((region) => {
+            const dir = DIRECTION_CENTERS[region.direction] ? region.direction : 'C';
+            const baseCenter = DIRECTION_CENTERS[dir] || DIRECTION_CENTERS.C;
+            const state = directionState[dir] ?? { index: 0 };
+            directionState[dir] = state;
+            const offset = spiralOffsets[state.index] || { q: 0, r: 0 };
+            state.index += 1;
+            const center = {
+                q: baseCenter.q + offset.q * CLUSTER_SPACING,
+                r: baseCenter.r + offset.r * CLUSTER_SPACING,
+            };
+            regionCenters.set(region.key, center);
+        });
+
+        const computeRegionSize = (region) => {
+            const zoneSizes = {
+                '西北': 68,
+                '西南': 64,
+                '华南': 58,
+                '华东': 56,
+                '华中': 54,
+                '华北': 60,
+                '东北': 56,
+                '广阔之地': 66,
+            };
+            let size = zoneSizes[region.zone] ?? 56;
+            if (region.coastal) size -= 6;
+            if (region.border) size += 8;
+            return Math.max(40, Math.round(size));
         };
 
-        const getTerrainType = (q, r) => {
-            const noise = pseudoRandom(q, r, seed);
-            const distFromCenter = Math.sqrt(q * q + r * r);
-            
-            if (distFromCenter < 5) return 'grassland';
-            if (noise < 0.2) return 'water';
-            if (noise < 0.6) return 'grassland';
-            if (noise < 0.75) return 'forest';
-            if (noise < 0.85) return 'desert';
-            return 'mountain';
+        const generateRegionTiles = (region, targetSize) => {
+            const center = regionCenters.get(region.key);
+            if (!center) {
+                return;
+            }
+            const rng = createRng(hashString(region.key));
+            const queue = [center];
+            const visited = new Set();
+            const tiles = [];
+            const cellSet = regionCells.get(region.key);
+
+            const tryClaim = (hex) => {
+                const key = keyFromHex(hex);
+                if (hexLength(hex.q, hex.r) > MAP_RADIUS) {
+                    return false;
+                }
+                if (claims.has(key)) {
+                    return false;
+                }
+                claims.set(key, region.key);
+                cellSet?.add(key);
+                tiles.push(hex);
+                return true;
+            };
+
+            tryClaim(center);
+
+            while (tiles.length < targetSize && queue.length) {
+                const current = queue.shift();
+                const key = keyFromHex(current);
+                if (visited.has(key)) continue;
+                visited.add(key);
+
+                const neighbors = HEX_DIRECTIONS.map((dir) => ({
+                    q: current.q + dir.q,
+                    r: current.r + dir.r,
+                }));
+                neighbors.sort((a, b) => rng() - 0.5);
+
+                for (const neighbor of neighbors) {
+                    const neighborKey = keyFromHex(neighbor);
+                    if (!visited.has(neighborKey) && hexLength(neighbor.q, neighbor.r) <= MAP_RADIUS) {
+                        queue.push(neighbor);
+                    }
+                }
+
+                neighbors.forEach((neighbor) => {
+                    if (tiles.length >= targetSize) return;
+                    tryClaim(neighbor);
+                });
+            }
+
+            let safety = 0;
+            while (tiles.length < targetSize && safety < targetSize * 10) {
+                safety += 1;
+                const sample = tiles[Math.floor(rng() * tiles.length)] || center;
+                const neighbors = HEX_DIRECTIONS.map((dir) => ({
+                    q: sample.q + dir.q,
+                    r: sample.r + dir.r,
+                }));
+                neighbors.sort((a, b) => rng() - 0.5);
+                for (const neighbor of neighbors) {
+                    if (tiles.length >= targetSize) break;
+                    if (tryClaim(neighbor)) {
+                        queue.push(neighbor);
+                    }
+                }
+            }
         };
 
-        for (let r = -MAP_RADIUS; r <= MAP_RADIUS; r++) {
-            for (let q = -MAP_RADIUS; q <= MAP_RADIUS; q++) {
-                if (Math.abs(q) + Math.abs(r) + Math.abs(-q - r) > MAP_RADIUS * 2) continue;
-                const key = `${q},${r}`;
-                const terrain = getTerrainType(q, r);
-                const height = pseudoRandom(q, r, seed + 1000) * 12 + 2; // 增加高度变化
-                map.set(key, { terrain, height });
+        REGION_DEFS.forEach((region) => {
+            const size = computeRegionSize(region);
+            generateRegionTiles(region, size);
+        });
+
+        const waterClaims = new Set();
+        REGION_DEFS.forEach((region) => {
+            if (!region.coastal) return;
+            const cellSet = regionCells.get(region.key);
+            cellSet?.forEach((key) => {
+                const { q, r } = coordsFromKey(key);
+                HEX_DIRECTIONS.forEach((dir) => {
+                    const neighbor = { q: q + dir.q, r: r + dir.r };
+                    if (hexLength(neighbor.q, neighbor.r) > MAP_RADIUS) return;
+                    const neighborKey = keyFromHex(neighbor);
+                    if (!claims.has(neighborKey)) {
+                        waterClaims.add(neighborKey);
+                    }
+                });
+            });
+        });
+
+        const centerEntries = Array.from(regionCenters.entries());
+        for (let q = -MAP_RADIUS; q <= MAP_RADIUS; q++) {
+            const rMin = Math.max(-MAP_RADIUS, -q - MAP_RADIUS);
+            const rMax = Math.min(MAP_RADIUS, -q + MAP_RADIUS);
+            for (let r = rMin; r <= rMax; r++) {
+                const key = keyFromHex({ q, r });
+                if (waterClaims.has(key)) {
+                    continue;
+                }
+                if (!claims.has(key)) {
+                    let nearest = null;
+                    for (const [regionKey, center] of centerEntries) {
+                        const dist = hexDistance({ q, r }, center);
+                        if (!nearest || dist < nearest.dist) {
+                            nearest = { regionKey, dist };
+                        }
+                    }
+                    if (nearest) {
+                        claims.set(key, nearest.regionKey);
+                        regionCells.get(nearest.regionKey)?.add(key);
+                    }
+                }
             }
         }
 
-        return map;
+        const regionPalette = new Map();
+        REGION_DEFS.forEach((region) => {
+            let baseColor = ZONE_COLORS[region.zone] ?? '#cbd9b2';
+            if (region.coastal) {
+                baseColor = shadeColor(baseColor, -0.05);
+            }
+            if (region.border) {
+                baseColor = shadeColor(baseColor, -0.05);
+            }
+            regionPalette.set(region.key, {
+                base: baseColor,
+                border: shadeColor(baseColor, -0.18),
+            });
+        });
+
+        claims.forEach((regionKey, key) => {
+            if (waterClaims.has(key)) {
+                return;
+            }
+            const palette = regionPalette.get(regionKey);
+            map.set(key, {
+                terrain: 'region',
+                color: palette?.base,
+                border: palette?.border,
+                regionKey,
+                region: regionLookup.get(regionKey),
+            });
+        });
+
+        waterClaims.forEach((key) => {
+            map.set(key, { terrain: 'water' });
+        });
+
+        // 计算每个区域的真实中心坐标（轴坐标）
+        const regionAxialCenters = new Map();
+        regionCells.forEach((cellSet, regionKey) => {
+            let sumQ = 0;
+            let sumR = 0;
+            let count = 0;
+            cellSet.forEach((key) => {
+                const { q, r } = coordsFromKey(key);
+                sumQ += q;
+                sumR += r;
+                count += 1;
+            });
+            if (count > 0) {
+                regionAxialCenters.set(regionKey, { q: sumQ / count, r: sumR / count });
+            }
+        });
+
+        return { map, regionAxialCenters };
     }, []);
 
     const drawMap = useCallback(() => {
@@ -154,174 +537,49 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         
-        const size = 112; // 六边形半径（增大4倍）
+        const { map: terrainMapData, regionAxialCenters } = terrainMap;
+        
+        const baseSize = 112;
+        const size = baseSize * scale;
         const hexHeight = size * 2;
         const hexWidth = Math.sqrt(3) * size;
 
-        const cols = Math.ceil(width / (hexWidth * 0.75)) + 4;
-        const rows = Math.ceil(height / (hexHeight * 0.75)) + 4;
+        const cols = Math.ceil(width / (hexWidth * 0.75)) + 8;
+        const rows = Math.ceil(height / (hexHeight * 0.75)) + 8;
 
         const originX = width / 2 + offset.x;
         const originY = height / 3 + offset.y;
 
-        const sky = getSkyGradient();
-        
-        // 天空渐变
-        const skyGradient = ctx.createLinearGradient(0, 0, 0, height * 0.6);
-        skyGradient.addColorStop(0, sky.top);
-        skyGradient.addColorStop(0.4, sky.middle);
-        skyGradient.addColorStop(1, sky.bottom);
-        ctx.fillStyle = skyGradient;
+        // 深海背景色
+        ctx.fillStyle = '#2d4a5c';
         ctx.fillRect(0, 0, width, height);
-
-        // 云朵效果
-        const cloudY = height * 0.15;
-        for (let i = 0; i < 4; i++) {
-            const cloudX = (i * width / 3) - 50;
-            const cloudSize = 70 + i * 10;
-            const cloudGradient = ctx.createRadialGradient(
-                cloudX, cloudY + i * 20, 0,
-                cloudX, cloudY + i * 20, cloudSize
-            );
-            cloudGradient.addColorStop(0, sky.clouds);
-            cloudGradient.addColorStop(0.5, sky.clouds.replace(/[\d.]+\)/, '0.25)'));
-            cloudGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            ctx.fillStyle = cloudGradient;
-            ctx.fillRect(cloudX - cloudSize, cloudY + i * 20 - cloudSize / 2, cloudSize * 2, cloudSize);
-        }
-
-        const hour = new Date().getHours();
-        if (hour >= 7 && hour < 19) {
-            // 太阳 - 卡通风格
-            const sunY = height * 0.15 - (Math.abs(hour - 13) / 6) * height * 0.1;
-            const sunX = width * 0.75;
-            
-            // 光晕
-            const sunHaloGradient = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 90);
-            sunHaloGradient.addColorStop(0, 'rgba(255, 240, 160, 0.4)');
-            sunHaloGradient.addColorStop(0.5, 'rgba(255, 220, 120, 0.2)');
-            sunHaloGradient.addColorStop(1, 'rgba(255, 200, 100, 0)');
-            ctx.fillStyle = sunHaloGradient;
-            ctx.fillRect(0, 0, width, height);
-            
-            // 太阳本体 - 带描边
-            ctx.fillStyle = '#ffeb99';
-            ctx.beginPath();
-            ctx.arc(sunX, sunY, 40, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#ffcc66';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-        } else if (hour >= 19 || hour < 5) {
-            // 星星 - 闪烁效果
-            for (let i = 0; i < 35; i++) {
-                const sx = (i * 137.5) % width;
-                const sy = (i * 97.3) % (height * 0.5);
-                const twinkle = Math.sin(Date.now() / 500 + i) * 0.2 + 0.8;
-                ctx.fillStyle = `rgba(255, 255, 240, ${(0.5 + (i % 3) * 0.15) * twinkle})`;
-                ctx.beginPath();
-                ctx.arc(sx, sy, 1.5 + (i % 3) * 0.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            // 月亮 - 卡通风格带描边
-            const moonX = width * 0.25;
-            const moonY = height * 0.2;
-            ctx.fillStyle = '#f8f8e8';
-            ctx.beginPath();
-            ctx.arc(moonX, moonY, 35, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#d8d8c8';
-            ctx.lineWidth = 2.5;
-            ctx.stroke();
-        }
-
-        // 地平线渐变 - 更柔和
-        const horizonGradient = ctx.createLinearGradient(0, height * 0.45, 0, height);
-        horizonGradient.addColorStop(0, 'rgba(45, 36, 24, 0)');
-        horizonGradient.addColorStop(0.4, 'rgba(45, 36, 24, 0.08)');
-        horizonGradient.addColorStop(1, 'rgba(45, 36, 24, 0.18)');
-        ctx.fillStyle = horizonGradient;
-        ctx.fillRect(0, height * 0.45, width, height * 0.55);
 
         hexMapRef.current.clear();
 
-        // 帝国时代风格 - 45度等距菱形地块
-        const drawAOETile = (px, py, terrainData, isSelected, isHovered) => {
-            const terrain = TERRAIN_TYPES[terrainData.terrain];
-            const heightOffset = terrainData.height;
+        // 手绘地块 - 羊皮纸插画风格
+        const drawSketchTile = (px, py, terrainData, isSelected, isHovered) => {
+            const palette = TERRAIN_TYPES[terrainData.terrain] || {};
+            const fillColor = terrainData.color || palette.base || '#b5c99a';
+            const borderColor = terrainData.border || palette.border || shadeColor(fillColor, -0.2);
 
             ctx.save();
             
-            // 菱形顶点（45度等距投影）
-            const tileW = size * 1.4;
-            const tileH = size * 0.7;
-            const points = [
-                { x: px, y: py - tileH },           // 上
-                { x: px + tileW, y: py },           // 右
-                { x: px, y: py + tileH },           // 下
-                { x: px - tileW, y: py },           // 左
+            // 菱形顶点（确保无缝连接）
+            const tileW = size * 1.5;
+            const tileH = size * 0.75;
+            const seamFix = 0.8;
+            const basePoints = [
+                { x: px, y: py - tileH },      // 上
+                { x: px + tileW, y: py },      // 右
+                { x: px, y: py + tileH },      // 下
+                { x: px - tileW, y: py },      // 左
             ];
+            const points = basePoints.map((p) => ({
+                x: p.x + (p.x > px ? seamFix : p.x < px ? -seamFix : 0),
+                y: p.y + (p.y > py ? seamFix : p.y < py ? -seamFix : 0),
+            }));
 
-            // 1. 绘制侧面（强烈的高度感）
-            const h = heightOffset * 1.2; // 放大高度效果
-            if (h > 2) {
-                // 左侧面（暗）
-                ctx.beginPath();
-                ctx.moveTo(points[3].x, points[3].y);
-                ctx.lineTo(points[0].x, points[0].y);
-                ctx.lineTo(points[0].x, points[0].y + h);
-                ctx.lineTo(points[3].x, points[3].y + h);
-                ctx.closePath();
-                ctx.fillStyle = terrain.shadow;
-                ctx.fill();
-
-                // 右侧面（稍亮）
-                ctx.beginPath();
-                ctx.moveTo(points[1].x, points[1].y);
-                ctx.lineTo(points[0].x, points[0].y);
-                ctx.lineTo(points[0].x, points[0].y + h);
-                ctx.lineTo(points[1].x, points[1].y + h);
-                ctx.closePath();
-                ctx.fillStyle = terrain.side;
-                ctx.fill();
-
-                // 下侧面（最暗，增强立体感）
-                ctx.beginPath();
-                ctx.moveTo(points[1].x, points[1].y);
-                ctx.lineTo(points[2].x, points[2].y);
-                ctx.lineTo(points[2].x, points[2].y + h);
-                ctx.lineTo(points[1].x, points[1].y + h);
-                ctx.closePath();
-                const darkGradient = ctx.createLinearGradient(
-                    points[1].x, points[1].y,
-                    points[2].x, points[2].y + h
-                );
-                darkGradient.addColorStop(0, terrain.side);
-                darkGradient.addColorStop(1, terrain.shadow);
-                ctx.fillStyle = darkGradient;
-                ctx.fill();
-            }
-
-            // 2. 绘制阴影（软阴影，增强地面感）
-            if (h > 1) {
-                ctx.beginPath();
-                const shadowPts = [
-                    { x: points[0].x + 8, y: points[0].y + h + 10 },
-                    { x: points[1].x + 8, y: points[1].y + h + 10 },
-                    { x: points[2].x + 8, y: points[2].y + h + 10 },
-                    { x: points[3].x + 8, y: points[3].y + h + 10 },
-                ];
-                ctx.moveTo(shadowPts[0].x, shadowPts[0].y);
-                for (let i = 1; i < 4; i++) {
-                    ctx.lineTo(shadowPts[i].x, shadowPts[i].y);
-                }
-                ctx.closePath();
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.fill();
-            }
-
-            // 3. 绘制顶面（菱形）
+            // 绘制地块主体 - 更统一的色块
             ctx.beginPath();
             ctx.moveTo(points[0].x, points[0].y);
             ctx.lineTo(points[1].x, points[1].y);
@@ -329,35 +587,108 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
             ctx.lineTo(points[3].x, points[3].y);
             ctx.closePath();
 
-            // 光照渐变（左上亮，右下暗）
-            const lightGradient = ctx.createLinearGradient(
-                points[3].x, points[0].y,
-                points[1].x, points[2].y
-            );
-            lightGradient.addColorStop(0, terrain.highlight);
-            lightGradient.addColorStop(0.4, terrain.base);
-            lightGradient.addColorStop(1, terrain.shadow);
-            ctx.fillStyle = lightGradient;
+            // 填充纯色，确保格子间无缝
+            ctx.fillStyle = fillColor;
             ctx.fill();
 
-            // 边框 - 手绘风格
-            ctx.strokeStyle = 'rgba(90, 63, 42, 0.35)';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
+            // 内部纹理标记（简单的点或线）
+            ctx.globalAlpha = 0.15;
+            ctx.fillStyle = borderColor;
+            if (terrainData.terrain === 'forest') {
+                // 森林：小点代表树木
+                for (let i = 0; i < 3; i++) {
+                    const dotX = px + (Math.sin(px + i) * tileW * 0.3);
+                    const dotY = py + (Math.cos(py + i) * tileH * 0.3);
+                    ctx.beginPath();
+                    ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else if (terrainData.terrain === 'mountain') {
+                // 山脉：折线
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(px - tileW * 0.3, py);
+                ctx.lineTo(px - tileW * 0.1, py - tileH * 0.3);
+                ctx.lineTo(px + tileW * 0.1, py - tileH * 0.2);
+                ctx.lineTo(px + tileW * 0.3, py);
+                ctx.stroke();
+            } else if (terrainData.terrain === 'water' || terrainData.terrain === 'ocean') {
+                // 水域/海域：波浪线
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(px - tileW * 0.4, py);
+                ctx.quadraticCurveTo(px - tileW * 0.2, py - 5, px, py);
+                ctx.quadraticCurveTo(px + tileW * 0.2, py + 5, px + tileW * 0.4, py);
+                ctx.stroke();
+                
+                // 深海额外标记
+                if (terrainData.terrain === 'ocean') {
+                    ctx.beginPath();
+                    ctx.moveTo(px - tileW * 0.3, py + 8);
+                    ctx.quadraticCurveTo(px - tileW * 0.15, py + 3, px, py + 8);
+                    ctx.quadraticCurveTo(px + tileW * 0.15, py + 13, px + tileW * 0.3, py + 8);
+                    ctx.stroke();
+                }
+            }
+            ctx.globalAlpha = 1;
 
-            // 4. 选中和悬停效果 - 温暖色调
+            // 边框只在悬停或选中时显示
             if (isSelected) {
-                ctx.strokeStyle = '#ffb347';
-                ctx.lineWidth = 4;
-                ctx.shadowColor = '#ff9447';
-                ctx.shadowBlur = 15;
+                // 选中：深色边框 + 明显高亮
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(basePoints[0].x, basePoints[0].y);
+                ctx.lineTo(basePoints[1].x, basePoints[1].y);
+                ctx.lineTo(basePoints[2].x, basePoints[2].y);
+                ctx.lineTo(basePoints[3].x, basePoints[3].y);
+                ctx.closePath();
                 ctx.stroke();
-            } else if (isHovered) {
-                ctx.strokeStyle = 'rgba(255, 235, 205, 0.9)';
+                ctx.globalAlpha = 1;
+                
+                // 外发光效果
+                ctx.strokeStyle = '#ff9447';
                 ctx.lineWidth = 3;
-                ctx.shadowColor = 'rgba(255, 200, 100, 0.6)';
-                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ff9447';
+                ctx.shadowBlur = 12;
+                ctx.beginPath();
+                ctx.moveTo(basePoints[0].x, basePoints[0].y);
+                ctx.lineTo(basePoints[1].x, basePoints[1].y);
+                ctx.lineTo(basePoints[2].x, basePoints[2].y);
+                ctx.lineTo(basePoints[3].x, basePoints[3].y);
+                ctx.closePath();
                 ctx.stroke();
+                ctx.shadowBlur = 0;
+            } else if (isHovered) {
+                // 悬停：显示边框 + 柔和高亮
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.6;
+                ctx.beginPath();
+                ctx.moveTo(basePoints[0].x, basePoints[0].y);
+                ctx.lineTo(basePoints[1].x, basePoints[1].y);
+                ctx.lineTo(basePoints[2].x, basePoints[2].y);
+                ctx.lineTo(basePoints[3].x, basePoints[3].y);
+                ctx.closePath();
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                
+                // 外发光效果
+                ctx.strokeStyle = '#ffb86c';
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = '#ffb86c';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                ctx.moveTo(basePoints[0].x, basePoints[0].y);
+                ctx.lineTo(basePoints[1].x, basePoints[1].y);
+                ctx.lineTo(basePoints[2].x, basePoints[2].y);
+                ctx.lineTo(basePoints[3].x, basePoints[3].y);
+                ctx.closePath();
+                ctx.stroke();
+                ctx.shadowBlur = 0;
             }
 
             ctx.restore();
@@ -371,15 +702,20 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
                 const px = originX + x;
                 const py = originY + y;
 
-                // 视野裁剪
-                if (px < -size * 3 || px > width + size * 3 || py < -size * 3 || py > height + size * 3) {
+                // 视野裁剪（扩大范围确保覆盖整个画布）
+                if (px < -size * 5 || px > width + size * 5 || py < -size * 5 || py > height + size * 5) {
                     continue;
                 }
 
                 const key = `${q},${r}`;
-                const terrainData = terrainMap.get(key) || { terrain: 'grassland', height: 0 };
+                const terrainData = terrainMapData.get(key);
                 
-                hexesToDraw.push({ q, r, px, py, terrainData });
+                // 如果地图外，显示为深海
+                const finalTerrain = terrainData 
+                    ? terrainData 
+                    : { terrain: 'ocean', height: 0 };
+                
+                hexesToDraw.push({ q, r, px, py, terrainData: finalTerrain });
                 hexMapRef.current.set(key, { px, py, q, r });
             }
         }
@@ -390,13 +726,73 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         for (const hex of hexesToDraw) {
             const isSelected = selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r;
             const isHovered = hoveredHex && hoveredHex.q === hex.q && hoveredHex.r === hex.r;
-            drawAOETile(hex.px, hex.py, hex.terrainData, isSelected, isHovered);
+            drawSketchTile(hex.px, hex.py, hex.terrainData, isSelected, isHovered);
         }
-    }, [width, height, offset, terrainMap, hoveredHex, selectedHex]);
+
+        // 绘制区域名称标签 - 使用预计算的区域中心
+        const fontSize = Math.max(12, Math.min(24, 16 * scale));
+        ctx.font = `bold ${fontSize}px var(--font-game)`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        ctx.shadowBlur = 4 * scale;
+
+        regionAxialCenters.forEach((axialCenter, regionKey) => {
+            const regionDef = REGION_DEFS.find(r => r.key === regionKey);
+            if (regionDef) {
+                // 将轴坐标转换为屏幕坐标
+                const { x, y } = axialToIsometric(axialCenter.q, axialCenter.r, size);
+                const centerX = originX + x;
+                const centerY = originY + y;
+                
+                // 只绘制在视野内的标签
+                if (centerX >= -100 && centerX <= width + 100 && centerY >= -100 && centerY <= height + 100) {
+                    // 组合显示：英文直译 + 英文魔幻翻译
+                    const labelText = `${regionDef.literalName} ${regionDef.fantasyName}`;
+                    
+                    // 背景描边
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.lineWidth = 4 * scale;
+                    ctx.strokeText(labelText, centerX, centerY);
+                    // 主文字
+                    ctx.fillStyle = '#2a1810';
+                    ctx.fillText(labelText, centerX, centerY);
+                }
+            }
+        });
+
+        ctx.shadowBlur = 0;
+    }, [width, height, offset, scale, terrainMap, hoveredHex, selectedHex]);
 
     useEffect(() => {
         drawMap();
     }, [drawMap]);
+
+    // 设置高分辨率canvas以解决文字模糊
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        
+        // 设置canvas实际像素大小
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        
+        // 设置canvas显示大小
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        
+        // 缩放绘图上下文以匹配高分辨率
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.scale(dpr, dpr);
+        }
+        
+        // 重新绘制
+        drawMap();
+    }, [width, height, drawMap]);
 
     const wasDraggingRef = useRef(false);
 
@@ -424,7 +820,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
             wasDraggingRef.current = true;
             const newX = e.clientX - dragStart.x;
             const newY = e.clientY - dragStart.y;
-            const MAX_OFFSET = 800; // 增加拖动范围以适应更大的块
+            const MAX_OFFSET = 2000; // 增加拖动范围以适应更大的地图
             setOffset({
                 x: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newX)),
                 y: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newY)),
@@ -432,13 +828,23 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         } else {
             const originX = width / 2 + offset.x;
             const originY = height / 3 + offset.y;
-            const hex = isometricToAxial(canvasX - originX, canvasY - originY, 112);
+            const baseSize = 112;
+            const hex = isometricToAxial(canvasX - originX, canvasY - originY, baseSize * scale);
             setHoveredHex(hex);
         }
-    }, [isDragging, dragStart, width, height, offset]);
+    }, [isDragging, dragStart, width, height, offset, scale]);
 
     const handleMouseUp = useCallback(() => {
         setIsDragging(false);
+    }, []);
+
+    const handleWheel = useCallback((e) => {
+        e.preventDefault();
+        const delta = -e.deltaY * 0.001;
+        setScale(prev => {
+            const newScale = prev + delta;
+            return Math.max(0.2, Math.min(1.5, newScale));
+        });
     }, []);
 
     const handleClick = useCallback((e) => {
@@ -461,27 +867,27 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
 
         const originX = width / 2 + offset.x;
         const originY = height / 3 + offset.y;
-        const hex = isometricToAxial(canvasX - originX, canvasY - originY, 112);
+        const baseSize = 112;
+        const hex = isometricToAxial(canvasX - originX, canvasY - originY, baseSize * scale);
 
         const key = `${hex.q},${hex.r}`;
         if (terrainMap.has(key)) {
             setSelectedHex(hex);
             onSelectHex?.(hex);
         }
-    }, [width, height, offset, onSelectHex, terrainMap]);
+    }, [width, height, offset, scale, onSelectHex, terrainMap]);
 
     return (
         <div ref={containerRef} className="lobby-hex-container">
             <canvas
                 ref={canvasRef}
-                width={width}
-                height={height}
                 className="lobby-hex-canvas"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
                 onClick={handleClick}
+                onWheel={handleWheel}
                 style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
             />
         </div>

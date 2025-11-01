@@ -72,3 +72,56 @@ export async function chooseContract(token, contractId) {
   });
 }
 
+// 获取职业状态
+export async function getProfessionState(token) {
+  return apiRequest('/api/profession', { token });
+}
+
+// 选择职业（通过索引或完整对象）
+export async function selectProfession(token, indexOrProfession) {
+  const body = typeof indexOrProfession === 'number' 
+    ? { index: indexOrProfession }
+    : { profession: indexOrProfession };
+  
+  return apiRequest('/api/profession/select', {
+    method: 'POST',
+    token,
+    body,
+  });
+}
+
+// 刷新职业选项
+export async function regenerateProfessions(token) {
+  return apiRequest('/api/profession/regenerate', {
+    method: 'POST',
+    token,
+  });
+}
+
+// 设置职业沿用
+export async function setCarryOver(token, carry) {
+  return apiRequest('/api/profession/carry', {
+    method: 'POST',
+    token,
+    body: { carry },
+  });
+}
+
+// AI合成
+export async function synthesize(token, inputs, name, mode = 'auto', generateImage = false, preview = false) {
+  return apiRequest('/api/synthesize', {
+    method: 'POST',
+    token,
+    body: { inputs, name, mode, generateImage, preview },
+  });
+}
+
+// 获取AI建议（预览模式）
+export async function getAISuggestions(token, inputs, name) {
+  return apiRequest('/api/synthesize', {
+    method: 'POST',
+    token,
+    body: { inputs, name, mode: 'ai', preview: true },
+  });
+}
+

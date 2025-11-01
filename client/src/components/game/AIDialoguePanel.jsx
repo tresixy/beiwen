@@ -35,6 +35,7 @@ export function AIDialoguePanel({ open, cards, onClose, onSubmit }) {
 
                 const tempName = `${cardNames[0]}+${cardNames[1]}`;
                 
+                // 使用预览模式获取AI建议，不保存到数据库
                 const response = await fetch('/api/synthesize', {
                     method: 'POST',
                     headers: {
@@ -45,11 +46,12 @@ export function AIDialoguePanel({ open, cards, onClose, onSubmit }) {
                         inputs: cardNames,
                         name: tempName,
                         mode: 'ai',
+                        preview: true,
                     }),
                 });
 
                 if (!response.ok) {
-                    throw new Error('AI合成失败');
+                    throw new Error('AI建议获取失败');
                 }
 
                 const data = await response.json();
@@ -58,10 +60,10 @@ export function AIDialoguePanel({ open, cards, onClose, onSubmit }) {
                     setAiIdeas(data.ideas);
                     setSelectedIdea(0);
                     // 自动选择第一个想法作为默认名称
-                    const firstIdeaName = data.ideas[0]?.results?.split('。')[0] || data.item?.name || tempName;
+                    const firstIdeaName = data.ideas[0]?.results?.split('。')[0] || data.output?.name || tempName;
                     setName(firstIdeaName);
-                } else if (data.item?.name) {
-                    setName(data.item.name);
+                } else if (data.output?.name) {
+                    setName(data.output.name);
                 }
             } catch (err) {
                 console.error('AI对话失败:', err);

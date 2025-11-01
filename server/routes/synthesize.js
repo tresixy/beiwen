@@ -14,7 +14,7 @@ const router = express.Router();
 // 合成
 router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesizeSchema), async (req, res) => {
   try {
-    const { inputs, name, mode, generateImage } = req.validated;
+    const { inputs, name, mode, generateImage, preview } = req.validated;
     const userId = req.userId;
     
     // 获取输入物品
@@ -43,7 +43,7 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
         aiPromptUsed = aiResult.prompt;
         aiModelUsed = aiResult.model;
         aiUsed = true;
-        logger.info({ userId, mode: 'ai' }, 'AI synthesis used');
+        logger.info({ userId, mode: 'ai', preview }, 'AI synthesis used');
       } catch (err) {
         logger.warn({ err }, 'AI synthesis failed, falling back to rule');
         if (mode === 'ai') {
@@ -55,7 +55,30 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
     // 降级到规则合成
     if (!output) {
       output = await synthService.synthesizeByRule(inputItems, name, activeProfession);
-      logger.info({ userId, mode: 'rule' }, 'Rule synthesis used');
+      logger.info({ userId, mode: 'rule', preview }, 'Rule synthesis used');
+    }
+    
+    // 如果是预览模式，只返回结果不保存
+    if (preview) {
+      const responsePayload = {
+        output,
+        recipe_hash,
+        aiUsed,
+        preview: true,
+      };
+
+      if (aiIdeas) {
+        responsePayload.ideas = aiIdeas;
+      }
+
+      if (activeProfession) {
+        responsePayload.profession = {
+          active: activeProfession,
+          carryOver: professionState.carryOver !== false,
+        };
+      }
+
+      return res.json(responsePayload);
     }
     
     // 保存配方和物品

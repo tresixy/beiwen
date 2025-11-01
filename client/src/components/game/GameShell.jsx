@@ -70,12 +70,33 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     } = useGameSimulation({ pushMessage, token });
 
     const [resourcePulse, setResourcePulse] = useState({ food: false, production: false, research: false });
+    const [loadingProgress, setLoadingProgress] = useState(0);
     const pulseTimeoutsRef = useRef([]);
     const prevResourcesRef = useRef(resources);
     const [showJoystick, setShowJoystick] = useState(detectMobile());
     const [escMenuOpen, setEscMenuOpen] = useState(false);
     const [volume, setVolume] = useState(70);
     const [guideOpen, setGuideOpen] = useState(false);
+
+    useEffect(() => {
+        if (!loading) {
+            setLoadingProgress(100);
+            return;
+        }
+
+        setLoadingProgress(0);
+        const interval = window.setInterval(() => {
+            setLoadingProgress((prev) => {
+                if (prev >= 96) {
+                    return prev;
+                }
+                const increment = 4 + Math.random() * 6;
+                return Math.min(prev + increment, 96);
+            });
+        }, 180);
+
+        return () => window.clearInterval(interval);
+    }, [loading]);
 
     useEffect(() => {
         pulseTimeoutsRef.current.forEach((timeout) => window.clearTimeout(timeout));
@@ -162,11 +183,21 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     const overlayMemo = useMemo(() => overlayState, [overlayState]);
 
     if (loading) {
+        const progressDisplay = Math.min(100, Math.round(loadingProgress));
         return (
-            <div className="game-shell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-                <div style={{ textAlign: 'center', color: '#fff' }}>
-                    <div style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>正在加载游戏数据...</div>
-                    <div style={{ fontSize: '0.9rem', opacity: 0.7 }}>从云端同步您的游戏进度</div>
+            <div className="game-shell game-shell--loading">
+                <div className="loading-panel">
+                    <div className="loading-title">正在加载游戏数据...</div>
+                    <div className="loading-subtitle">从云端同步您的游戏进度</div>
+                    <div className="loading-bar">
+                        <div className="loading-bar__track">
+                            <div
+                                className="loading-bar__fill"
+                                style={{ width: `${progressDisplay}%` }}
+                            />
+                        </div>
+                        <div className="loading-bar__label">{progressDisplay}%</div>
+                    </div>
                 </div>
             </div>
         );

@@ -16,6 +16,8 @@ const INITIAL_RESOURCES = {
 const MAX_HAND_SIZE = 5;
 const SAVE_HAND_DEBOUNCE_MS = 3000;
 const MAX_STAGE_CARDS = 2;
+const TEST_FORGE_RESULT_NAME = '合成中间物';
+const TEST_DISABLE_SERVER_SYNTH = true;
 
 const OVERLAY_POSITIONS = [
     { x: 42, y: 48 },
@@ -213,14 +215,17 @@ export function useGameSimulation({ pushMessage, token }) {
     }, []);
 
     const finishForge = useCallback((resultCard, finalMessage) => {
+        // 立即清除选择状态，从场上移除旧卡牌
+        const forgedCardIds = [...selectedIds];
+        clearSelection();
+        
         setHand((prev) => {
-            const remaining = prev.filter((card) => !selectedIds.includes(card.id));
+            const remaining = prev.filter((card) => !forgedCardIds.includes(card.id));
             const combined = [...remaining, resultCard];
             return ensureHandSize(combined);
         });
         setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
         updateCardBook((prev) => addCardToBook(prev, resultCard));
-        clearSelection();
         setForgeLoading(false);
         setForgePanelOpen(false);
         setForgeName('');
@@ -232,7 +237,26 @@ export function useGameSimulation({ pushMessage, token }) {
         overlayTimeoutRef.current = window.setTimeout(() => {
             setOverlayState((prev) => ({ ...prev, visible: false }));
         }, 900);
-    }, [clearSelection, ensureHandSize, selectedIds]);
+    }, [clearSelection, ensureHandSize, selectedIds, updateCardBook]);
+
+    const scheduleLocalForge = useCallback((cards, trimmedName) => {
+        forgeTimeoutRef.current = window.setTimeout(() => {
+            try {
+                const resultCard = {
+                    ...forgeCards(cards, trimmedName),
+                    name: TEST_FORGE_RESULT_NAME,
+                };
+                finishForge(resultCard, '本地合成完成');
+                pushMessage?.(`获得新卡牌「${TEST_FORGE_RESULT_NAME}」（本地模式）`, 'info');
+            } catch (err) {
+                pushMessage?.(err?.message || '合成失败', 'error');
+                setForgeLoading(false);
+                setOverlayState((prev) => ({ ...prev, visible: false }));
+            } finally {
+                stopForgeTimers();
+            }
+        }, 4200);
+    }, [finishForge, pushMessage, stopForgeTimers]);
 
     const submitForge = useCallback(async (name, aiIdea = null) => {
         if (selectedCards.length < 2) {
@@ -259,64 +283,55 @@ export function useGameSimulation({ pushMessage, token }) {
             setForgeStep((prev) => (prev + 1) % FORGE_LOADING_MESSAGES.length);
         }, 1600);
 
+        if (TEST_DISABLE_SERVER_SYNTH) {
+            scheduleLocalForge(selectedCards, trimmedName);
+            return;
+        }
+
         try {
-            // 尝试调用AI合成API
-            const token = localStorage.getItem('token');
-            if (token) {
+            const localToken = token || localStorage.getItem('token');
+            if (localToken && serverSyncEnabled) {
                 try {
                     const cardNames = selectedCards.map(card => card.name);
-                    const response = await fetch('/api/synthesize', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                            inputs: cardNames,
-                            name: trimmedName,
-                            mode: 'ai',
-                        }),
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        const resultCard = {
-                            id: `card-${Date.now()}`,
-                            name: data.item?.name || trimmedName,
-                            type: data.item?.attrs?.type || '合成物',
-                            rarity: data.item?.tier ? ['common', 'uncommon', 'rare', 'epic', 'legendary'][Math.min(data.item.tier - 1, 4)] : 'common',
-                        };
-                        finishForge(resultCard, '融合完成');
-                        pushMessage?.(`获得新卡牌「${resultCard.name}」`, 'success');
-                        stopForgeTimers();
-                        return;
+                    const mode = aiIdea ? 'ai' : 'auto';
+                    
+                    // 调用统一的合成API
+                    const data = await gameStateApi.synthesize(localToken, cardNames, trimmedName, mode, false);
+                    
+                    const resultCard = {
+                        id: `card-${Date.now()}`,
+                        name: TEST_FORGE_RESULT_NAME,
+                        type: data.item?.attrs?.type || '合成物',
+                        rarity: data.item?.tier ? ['common', 'uncommon', 'rare', 'epic', 'legendary'][Math.min(data.item.tier - 1, 4)] : 'common',
+                        attrs: data.item?.attrs,
+                    };
+                    
+                    const message = data.aiUsed ? 'AI融合完成' : '合成完成';
+                    finishForge(resultCard, message);
+                    
+                    if (data.aiUsed && data.ideas && data.ideas.length > 0) {
+                        pushMessage?.(`AI灵感：${data.ideas[0].results}`, 'success');
+                    } else {
+                        pushMessage?.(`获得新卡牌「${TEST_FORGE_RESULT_NAME}」`, 'success');
                     }
+                    
+                    stopForgeTimers();
+                    return;
                 } catch (apiErr) {
-                    console.warn('API合成失败，使用本地合成:', apiErr);
+                    console.error('API合成失败:', apiErr);
+                    pushMessage?.(`服务器合成失败：${apiErr.message || '未知错误'}，使用本地合成`, 'warning');
                 }
             }
 
             // 降级到本地合成
-            forgeTimeoutRef.current = window.setTimeout(() => {
-                try {
-                    const resultCard = forgeCards(selectedCards, trimmedName);
-                    finishForge(resultCard, '合成完成');
-                    pushMessage?.(`获得新卡牌「${resultCard.name}」`, 'success');
-                } catch (err) {
-                    pushMessage?.(err?.message || '合成失败', 'error');
-                    setForgeLoading(false);
-                    setOverlayState((prev) => ({ ...prev, visible: false }));
-                } finally {
-                    stopForgeTimers();
-                }
-            }, 4200);
+            scheduleLocalForge(selectedCards, trimmedName);
         } catch (err) {
             pushMessage?.(err?.message || '合成失败', 'error');
             setForgeLoading(false);
             setOverlayState((prev) => ({ ...prev, visible: false }));
             stopForgeTimers();
         }
-    }, [finishForge, forgeName, pushMessage, selectedCards, stopForgeTimers]);
+    }, [finishForge, forgeName, pushMessage, scheduleLocalForge, selectedCards, stopForgeTimers, serverSyncEnabled, token]);
 
     const updateResources = useCallback((modifier) => {
         setResources((prev) => ({
@@ -415,13 +430,29 @@ export function useGameSimulation({ pushMessage, token }) {
         setProfessionPanelOpen(false);
     }, []);
 
-    const chooseProfession = useCallback((index) => {
+    const chooseProfession = useCallback(async (index) => {
+        const localToken = token || localStorage.getItem('token');
+        
         setProfessionState((prev) => {
             const choice = prev.pendingChoices?.[index];
             if (!choice) {
                 return prev;
             }
-            pushMessage?.(`已转职：${choice.name}`, 'success');
+            
+            // 如果启用了服务器同步，保存到服务器
+            if (localToken && serverSyncEnabled) {
+                gameStateApi.selectProfession(localToken, index)
+                    .then(() => {
+                        pushMessage?.(`已转职：${choice.name}（已同步到云端）`, 'success');
+                    })
+                    .catch(err => {
+                        console.error('职业同步失败:', err);
+                        pushMessage?.(`已转职：${choice.name}（本地）`, 'warning');
+                    });
+            } else {
+                pushMessage?.(`已转职：${choice.name}`, 'success');
+            }
+            
             return {
                 ...prev,
                 active: choice,
@@ -429,7 +460,7 @@ export function useGameSimulation({ pushMessage, token }) {
             };
         });
         setProfessionPanelOpen(false);
-    }, [pushMessage]);
+    }, [pushMessage, serverSyncEnabled, token]);
 
     const regenerateProfessions = useCallback(() => {
         setProfessionState((prev) => ({
@@ -439,10 +470,24 @@ export function useGameSimulation({ pushMessage, token }) {
         pushMessage?.('已刷新新的一批职业灵感。', 'info');
     }, [pushMessage]);
 
-    const toggleCarryOver = useCallback((carryOver) => {
+    const toggleCarryOver = useCallback(async (carryOver) => {
+        const localToken = token || localStorage.getItem('token');
+        
         setProfessionState((prev) => ({ ...prev, carryOver }));
-        pushMessage?.(`下一局沿用职业：${carryOver ? '是' : '否'}`, 'info');
-    }, [pushMessage]);
+        
+        // 如果启用了服务器同步，保存到服务器
+        if (localToken && serverSyncEnabled) {
+            try {
+                await gameStateApi.setCarryOver(localToken, carryOver);
+                pushMessage?.(`下一局沿用职业：${carryOver ? '是' : '否'}（已同步）`, 'info');
+            } catch (err) {
+                console.error('职业沿用设置同步失败:', err);
+                pushMessage?.(`下一局沿用职业：${carryOver ? '是' : '否'}（本地）`, 'warning');
+            }
+        } else {
+            pushMessage?.(`下一局沿用职业：${carryOver ? '是' : '否'}`, 'info');
+        }
+    }, [pushMessage, serverSyncEnabled, token]);
 
     const openContractPanel = useCallback(() => {
         if (!contract) {

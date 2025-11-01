@@ -42,7 +42,6 @@ function App() {
         if (path.startsWith('/playerarchives')) return 'playerarchives';
         return 'lobby';
     });
-    const [showPlayerArchives, setShowPlayerArchives] = useState(false);
 
     useEffect(() => {
         if (token) {
@@ -123,11 +122,8 @@ function App() {
     }, []);
 
     const handleOpenPlayerArchives = useCallback(() => {
-        setShowPlayerArchives(true);
-    }, []);
-
-    const handleClosePlayerArchives = useCallback(() => {
-        setShowPlayerArchives(false);
+        setActiveView('playerarchives');
+        window.history.pushState({}, '', '/playerarchives/');
     }, []);
 
     // 监听浏览器前进后退
@@ -179,6 +175,15 @@ function App() {
             );
         }
 
+        if (activeView === 'playerarchives') {
+            return (
+                <PlayerArchivesPanel
+                    token={token}
+                    onBack={handleBackLobby}
+                />
+            );
+        }
+
         return (
             <GameShell
                 user={user}
@@ -188,7 +193,7 @@ function App() {
                 pushMessage={queueMessage}
             />
         );
-    }, [activeView, authLoading, handleBackLobby, handleEnterCardsDatabase, handleEnterGame, handleLogin, handleLogout, queueMessage, token, user]);
+    }, [activeView, authLoading, handleBackLobby, handleEnterCardsDatabase, handleEnterGame, handleLogin, handleLogout, handleOpenPlayerArchives, queueMessage, token, user]);
 
     useEffect(() => {
         window.dispatchEvent(new Event('app-ready'));
@@ -198,12 +203,6 @@ function App() {
         <div id="app">
             {screen}
             <MessageStack messages={messages} onDismiss={dismissMessage} />
-            {showPlayerArchives && token && (
-                <PlayerArchivesPanel
-                    token={token}
-                    onClose={handleClosePlayerArchives}
-                />
-            )}
         </div>
     );
 }

@@ -61,3 +61,4 @@ SELECT card_type, rarity, COUNT(*) as count FROM cards WHERE is_base_card = TRUE
 \echo '更新完成！'
 \echo '======================================'
 
+

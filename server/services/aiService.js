@@ -37,8 +37,10 @@ export async function synthesizeByAI(inputItems, name, userId, currentEra = '生
     throw new Error('AI service not available');
   }
 
+  // 使用名称而非ID生成缓存key，避免不同用户相同卡牌组合的缓存miss
+  const inputNames = inputItems.map(item => item.name);
   const recipeHash = generateRecipeHash(
-    inputItems.map(i => i.id),
+    inputNames,
     `${name || '未命名'}#${currentEra}`
   );
   const cacheKey = `cache:recipe:${recipeHash}`;
@@ -49,8 +51,6 @@ export async function synthesizeByAI(inputItems, name, userId, currentEra = '生
       logger.info({ recipe_hash: recipeHash }, 'AI synthesis cache hit');
       return cached;
     }
-
-    const inputNames = inputItems.map(item => item.name);
     const combinationSentence = formatCombinationInputs(inputNames);
 
     // 获取AI文明名称（优先使用第一张卡牌的ai_civilization_name，否则使用currentEra）

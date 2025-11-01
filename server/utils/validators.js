@@ -15,7 +15,7 @@ export const synthesizeSchema = z.object({
   inputs: z.union([z.array(z.number()), z.array(z.string())]).refine(arr => arr.length >= 2, {
     message: '至少需要2个输入项',
   }),
-  name: z.string().min(1).max(100),
+  name: z.string().trim().min(1, '合成名称不能为空').max(100, '合成名称最多100个字符'),
   mode: z.enum(['ai', 'rule', 'auto']).default('auto'),
   generateImage: z.boolean().default(false),
   preview: z.boolean().default(false),

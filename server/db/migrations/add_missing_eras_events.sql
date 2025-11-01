@@ -48,3 +48,4 @@ ON CONFLICT (event_number) DO UPDATE SET
 
 COMMENT ON TABLE events IS '游戏events定义表（完整版，包含所有时代）';
 
+

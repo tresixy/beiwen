@@ -83,6 +83,28 @@ export async function getEventState(userId) {
     }
 
     const row = result.rows[0];
+    
+    // 如果event_sequence为空或null，重新生成
+    if (!row.event_sequence || row.event_sequence.length === 0) {
+      const sequence = await generateEventSequence(userId);
+      const firstEventId = sequence.length > 0 ? sequence[0] : null;
+      
+      await pool.query(
+        `UPDATE user_game_state 
+         SET event_sequence = $2, active_event_id = $3, updated_at = NOW()
+         WHERE user_id = $1`,
+        [userId, JSON.stringify(sequence), firstEventId]
+      );
+      
+      return {
+        era: row.era || '生存时代',
+        unlockedKeys: row.unlocked_keys || [],
+        completedEvents: row.completed_events || [],
+        activeEventId: firstEventId,
+        eventSequence: sequence,
+      };
+    }
+    
     return {
       era: row.era || '生存时代',
       unlockedKeys: row.unlocked_keys || [],

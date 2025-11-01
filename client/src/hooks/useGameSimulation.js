@@ -14,7 +14,8 @@ const INITIAL_RESOURCES = {
     research: 4,
 };
 
-const MAX_HAND_SIZE = 5;
+const MAX_HAND_SIZE = 5; // 手牌最大数量
+const MAX_STAGED_CARDS = 10; // 画布最大卡牌数量
 const SAVE_HAND_DEBOUNCE_MS = 3000;
 const MAX_STAGE_CARDS = 2;
 const TEST_FORGE_RESULT_NAME = '合成中间物';
@@ -165,8 +166,6 @@ export function useGameSimulation({ pushMessage, token }) {
 
     const stageCard = useCallback((cardId, position) => {
         console.log('🎯 stageCard 被调用, cardId:', cardId, 'position:', position);
-        let removedId = null;
-        let shouldOpenDialogue = false;
         
         setSelectedIds((prev) => {
             console.log('🎯 当前 selectedIds:', prev);
@@ -174,34 +173,25 @@ export function useGameSimulation({ pushMessage, token }) {
                 console.log('🎯 卡牌已在 selectedIds 中，不重复添加');
                 return prev;
             }
+            
+            // 检查是否超过画布最大数量
+            if (prev.length >= MAX_STAGED_CARDS) {
+                console.log(`🎯 画布已满（${MAX_STAGED_CARDS}张），无法添加更多卡牌`);
+                pushMessage?.(`画布已满，最多可以放置${MAX_STAGED_CARDS}张卡牌`, 'warning');
+                return prev;
+            }
+            
             const accumulated = [...prev, cardId];
             console.log('🎯 添加后 selectedIds:', accumulated);
-            if (accumulated.length > MAX_STAGE_CARDS) {
-                removedId = accumulated.shift();
-                console.log('🎯 超过最大数量，移除:', removedId);
-            }
-            // 当达到2张卡牌时，自动触发AI对话
-            if (accumulated.length === MAX_STAGE_CARDS) {
-                shouldOpenDialogue = true;
-            }
             return accumulated;
         });
+        
         setStagedPositions((prev) => {
             const updated = { ...prev };
-            if (removedId) {
-                delete updated[removedId];
-            }
             updated[cardId] = position ?? updated[cardId] ?? { x: 50, y: 50 };
             return updated;
         });
-        
-        // 延迟打开AI对话面板，确保状态已更新
-        if (shouldOpenDialogue) {
-            setTimeout(() => {
-                setAiDialogueOpen(true);
-            }, 100);
-        }
-    }, []);
+    }, [pushMessage]);
 
     const selectCardsForForge = useCallback((cardIds) => {
         // 熔炉的卡牌单独管理，不影响画布的 selectedIds
@@ -350,8 +340,17 @@ export function useGameSimulation({ pushMessage, token }) {
                     const cardNames = cards.map(card => card.name);
                     const mode = aiIdea ? 'ai' : 'auto';
                     
+                    console.log('🔧 准备调用合成API:', {
+                        cardNames,
+                        trimmedName,
+                        mode,
+                        tokenExists: !!localToken
+                    });
+                    
                     // 调用统一的合成API
                     const data = await gameStateApi.synthesize(localToken, cardNames, trimmedName, mode, false);
+                    
+                    console.log('✅ 合成API返回:', data);
                     
                     // 使用实际返回的物品名称
                     const actualName = data.item?.name || trimmedName || '合成物';
@@ -363,16 +362,71 @@ export function useGameSimulation({ pushMessage, token }) {
                         attrs: data.item?.attrs,
                     };
                     
-                    await finishForge(resultCard);
-                    
-                    if (data.aiUsed && data.ideas && data.ideas.length > 0) {
-                        pushMessage?.(`AI灵感：${data.ideas[0].results}`, 'info');
+                    // 如果服务器消耗了卡牌，需要从手牌中移除它们
+                    if (data.needRefreshHand && data.cardsConsumed) {
+                        // 从手牌中移除已消耗的卡牌（支持重复名称）
+                        const consumedNames = [...data.cardsConsumed]; // 复制数组避免修改原数据
+                        const remainingHand = [];
+                        
+                        for (const card of hand) {
+                            const index = consumedNames.indexOf(card.name);
+                            if (index >= 0) {
+                                // 这张卡需要被消耗，从列表移除
+                                consumedNames.splice(index, 1);
+                            } else {
+                                // 这张卡保留
+                                remainingHand.push(card);
+                            }
+                        }
+                        
+                        // 添加新卡牌
+                        const newHand = [...remainingHand, resultCard];
+                        setHand(newHand);
+                        
+                        // 更新卡牌图鉴
+                        updateCardBook((prev) => addCardToBook(prev, resultCard));
+                        
+                        // 如果需要补牌，从服务器抽牌
+                        if (newHand.length < MAX_HAND_SIZE) {
+                            try {
+                                const drawCount = MAX_HAND_SIZE - newHand.length;
+                                const drawnCards = await gameStateApi.drawCards(localToken, drawCount);
+                                setHand([...newHand, ...drawnCards]);
+                            } catch (drawErr) {
+                                console.error('补牌失败:', drawErr);
+                                // 补牌失败不影响合成结果
+                            }
+                        }
+                        
+                        // 清除选择
+                        clearSelection();
+                        setForgeLoading(false);
+                        setForgePanelOpen(false);
+                        setForgeName('');
+                        setOverlayState({ visible: false });
+                        
+                        pushMessage?.(`获得新卡牌「${actualName}」`, 'success');
+                        
+                        if (data.aiUsed && data.ideas && data.ideas.length > 0) {
+                            pushMessage?.(`AI灵感：${data.ideas[0].results}`, 'info');
+                        }
+                    } else {
+                        // 如果没有消耗卡牌，使用原有逻辑
+                        await finishForge(resultCard);
+                        
+                        if (data.aiUsed && data.ideas && data.ideas.length > 0) {
+                            pushMessage?.(`AI灵感：${data.ideas[0].results}`, 'info');
+                        }
                     }
                     
                     stopForgeTimers();
                     return;
                 } catch (apiErr) {
-                    console.error('API合成失败:', apiErr);
+                    console.error('❌ API合成失败:', apiErr);
+                    console.error('错误详情:', {
+                        message: apiErr.message,
+                        stack: apiErr.stack
+                    });
                     pushMessage?.(`服务器合成失败：${apiErr.message || '未知错误'}，使用本地合成`, 'warning');
                 }
             }
@@ -741,6 +795,46 @@ export function useGameSimulation({ pushMessage, token }) {
         }
     }, [activeEvent, token, pushMessage, hand]);
 
+    // 保存手牌到服务器
+    const saveHandToServer = useCallback(async () => {
+        if (!token || !hand) return;
+        try {
+            await gameStateApi.saveHand(token, hand);
+            console.log('✅ 手牌已保存到服务器');
+        } catch (err) {
+            console.error('❌ 保存手牌失败:', err);
+        }
+    }, [token, hand]);
+
+    // 清除手牌（不保存退出时）
+    const clearHandFromServer = useCallback(async () => {
+        if (!token) return;
+        try {
+            await gameStateApi.saveHand(token, []);
+            console.log('✅ 手牌已清空');
+        } catch (err) {
+            console.error('❌ 清空手牌失败:', err);
+        }
+    }, [token]);
+
+    // 自动补牌到5张
+    const fillHandToMax = useCallback(async () => {
+        if (!token || hand.length >= MAX_HAND_SIZE) return;
+        
+        const needed = MAX_HAND_SIZE - hand.length;
+        try {
+            const drawn = await gameStateApi.drawCards(token, needed);
+            const newCards = drawn.hand || [];
+            if (newCards.length > 0) {
+                setHand((prev) => [...prev, ...newCards]);
+                updateCardBook((prevBook) => newCards.reduce((book, card) => addCardToBook(book, card), prevBook));
+                console.log(`✅ 自动补充了 ${newCards.length} 张卡牌`);
+            }
+        } catch (err) {
+            console.error('❌ 自动补牌失败:', err);
+        }
+    }, [token, hand, updateCardBook]);
+
     return {
         loading,
         resources,
@@ -750,6 +844,7 @@ export function useGameSimulation({ pushMessage, token }) {
         selectedCards,
         clearSelection,
         drawCards,
+        fillHandToMax,
         stageCard,
         updateStagedPosition,
         unstageCard,
@@ -790,6 +885,8 @@ export function useGameSimulation({ pushMessage, token }) {
         activeEvent,
         era,
         completeEvent,
+        saveHandToServer,
+        clearHandFromServer,
     };
 }
 

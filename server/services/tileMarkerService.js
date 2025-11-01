@@ -1,4 +1,4 @@
-import pool from '../db/pool.js';
+import pool from '../db/connection.js';
 import logger from '../utils/logger.js';
 import path from 'path';
 import fs from 'fs';

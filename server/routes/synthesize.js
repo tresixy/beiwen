@@ -19,8 +19,16 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
     const { inputs, name, mode, generateImage, preview } = req.validated;
     const userId = req.userId;
     
-    // 获取输入物品
-    const inputItems = await synthService.getInputItems(inputs);
+    // 验证输入类型
+    if (!Array.isArray(inputs) || inputs.length < 2) {
+      return res.status(400).json({ error: '至少需要2个输入项' });
+    }
+    
+    // 判断输入类型（名称数组或ID数组）
+    const isNameArray = typeof inputs[0] === 'string' && !inputs[0].match(/^\d+$/);
+    
+    // 获取输入物品（验证归属）
+    const inputItems = await synthService.getInputItems(inputs, isNameArray ? userId : null);
     
     // 获取时代信息
     const eventState = await eventService.getEventState(userId);
@@ -87,15 +95,18 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
       return res.json(responsePayload);
     }
     
-    // 保存配方和物品
+    // 保存配方和物品（事务处理）
     const item = await synthService.saveRecipe(
       userId,
       inputs,
       output,
       recipe_hash,
       aiPromptUsed,
-      aiModelUsed || (aiUsed ? env.aiModel : null)
+      aiModelUsed || (aiUsed ? env.aiModel : null),
+      isNameArray // 是否需要消耗卡牌
     );
+    
+    logger.info({ userId, inputs, itemId: item.id, cardsConsumed: isNameArray }, 'Synthesis completed');
     
     // 添加到背包
     let inventoryFull = false;
@@ -146,6 +157,8 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
       image,
       era: currentEra,
       inventoryFull,
+      cardsConsumed: isNameArray ? inputs : null, // 告知客户端哪些卡牌被消耗
+      needRefreshHand: isNameArray, // 提示客户端需要刷新手牌
     };
 
     if (aiIdeas) {

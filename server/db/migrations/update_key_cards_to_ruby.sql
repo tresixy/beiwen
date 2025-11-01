@@ -12,3 +12,4 @@ WHERE card_type = 'inspiration' AND is_base_card = TRUE AND rarity != 'common';
 
 COMMENT ON COLUMN cards.rarity IS '稀有度：common(白色-灵感卡), ruby(红色-钥匙卡), rare(蓝色-生成卡), uncommon, epic, legendary';
 
+

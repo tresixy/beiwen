@@ -281,7 +281,7 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                                     className="settings-admin" 
                                     onClick={onOpenPlayerArchives}
                                 >
-                                    📁 玩家存档
+                                    📁 玩家存档管理
                                 </button>
                             )}
                             <button 

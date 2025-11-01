@@ -48,10 +48,18 @@ export async function register({ email, username, password }) {
     
     for (const card of starterCards.rows) {
       await pool.query(
-        'INSERT INTO deck_cards (user_id, card_id, discovered, count) VALUES ($1, $2, true, 1) ON CONFLICT DO NOTHING',
+        'INSERT INTO deck_cards (user_id, card_id, discovered, count) VALUES ($1, $2, true, 2) ON CONFLICT DO NOTHING',
         [user.id, card.id]
       );
     }
+    
+    // 初始化游戏状态（会在首次访问时通过getEventState自动生成Event序列）
+    await pool.query(
+      `INSERT INTO user_game_state (user_id, era, hand_json, unlocked_keys, completed_events, updated_at) 
+       VALUES ($1, '生存时代', '[]', '[]', '[]', NOW())
+       ON CONFLICT (user_id) DO NOTHING`,
+      [user.id]
+    );
     
     const token = generateToken(user.id);
     
@@ -126,10 +134,18 @@ export async function login({ email, password }) {
       
       for (const card of starterCards.rows) {
         await pool.query(
-          'INSERT INTO deck_cards (user_id, card_id, discovered, count) VALUES ($1, $2, true, 1) ON CONFLICT DO NOTHING',
+          'INSERT INTO deck_cards (user_id, card_id, discovered, count) VALUES ($1, $2, true, 2) ON CONFLICT DO NOTHING',
           [user.id, card.id]
         );
       }
+      
+      // 初始化游戏状态（会在首次访问时通过getEventState自动生成Event序列）
+      await pool.query(
+        `INSERT INTO user_game_state (user_id, era, hand_json, unlocked_keys, completed_events, updated_at) 
+         VALUES ($1, '生存时代', '[]', '[]', '[]', NOW())
+         ON CONFLICT (user_id) DO NOTHING`,
+        [user.id]
+      );
       
       logger.info({ userId: user.id, email }, 'User registered with email and password');
     } else {

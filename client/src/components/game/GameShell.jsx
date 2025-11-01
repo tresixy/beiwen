@@ -72,6 +72,9 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         activeEvent,
         era,
         completeEvent,
+        saveHandToServer,
+        clearHandFromServer,
+        fillHandToMax,
     } = useGameSimulation({ pushMessage, token });
 
     const [resourcePulse, setResourcePulse] = useState({ food: false, production: false, research: false });
@@ -200,6 +203,25 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         stageCard(cardId, position);
     }, [stageCard]);
 
+    const handleSaveAndExit = useCallback(async (shouldSave) => {
+        setEscMenuOpen(false);
+        
+        if (shouldSave) {
+            // 保存手牌
+            await saveHandToServer();
+            pushMessage?.('游戏已保存', 'success');
+        } else {
+            // 清空手牌
+            await clearHandFromServer();
+            pushMessage?.('已退出，下次将重新开始', 'info');
+        }
+        
+        // 延迟返回大厅，让用户看到提示
+        setTimeout(() => {
+            onBackLobby?.();
+        }, 800);
+    }, [saveHandToServer, clearHandFromServer, onBackLobby, pushMessage]);
+
     const handleCardRemove = useCallback((cardId) => {
         unstageCard(cardId);
     }, [unstageCard]);
@@ -261,7 +283,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                 <EscMenu
                     isOpen={escMenuOpen}
                     onClose={() => setEscMenuOpen(false)}
-                    onBackToLobby={onBackLobby}
+                    onSaveAndExit={handleSaveAndExit}
                     volume={volume}
                     onVolumeChange={setVolume}
                 />

@@ -3,7 +3,7 @@ import '../../styles/playerArchivesPanel.css';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
 
-export function PlayerArchivesPanel({ token, onClose }) {
+export function PlayerArchivesPanel({ token, onClose, onBack }) {
     const [players, setPlayers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -185,8 +185,9 @@ export function PlayerArchivesPanel({ token, onClose }) {
     return (
         <div className="player-archives-panel">
             <div className="panel-header">
+                {onBack && <button onClick={onBack} className="back-btn">← 返回</button>}
                 <h2>玩家存档管理</h2>
-                <button onClick={onClose} className="close-btn">×</button>
+                {onClose && <button onClick={onClose} className="close-btn">×</button>}
             </div>
 
             <div className="panel-content">

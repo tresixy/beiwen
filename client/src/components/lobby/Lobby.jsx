@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { HexCanvas } from './HexCanvas.jsx';
 import { CardBookPanel } from '../game/CardBookPanel.jsx';
-import { loadCardBook } from '../../data/cardBook.js';
+import { loadCardBook, persistCardBook } from '../../data/cardBook.js';
+import { getGameState } from '../../services/gameStateApi.js';
+import { getUserMarkers, getUserHighlights } from '../../api/tilesApi.js';
+import { getDeckState } from '../../api/deckApi.js';
 
 const FEATURE_CARDS = [
     {
@@ -31,12 +34,15 @@ const FEATURE_CARDS = [
     },
 ];
 
-export function Lobby({ user, onEnterGame, onLogout, onEnterCardsDatabase }) {
+export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase, onOpenPlayerArchives }) {
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
     const [cardBookOpen, setCardBookOpen] = useState(false);
     const [cardBook, setCardBook] = useState(() => loadCardBook());
     const [volume, setVolume] = useState(70);
+    const [era, setEra] = useState('生存时代');
+    const [markers, setMarkers] = useState([]);
+    const [highlightedTiles, setHighlightedTiles] = useState([]);
     const [canvasSize, setCanvasSize] = useState(() => {
         if (typeof window === 'undefined') {
             return { width: 1920, height: 1080 };
@@ -70,6 +76,8 @@ export function Lobby({ user, onEnterGame, onLogout, onEnterCardsDatabase }) {
 
     const handleSelectHex = useCallback((hex) => {
         setSelectedLocation(hex);
+        // 保存到localStorage供游戏中使用
+        localStorage.setItem('selectedHex', JSON.stringify(hex));
     }, []);
 
     const handleOpenCardBook = useCallback(() => {
@@ -101,6 +109,69 @@ export function Lobby({ user, onEnterGame, onLogout, onEnterCardsDatabase }) {
         return () => window.removeEventListener('resize', calcSize);
     }, []);
 
+    // 加载游戏状态获取当前时代
+    useEffect(() => {
+        if (!token) return;
+        
+        getGameState(token)
+            .then((state) => {
+                if (state?.era) {
+                    setEra(state.era);
+                }
+            })
+            .catch((err) => {
+                console.warn('Failed to load game state:', err);
+            });
+    }, [token]);
+
+    // 加载地块标志和高亮
+    useEffect(() => {
+        if (!token) return;
+        
+        Promise.all([
+            getUserMarkers(token),
+            getUserHighlights(token),
+        ])
+            .then(([markersData, highlightsData]) => {
+                setMarkers(markersData.markers || []);
+                setHighlightedTiles(highlightsData.highlights || []);
+            })
+            .catch((err) => {
+                console.warn('Failed to load tile markers:', err);
+            });
+    }, [token]);
+
+    // 从服务器同步卡册
+    useEffect(() => {
+        if (!token) return;
+        
+        getDeckState(token)
+            .then((deckData) => {
+                const cards = deckData.cards || [];
+                // 转换为cardBook格式
+                const serverCardBook = {
+                    cards: cards
+                        .filter(card => card.discovered && card.count > 0)
+                        .map(card => ({
+                            name: card.name,
+                            type: card.type,
+                            rarity: card.rarity,
+                            count: card.count,
+                            firstObtained: Date.now(),
+                            lastObtained: Date.now(),
+                        })),
+                    totalCollected: cards.reduce((sum, card) => sum + (card.count || 0), 0),
+                };
+                
+                // 保存到localStorage
+                persistCardBook(serverCardBook);
+                setCardBook(serverCardBook);
+            })
+            .catch((err) => {
+                console.warn('Failed to sync card book:', err);
+            });
+    }, [token]);
+
     return (
         <div className="lobby-shell">
             <HexCanvas
@@ -108,6 +179,8 @@ export function Lobby({ user, onEnterGame, onLogout, onEnterCardsDatabase }) {
                 width={canvasSize.width}
                 height={canvasSize.height}
                 onSelectHex={handleSelectHex}
+                markers={markers}
+                highlightedTiles={highlightedTiles}
             />
             
             <div className="lobby-ui">
@@ -121,9 +194,8 @@ export function Lobby({ user, onEnterGame, onLogout, onEnterCardsDatabase }) {
                             {user?.username ?? '旅者'}
                         </div>
                         <div className="user-panel-achievement">
-                            <span className="achievement-icon">✨</span>
-                            <span className="achievement-value">0</span>
-                            <span className="achievement-label">AITA</span>
+                            <span className="achievement-icon">⏳</span>
+                            <span className="achievement-label">{era}</span>
                         </div>
                     </div>
                 </div>
@@ -201,6 +273,15 @@ export function Lobby({ user, onEnterGame, onLogout, onEnterCardsDatabase }) {
                                     onClick={onEnterCardsDatabase}
                                 >
                                     🎴 卡牌数据库
+                                </button>
+                            )}
+                            {isAdmin && onOpenPlayerArchives && (
+                                <button 
+                                    type="button" 
+                                    className="settings-admin" 
+                                    onClick={onOpenPlayerArchives}
+                                >
+                                    📁 玩家存档
                                 </button>
                             )}
                             <button 

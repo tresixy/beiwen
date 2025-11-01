@@ -14,6 +14,7 @@ import { CardDock } from './CardDock.jsx';
 import { ForgeCanvas } from './ForgeCanvas.jsx';
 import { CardBookPanel } from './CardBookPanel.jsx';
 import { EscMenu } from './EscMenu.jsx';
+import audioService from '../../services/audioService.js';
 
 const detectMobile = () => {
     if (typeof navigator === 'undefined') {
@@ -68,6 +69,9 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         cardBook,
         stagedPositions,
         selectCardsForForge,
+        activeEvent,
+        era,
+        completeEvent,
     } = useGameSimulation({ pushMessage, token });
 
     const [resourcePulse, setResourcePulse] = useState({ food: false, production: false, research: false });
@@ -78,6 +82,36 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     const [escMenuOpen, setEscMenuOpen] = useState(false);
     const [volume, setVolume] = useState(70);
     const [guideOpen, setGuideOpen] = useState(false);
+
+    // 初始化音效系统
+    useEffect(() => {
+        // 音效文件路径配置（当音效文件准备好后取消注释）
+        // audioService.init({
+        //     bgm: '/audio/bgm.mp3',
+        //     click: '/audio/click.mp3',
+        //     synthesis: '/audio/synthesis.mp3',
+        //     eventComplete: '/audio/event_complete.mp3',
+        //     cardDrag: '/audio/card_drag.mp3',
+        //     cardDrop: '/audio/card_drop.mp3',
+        //     hexClick: '/audio/hex_click.mp3',
+        // });
+        
+        // 设置初始音量
+        audioService.setVolume(volume / 100);
+        
+        // 播放背景音乐（当音效文件准备好后取消注释）
+        // audioService.playBGM();
+        
+        return () => {
+            // 清理：停止背景音乐
+            audioService.stopBGM();
+        };
+    }, []);
+
+    // 音量变化时更新音效系统
+    useEffect(() => {
+        audioService.setVolume(volume / 100);
+    }, [volume]);
 
     useEffect(() => {
         if (!loading) {
@@ -174,14 +208,16 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         updateStagedPosition(cardId, position);
     }, [updateStagedPosition]);
 
-    const handleSynthesize = useCallback(() => {
-        console.log('handleSynthesize 被调用, selectedCards:', selectedCards.length, selectedCards.map(c => c?.name));
-        if (selectedCards.length >= 2) {
-            const defaultName = selectedCards.map(c => c.name).join('+');
+    const handleSynthesize = useCallback((cardsToForge) => {
+        // 如果传入卡牌参数，使用传入的；否则使用 selectedCards
+        const cards = cardsToForge || selectedCards;
+        console.log('handleSynthesize 被调用, cards:', cards.length, cards.map(c => c?.name));
+        if (cards.length >= 2) {
+            const defaultName = cards.map(c => c.name).join('+');
             console.log('开始合成:', defaultName);
-            submitForge(defaultName);
+            submitForge(defaultName, cards);
         } else {
-            console.log('卡牌数量不足，需要至少2张，当前:', selectedCards.length);
+            console.log('卡牌数量不足，需要至少2张，当前:', cards.length);
         }
     }, [selectedCards, submitForge]);
 
@@ -216,6 +252,9 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                     pulses={resourcePulse}
                     turn={turn}
                     user={user}
+                    activeEvent={activeEvent}
+                    era={era}
+                    onCompleteEvent={completeEvent}
                     onShowGuide={() => setGuideOpen(true)}
                 />
 

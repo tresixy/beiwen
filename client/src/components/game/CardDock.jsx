@@ -14,17 +14,39 @@ export function CardDock({
     onBackLobby,
 }) {
     const slots = useMemo(() => {
-        const filled = cards.slice(0, MAX_SLOTS);
+        // 只显示未被放到画布上的卡牌
+        const availableCards = cards.filter(card => !stagedIds.includes(card.id));
+        const filled = availableCards.slice(0, MAX_SLOTS);
         return [...filled, ...Array.from({ length: Math.max(0, MAX_SLOTS - filled.length) })];
-    }, [cards]);
+    }, [cards, stagedIds]);
 
     const handleDragStart = (event, card) => {
         if (!card) {
             return;
         }
         const normalizedId = `${card.id ?? ''}`.trim();
+        console.log('🎴 手牌 DragStart:', card.name, 'ID:', normalizedId);
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/plain', normalizedId);
+        event.dataTransfer.setData('card-name', card.name);
+        // 设置拖动时的视觉效果
+        event.dataTransfer.dropEffect = 'move';
+    };
+
+    const handleDragEnd = (event, card) => {
+        const normalizedId = `${card.id ?? ''}`.trim();
+        console.log('🎴 手牌 DragEnd:', card.name, 'ID:', normalizedId);
+        
+        // 检查是否拖到了熔炉
+        const hovered = document.elementFromPoint(event.clientX, event.clientY);
+        const furnace = document.querySelector('.forge-furnace');
+        
+        if (furnace && (furnace.contains(hovered) || furnace === hovered)) {
+            console.log('✅ 手牌拖放到熔炉成功');
+            // 熔炉的 onDrop 会处理，这里不需要额外操作
+        } else {
+            console.log('❌ 手牌未拖到熔炉');
+        }
     };
 
     const renderCard = (card, index) => {
@@ -36,14 +58,15 @@ export function CardDock({
             );
         }
 
-        const staged = stagedIds.includes(card.id);
-
+        const rarityClass = card.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
+        
         return (
             <div
                 key={card.id}
-                className={`dock-slot${staged ? ' staged' : ''}`}
+                className={`dock-slot ${rarityClass}`}
                 draggable
                 onDragStart={(event) => handleDragStart(event, card)}
+                onDragEnd={(event) => handleDragEnd(event, card)}
                 data-card-id={card.id}
             >
                 <div className="dock-slot__header">

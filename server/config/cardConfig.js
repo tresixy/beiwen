@@ -13,6 +13,7 @@ export const CARD_RARITIES = {
   RARE: 'rare',
   EPIC: 'epic',
   LEGENDARY: 'legendary',
+  RUBY: 'ruby',  // 钥匙卡专用（红色）
 };
 
 // 生存时代卡牌

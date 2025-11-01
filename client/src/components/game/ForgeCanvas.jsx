@@ -124,10 +124,12 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
         event.preventDefault();
         const cardId = event.dataTransfer.getData('text/plain');
         const normalizedId = `${cardId ?? ''}`.trim();
+        console.log('📍 画布 Drop 事件, cardId:', normalizedId);
         if (!normalizedId) {
             return;
         }
         const position = extractPosition(event);
+        console.log('📍 位置:', position, '调用 onDrop');
         onDrop?.(normalizedId, position);
         resetDragState();
     };
@@ -217,11 +219,13 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
                 return prev;
             }
             const updated = [...prev, card].slice(0, MAX_FURNACE_CARDS);
-            const ids = updated.map((c) => c.id);
-            onSelectForForge?.(ids);
             console.log('✓ 熔炉现有卡牌数:', updated.length, updated.map(c => c.name));
-            // 触发 stageCard 以保持兼容
-            onDrop?.(normalizedId, { x: 10 + updated.length * 4, y: 12 + updated.length * 4 });
+            
+            // 熔炉卡牌独立管理，不影响 selectedIds（画布选中状态）
+            // 只通知 onSelectForForge 用于合成逻辑
+            const furnaceIds = updated.map((c) => c.id);
+            onSelectForForge?.(furnaceIds);
+            
             return updated;
         });
         resetDragState();
@@ -242,15 +246,18 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
         if (furnaceCards.length >= MAX_FURNACE_CARDS && !isForging) {
             console.log('========================================');
             console.log('✓ 触发合成! 熔炉卡牌:', furnaceCards.map(c => c.name).join(' + '));
-            console.log('selectedCards数量:', cards.length);
+            console.log('熔炉卡牌数量:', furnaceCards.length);
             console.log('========================================');
-            onSelectForForge?.(furnaceCards.slice(0, MAX_FURNACE_CARDS).map((c) => c.id));
+            
+            // 先更新选中的卡牌
+            const cardIds = furnaceCards.slice(0, MAX_FURNACE_CARDS).map((c) => c.id);
+            onSelectForForge?.(cardIds);
             setIsForging(true);
             
-            // 延迟触发合成
+            // 延迟触发合成，确保状态已更新
             setTimeout(() => {
-                console.log('>>> 调用 onSynthesize');
-                onSynthesize?.();
+                console.log('>>> 调用 onSynthesize，熔炉卡牌:', furnaceCards.map(c => c.name));
+                onSynthesize?.(furnaceCards);
                 
                 // 清空熔炉
                 setTimeout(() => {
@@ -260,15 +267,16 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
                     onSelectForForge?.([]);
                     setIsForging(false);
                 }, 1000);
-            }, 500);
+            }, 800);
         }
-    }, [furnaceCards, isForging, cards.length, onSynthesize, onSelectForForge]);
+    }, [furnaceCards, isForging, onSynthesize, onSelectForForge]);
 
     const handleFurnaceDragOver = (event) => {
         event.preventDefault();
         event.stopPropagation();
         event.dataTransfer.dropEffect = 'copy';
         if (!isFurnaceDragOver) {
+            console.log('🔥 熔炉 DragOver - 检测到拖动');
             setIsFurnaceDragOver(true);
         }
     };
@@ -276,6 +284,7 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
     const handleFurnaceDragEnter = (event) => {
         event.preventDefault();
         event.stopPropagation();
+        console.log('🔥 熔炉 DragEnter');
         if (!isFurnaceDragOver) {
             setIsFurnaceDragOver(true);
         }
@@ -290,11 +299,15 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
     const handleFurnaceDrop = (event) => {
         event.preventDefault();
         event.stopPropagation();
+        console.log('🔥 熔炉 Drop 事件触发');
         const cardId = event.dataTransfer.getData('text/plain');
         const normalizedId = `${cardId ?? ''}`.trim();
+        console.log('🔥 获取到卡牌ID:', normalizedId);
         if (normalizedId) {
-            console.log('直接拖放到熔炉:', normalizedId);
+            console.log('🔥 直接拖放到熔炉:', normalizedId);
             handleCardDropInFurnace(normalizedId);
+        } else {
+            console.warn('🔥 熔炉 Drop: 未获取到卡牌ID');
         }
         setIsFurnaceDragOver(false);
         setIsCanvasDragActive(false);
@@ -406,32 +419,43 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
                         <div className="forge-furnace__progress-label">熔炼中 {progressDisplay}%</div>
                     </div>
                 )}
-                {furnaceCards.length > 0 && (
-                    <div className="forge-furnace__cards" role="list">
-                        {furnaceCards.map((card, index) => {
-                            const rarityClass = card.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
+                
+                {/* 卡槽指引 */}
+                <div className="forge-furnace__slots">
+                    {[0, 1].map((slotIndex) => {
+                        const card = furnaceCards[slotIndex];
+                        const rarityClass = card?.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
+                        
+                        if (card) {
                             return (
                                 <div
                                     key={card.id}
-                                    className={`forge-furnace__card ${isForging ? 'is-forging' : ''} ${draggingCardId === card.id ? 'is-dragging' : ''}`}
-                                    role="listitem"
+                                    className={`forge-furnace__slot filled ${rarityClass} ${isForging ? 'is-forging' : ''} ${draggingCardId === card.id ? 'is-dragging' : ''}`}
                                     draggable={!isForging}
                                     onDragStart={(event) => handleFurnaceCardDragStart(event, card.id)}
                                     onDragEnd={(event) => handleFurnaceCardDragEnd(event, card.id)}
                                 >
-                                    <div className="forge-furnace__card-index">#{index + 1}</div>
-                                    <div className="forge-furnace__card-name">{card.name}</div>
-                                    <div className="forge-furnace__card-type">{card.type}</div>
-                                    {card.rarity && (
-                                        <div className={`forge-furnace__card-rarity ${rarityClass}`}>
-                                            {card.rarity}
-                                        </div>
-                                    )}
+                                    <div className="forge-furnace__slot-card">
+                                        <div className="forge-furnace__slot-name">{card.name}</div>
+                                        <div className="forge-furnace__slot-type">{card.type}</div>
+                                        {card.rarity && (
+                                            <div className="forge-furnace__slot-rarity">{card.rarity}</div>
+                                        )}
+                                    </div>
                                 </div>
                             );
-                        })}
-                    </div>
-                )}
+                        }
+                        
+                        return (
+                            <div key={`slot-${slotIndex}`} className="forge-furnace__slot empty">
+                                <div className="forge-furnace__slot-placeholder">
+                                    <span className="forge-furnace__slot-number">{slotIndex + 1}</span>
+                                    <span className="forge-furnace__slot-hint">拖入卡牌</span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
             {cards.length === 0 && (
@@ -447,10 +471,12 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
                     return null;
                 }
                 
+                const rarityClass = card.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
+                
                 return (
                     <div
                         key={card.id}
-                        className="forge-canvas__card"
+                        className={`forge-canvas__card ${rarityClass}`}
                         style={{
                             left: `${position.x}%`,
                             top: `${position.y}%`,

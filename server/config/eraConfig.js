@@ -7,6 +7,10 @@ export const ERAS = [
   { name: '理性时代', order: 5, description: '理性与科学的兴起' },
   { name: '信仰时代', order: 6, description: '精神信仰的体系化' },
   { name: '启蒙时代', order: 7, description: '人类文明的觉醒与突破' },
+  { name: '全球时代', order: 8, description: '人类成为统一的行星文明' },
+  { name: '第二次分野时代', order: 9, description: '文明的终极选择：星辰还是奇点' },
+  { name: '星辰时代', order: 10, description: '向外探索，走向星辰大海' },
+  { name: '奇点时代', order: 11, description: '向内探索，超越物质的束缚' },
 ];
 
 // 获取时代顺序
@@ -56,6 +60,26 @@ export const TECH_TIERS = {
     maxTier: 10,
     allowedConcepts: ['科学方法', '人权', '电力', '现代科技', '化学', '生物学', '物理学'],
     forbiddenConcepts: ['核能', '太空旅行', '量子计算'],
+  },
+  '全球时代': {
+    maxTier: 12,
+    allowedConcepts: ['计算机', '航空', '核能', '卫星', '互联网', '全球化', '可持续发展'],
+    forbiddenConcepts: ['量子计算', '太空电梯', '曲率引擎', '脑机接口'],
+  },
+  '第二次分野时代': {
+    maxTier: 15,
+    allowedConcepts: ['太空电梯', '脑机接口', '人工智能', '基因工程', '核聚变'],
+    forbiddenConcepts: ['曲率引擎', '意识上传', '冯·诺依曼探针'],
+  },
+  '星辰时代': {
+    maxTier: 20,
+    allowedConcepts: ['太空工业', '曲率引擎', '冯·诺依曼探针', '行星改造', '反物质'],
+    forbiddenConcepts: ['意识上传', '数字永生', '集体意识'],
+  },
+  '奇点时代': {
+    maxTier: 20,
+    allowedConcepts: ['脑机接口', '意识上传', '数字永生', '集体意识', '虚拟现实'],
+    forbiddenConcepts: ['曲率引擎', '太空殖民', '星际航行'],
   },
 };
 

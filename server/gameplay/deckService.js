@@ -1,23 +1,27 @@
 import pool from '../db/connection.js';
 import logger from '../utils/logger.js';
 
-// 抽牌
+// 抽牌（只抽取灵感卡，钥匙卡通过合成获得）
 export async function drawCards(userId, count = 3) {
   try {
-    // 获取已解锁的卡牌
+    // 获取已解锁的灵感卡（排除钥匙卡和奖励卡）
     const result = await pool.query(
-      `SELECT c.id, c.name, c.type, c.rarity, c.attrs_json, dc.count
+      `SELECT c.id, c.name, c.type, c.rarity, c.attrs_json, c.era, c.card_type, dc.count
        FROM deck_cards dc
        JOIN cards c ON dc.card_id = c.id
-       WHERE dc.user_id = $1 AND dc.discovered = true AND dc.count > 0`,
+       WHERE dc.user_id = $1 
+         AND dc.discovered = true 
+         AND dc.count > 0
+         AND c.card_type = 'inspiration'`,
       [userId]
     );
     
     if (result.rows.length === 0) {
-      throw new Error('No cards available');
+      logger.warn({ userId }, 'No inspiration cards available for drawing');
+      throw new Error('没有可用的灵感卡，请先解锁一些灵感卡');
     }
     
-    // 权重抽卡（稀有度影响）
+    // 权重抽卡（灵感卡通常都是common，权重相同）
     const cards = result.rows;
     const hand = [];
     
@@ -27,6 +31,7 @@ export async function drawCards(userId, count = 3) {
           common: 50,
           uncommon: 30,
           rare: 15,
+          ruby: 15,
           epic: 4,
           legendary: 1,
         }[c.rarity] || 30;
@@ -45,10 +50,21 @@ export async function drawCards(userId, count = 3) {
         }
       }
       
-      hand.push(cards[selectedIndex]);
+      const selectedCard = cards[selectedIndex];
+      // 格式化卡牌数据，确保包含前端需要的所有字段
+      hand.push({
+        id: `card-${selectedCard.id}-${Date.now()}-${i}`,
+        name: selectedCard.name,
+        type: selectedCard.type,
+        rarity: selectedCard.rarity,
+        era: selectedCard.era,
+        cardType: selectedCard.card_type,
+        tier: 1,
+        attrs: selectedCard.attrs_json || {},
+      });
     }
     
-    logger.info({ userId, count, drawn: hand.length }, 'Cards drawn');
+    logger.info({ userId, count, drawn: hand.length, cards: hand.map(c => c.name) }, 'Cards drawn');
     
     return hand;
   } catch (err) {

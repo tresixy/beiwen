@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 
-const CARDS_PER_PAGE = 6;
+const CARDS_PER_PAGE = 9;
 
 const rarityColor = {
     common: 'rgba(207, 210, 216, 0.9)',
+    ruby: 'rgba(220, 20, 60, 0.9)',
     uncommon: 'rgba(144, 238, 198, 0.9)',
     rare: 'rgba(129, 200, 255, 0.9)',
     epic: 'rgba(207, 170, 255, 0.9)',

@@ -6,6 +6,7 @@ import { createProfessionState, generateProfessionChoices } from '../data/profes
 import { createInitialInventory, forgeResultToInventoryItem } from '../data/inventory.js';
 import { createInitialCardBook, addCardToBook, loadCardBook, persistCardBook } from '../data/cardBook.js';
 import * as gameStateApi from '../services/gameStateApi.js';
+import * as eventsApi from '../api/eventsApi.js';
 
 const INITIAL_RESOURCES = {
     food: 8,
@@ -33,7 +34,8 @@ export function useGameSimulation({ pushMessage, token }) {
     const [loading, setLoading] = useState(!!token);
     const [resources, setResources] = useState(INITIAL_RESOURCES);
     const [turn, setTurn] = useState(1);
-    const [hand, setHand] = useState(() => createInitialHand(MAX_HAND_SIZE));
+    // 使用空手牌初始化，等待从服务器加载
+    const [hand, setHand] = useState([]);
     const [cardBook, setCardBook] = useState(() => {
         const loaded = loadCardBook();
         if (loaded && Array.isArray(loaded.cards)) {
@@ -56,6 +58,8 @@ export function useGameSimulation({ pushMessage, token }) {
     const [inventory, setInventory] = useState(createInitialInventory);
     const [inventoryOpen, setInventoryOpen] = useState(false);
     const [cardBookOpen, setCardBookOpen] = useState(false);
+    const [activeEvent, setActiveEvent] = useState(null);
+    const [era, setEra] = useState('生存时代');
 
     const forgeIntervalRef = useRef(null);
     const forgeTimeoutRef = useRef(null);
@@ -95,7 +99,7 @@ export function useGameSimulation({ pushMessage, token }) {
         updateCardBook((prev) => hand.reduce((book, card) => addCardToBook(book, card), prev));
     }, [hand, updateCardBook, serverSyncEnabled, loading]);
 
-    const ensureHandSize = useCallback((cards) => {
+    const ensureHandSize = useCallback(async (cards) => {
         if (cards.length >= MAX_HAND_SIZE) {
             return cards.slice(0, MAX_HAND_SIZE);
         }
@@ -103,40 +107,78 @@ export function useGameSimulation({ pushMessage, token }) {
         if (missing <= 0) {
             return cards.slice(0, MAX_HAND_SIZE);
         }
-        const newCards = Array.from({ length: missing }, () => createCard());
-        updateCardBook((prev) => newCards.reduce((book, card) => addCardToBook(book, card), prev));
-        pushMessage?.(`抽取了 ${missing} 张新的构想。`, 'info');
-        return [...cards, ...newCards];
-    }, [pushMessage, updateCardBook]);
+        
+        if (!token) {
+            console.error('需要登录才能抽牌');
+            pushMessage?.('请先登录', 'error');
+            return cards;
+        }
+        
+        // 从服务器抽牌
+        try {
+            const drawn = await gameStateApi.drawCards(token, missing);
+            const newCards = drawn.hand || [];
+            if (newCards.length > 0) {
+                updateCardBook((prev) => newCards.reduce((book, card) => addCardToBook(book, card), prev));
+                pushMessage?.(`抽取了 ${newCards.length} 张卡牌。`, 'info');
+                return [...cards, ...newCards];
+            }
+            return cards;
+        } catch (err) {
+            console.error('从服务器抽牌失败:', err);
+            pushMessage?.(`抽牌失败: ${err.message}`, 'error');
+            return cards;
+        }
+    }, [pushMessage, updateCardBook, token]);
 
-    const drawCards = useCallback((count = 1) => {
-        setHand((prev) => {
-            if (prev.length >= MAX_HAND_SIZE) {
-                pushMessage?.('手牌已满，无需抽牌。', 'info');
-                return prev;
+    const drawCards = useCallback(async (count = 1) => {
+        if (hand.length >= MAX_HAND_SIZE) {
+            pushMessage?.('手牌已满，无需抽牌。', 'info');
+            return;
+        }
+        
+        if (!token) {
+            console.error('需要登录才能抽牌');
+            pushMessage?.('请先登录', 'error');
+            return;
+        }
+        
+        const slots = Math.min(count, MAX_HAND_SIZE - hand.length);
+        if (slots <= 0) {
+            return;
+        }
+        
+        // 从服务器抽牌
+        try {
+            const drawn = await gameStateApi.drawCards(token, slots);
+            const newCards = drawn.hand || [];
+            if (newCards.length > 0) {
+                setHand((prev) => [...prev, ...newCards]);
+                updateCardBook((prevBook) => newCards.reduce((book, card) => addCardToBook(book, card), prevBook));
+                pushMessage?.(`抽取了 ${newCards.length} 张卡牌。`, 'info');
             }
-            const slots = Math.min(count, MAX_HAND_SIZE - prev.length);
-            if (slots <= 0) {
-                return prev;
-            }
-            const newCards = Array.from({ length: slots }, () => createCard());
-            updateCardBook((prevBook) => newCards.reduce((book, card) => addCardToBook(book, card), prevBook));
-            pushMessage?.(`抽取了 ${slots} 张新的构想。`, 'info');
-            return [...prev, ...newCards];
-        });
-    }, [pushMessage, updateCardBook]);
+        } catch (err) {
+            console.error('从服务器抽牌失败:', err);
+            pushMessage?.(`抽牌失败: ${err.message}`, 'error');
+        }
+    }, [hand, pushMessage, updateCardBook, token]);
 
     const stageCard = useCallback((cardId, position) => {
+        console.log('🎯 stageCard 被调用, cardId:', cardId, 'position:', position);
         let removedId = null;
         let shouldOpenDialogue = false;
         
         setSelectedIds((prev) => {
+            console.log('🎯 当前 selectedIds:', prev);
             if (prev.includes(cardId)) {
+                console.log('🎯 卡牌已在 selectedIds 中，不重复添加');
                 return prev;
             }
             const accumulated = [...prev, cardId];
+            console.log('🎯 添加后 selectedIds:', accumulated);
             if (accumulated.length > MAX_STAGE_CARDS) {
                 removedId = accumulated.shift();
+                console.log('🎯 超过最大数量，移除:', removedId);
             }
             // 当达到2张卡牌时，自动触发AI对话
             if (accumulated.length === MAX_STAGE_CARDS) {
@@ -162,15 +204,11 @@ export function useGameSimulation({ pushMessage, token }) {
     }, []);
 
     const selectCardsForForge = useCallback((cardIds) => {
+        // 熔炉的卡牌单独管理，不影响画布的 selectedIds
+        // 仅用于内部合成逻辑记录
         const unique = Array.from(new Set(cardIds)).filter((id) => hand.some((card) => card.id === id)).slice(0, MAX_STAGE_CARDS);
-        setSelectedIds(unique);
-        setStagedPositions((prev) => {
-            const next = {};
-            unique.forEach((id, index) => {
-                next[id] = prev[id] ?? { x: 25 + index * 12, y: 25 + index * 8 };
-            });
-            return next;
-        });
+        console.log('selectCardsForForge: 熔炉卡牌', unique);
+        // 不做任何状态修改，熔炉组件自己维护 furnaceCards 状态
     }, [hand]);
 
     const updateStagedPosition = useCallback((cardId, position) => {
@@ -226,40 +264,44 @@ export function useGameSimulation({ pushMessage, token }) {
         }
     }, []);
 
-    const finishForge = useCallback((resultCard, finalMessage) => {
+    const finishForge = useCallback(async (resultCard) => {
         // 立即清除选择状态，从场上移除旧卡牌
         const forgedCardIds = [...selectedIds];
         clearSelection();
         
-        setHand((prev) => {
-            const remaining = prev.filter((card) => !forgedCardIds.includes(card.id));
-            const combined = [...remaining, resultCard];
-            return ensureHandSize(combined);
-        });
+        // 将新卡牌放到手牌中，并设置初始位置为画布中间
+        const remaining = hand.filter((card) => !forgedCardIds.includes(card.id));
+        const combined = [...remaining, resultCard];
+        const newHand = await ensureHandSize(combined);
+        setHand(newHand);
+        
+        // 设置新卡牌在画布中间的位置
+        setStagedPositions((prev) => ({
+            ...prev,
+            [resultCard.id]: { x: 50, y: 50 },
+        }));
+        
+        // 选中新卡牌并显示在画布上
+        setSelectedIds([resultCard.id]);
+        
         setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
         updateCardBook((prev) => addCardToBook(prev, resultCard));
         setForgeLoading(false);
         setForgePanelOpen(false);
         setForgeName('');
-        setOverlayState((prev) => ({
-            ...prev,
-            status: 'done',
-            text: finalMessage,
-        }));
-        overlayTimeoutRef.current = window.setTimeout(() => {
-            setOverlayState((prev) => ({ ...prev, visible: false }));
-        }, 900);
-    }, [clearSelection, ensureHandSize, selectedIds, updateCardBook]);
+        setOverlayState((prev) => ({ ...prev, visible: false }));
+        
+        pushMessage?.(`获得新卡牌「${resultCard.name}」`, 'success');
+    }, [clearSelection, ensureHandSize, hand, selectedIds, updateCardBook, pushMessage]);
 
     const scheduleLocalForge = useCallback((cards, trimmedName) => {
-        forgeTimeoutRef.current = window.setTimeout(() => {
+        forgeTimeoutRef.current = window.setTimeout(async () => {
             try {
                 const resultCard = {
                     ...forgeCards(cards, trimmedName),
-                    name: TEST_FORGE_RESULT_NAME,
+                    name: trimmedName || '合成物',
                 };
-                finishForge(resultCard, '本地合成完成');
-                pushMessage?.(`获得新卡牌「${TEST_FORGE_RESULT_NAME}」（本地模式）`, 'info');
+                await finishForge(resultCard);
             } catch (err) {
                 pushMessage?.(err?.message || '合成失败', 'error');
                 setForgeLoading(false);
@@ -267,11 +309,12 @@ export function useGameSimulation({ pushMessage, token }) {
             } finally {
                 stopForgeTimers();
             }
-        }, 4200);
+        }, 2000);
     }, [finishForge, pushMessage, stopForgeTimers]);
 
-    const submitForge = useCallback(async (name, aiIdea = null) => {
-        if (selectedCards.length < 2) {
+    const submitForge = useCallback(async (name, cardsToForge = null, aiIdea = null) => {
+        const cards = cardsToForge || selectedCards;
+        if (cards.length < 2) {
             pushMessage?.('请至少选择两张卡牌进行合成。', 'error');
             return;
         }
@@ -296,7 +339,7 @@ export function useGameSimulation({ pushMessage, token }) {
         }, 1600);
 
         if (TEST_DISABLE_SERVER_SYNTH) {
-            scheduleLocalForge(selectedCards, trimmedName);
+            scheduleLocalForge(cards, trimmedName);
             return;
         }
 
@@ -304,7 +347,7 @@ export function useGameSimulation({ pushMessage, token }) {
             const localToken = token || localStorage.getItem('token');
             if (localToken && serverSyncEnabled) {
                 try {
-                    const cardNames = selectedCards.map(card => card.name);
+                    const cardNames = cards.map(card => card.name);
                     const mode = aiIdea ? 'ai' : 'auto';
                     
                     // 调用统一的合成API
@@ -320,13 +363,10 @@ export function useGameSimulation({ pushMessage, token }) {
                         attrs: data.item?.attrs,
                     };
                     
-                    const message = data.aiUsed ? 'AI融合完成' : '合成完成';
-                    finishForge(resultCard, message);
+                    await finishForge(resultCard);
                     
                     if (data.aiUsed && data.ideas && data.ideas.length > 0) {
-                        pushMessage?.(`AI灵感：${data.ideas[0].results}`, 'success');
-                    } else {
-                        pushMessage?.(`获得新卡牌「${actualName}」`, 'success');
+                        pushMessage?.(`AI灵感：${data.ideas[0].results}`, 'info');
                     }
                     
                     stopForgeTimers();
@@ -338,7 +378,7 @@ export function useGameSimulation({ pushMessage, token }) {
             }
 
             // 降级到本地合成
-            scheduleLocalForge(selectedCards, trimmedName);
+            scheduleLocalForge(cards, trimmedName);
         } catch (err) {
             pushMessage?.(err?.message || '合成失败', 'error');
             setForgeLoading(false);
@@ -558,6 +598,21 @@ export function useGameSimulation({ pushMessage, token }) {
                     if (meaningfulCards.length > 0) {
                         updateCardBook((prev) => meaningfulCards.reduce((book, card) => addCardToBook(book, card), prev));
                     }
+                } else {
+                    // 手牌为空，从服务器抽取初始手牌
+                    try {
+                        const drawn = await gameStateApi.drawCards(token, MAX_HAND_SIZE);
+                        if (drawn.hand && drawn.hand.length > 0) {
+                            setHand(drawn.hand);
+                            const meaningfulCards = drawn.hand.filter((card) => card && card.type !== 'empty');
+                            if (meaningfulCards.length > 0) {
+                                updateCardBook((prev) => meaningfulCards.reduce((book, card) => addCardToBook(book, card), prev));
+                            }
+                        }
+                    } catch (drawErr) {
+                        console.error('抽取初始手牌失败:', drawErr);
+                        pushMessage?.('抽牌失败，使用默认手牌', 'warning');
+                    }
                 }
 
                 // 加载背包
@@ -573,6 +628,26 @@ export function useGameSimulation({ pushMessage, token }) {
                 // 加载契约
                 if (state.contract) {
                     setContract(state.contract);
+                }
+
+                // 加载时代和激活事件
+                if (state.era) {
+                    setEra(state.era);
+                }
+                if (state.activeEvent) {
+                    setActiveEvent(state.activeEvent);
+                }
+
+                // 单独获取激活事件（如果state中没有）
+                if (!state.activeEvent) {
+                    try {
+                        const eventData = await eventsApi.getActiveEvent(token);
+                        if (eventData.event) {
+                            setActiveEvent(eventData.event);
+                        }
+                    } catch (eventErr) {
+                        console.error('获取激活事件失败:', eventErr);
+                    }
                 }
 
                 pushMessage?.('游戏进度已从服务器加载', 'success');
@@ -616,6 +691,55 @@ export function useGameSimulation({ pushMessage, token }) {
     const closeAiDialogue = useCallback(() => {
         setAiDialogueOpen(false);
     }, []);
+
+    // 完成事件的函数
+    const completeEvent = useCallback(async (cardName) => {
+        if (!activeEvent || !token) {
+            return;
+        }
+
+        try {
+            // 从localStorage获取选中的地块（由Lobby设置）
+            const selectedHexStr = localStorage.getItem('selectedHex');
+            const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
+            
+            const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex);
+            
+            if (result.success) {
+                pushMessage?.(`🎉 成功完成【${activeEvent.name}】`, 'success');
+                
+                // 更新时代
+                if (result.newEra) {
+                    setEra(result.newEra);
+                    pushMessage?.(`🌟 进入新时代：${result.newEra}`, 'success');
+                }
+
+                // 刷新激活事件
+                try {
+                    const eventData = await eventsApi.getActiveEvent(token);
+                    if (eventData.event) {
+                        setActiveEvent(eventData.event);
+                    } else {
+                        setActiveEvent(null);
+                        pushMessage?.('🎊 恭喜！你已完成所有挑战！', 'success');
+                    }
+                } catch (err) {
+                    console.error('刷新激活事件失败:', err);
+                    setActiveEvent(null);
+                }
+
+                // 从手牌中移除钥匙卡
+                const cardId = hand.find(c => c.name === cardName)?.id;
+                if (cardId) {
+                    setHand(prev => prev.filter(c => c.id !== cardId));
+                    setSelectedIds(prev => prev.filter(id => id !== cardId));
+                }
+            }
+        } catch (err) {
+            console.error('完成事件失败:', err);
+            pushMessage?.(err.message || '完成事件失败', 'error');
+        }
+    }, [activeEvent, token, pushMessage, hand]);
 
     return {
         loading,
@@ -663,6 +787,9 @@ export function useGameSimulation({ pushMessage, token }) {
         cardBook,
         stagedPositions,
         selectCardsForForge,
+        activeEvent,
+        era,
+        completeEvent,
     };
 }
 

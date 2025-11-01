@@ -5,6 +5,7 @@ import { GameShell } from './components/game/GameShell.jsx';
 import { Lobby } from './components/lobby/Lobby.jsx';
 import { MessageStack } from './components/common/MessageStack.jsx';
 import { CardsDatabase } from './components/admin/CardsDatabase.jsx';
+import { PlayerArchivesPanel } from './components/admin/PlayerArchivesPanel.jsx';
 import { loginRequest } from './services/api.js';
 
 const STORAGE_KEYS = {
@@ -38,8 +39,10 @@ function App() {
         // 检查URL路径来确定初始视图
         const path = window.location.pathname;
         if (path.startsWith('/cardsdatabase')) return 'cardsdatabase';
+        if (path.startsWith('/playerarchives')) return 'playerarchives';
         return 'lobby';
     });
+    const [showPlayerArchives, setShowPlayerArchives] = useState(false);
 
     useEffect(() => {
         if (token) {
@@ -119,12 +122,22 @@ function App() {
         window.history.pushState({}, '', '/cardsdatabase/');
     }, []);
 
+    const handleOpenPlayerArchives = useCallback(() => {
+        setShowPlayerArchives(true);
+    }, []);
+
+    const handleClosePlayerArchives = useCallback(() => {
+        setShowPlayerArchives(false);
+    }, []);
+
     // 监听浏览器前进后退
     useEffect(() => {
         const handlePopState = () => {
             const path = window.location.pathname;
             if (path.startsWith('/cardsdatabase')) {
                 setActiveView('cardsdatabase');
+            } else if (path.startsWith('/playerarchives')) {
+                setActiveView('playerarchives');
             } else {
                 setActiveView('lobby');
             }
@@ -148,9 +161,11 @@ function App() {
             return (
                 <Lobby
                     user={user}
+                    token={token}
                     onEnterGame={handleEnterGame}
                     onLogout={handleLogout}
                     onEnterCardsDatabase={handleEnterCardsDatabase}
+                    onOpenPlayerArchives={handleOpenPlayerArchives}
                 />
             );
         }
@@ -183,6 +198,12 @@ function App() {
         <div id="app">
             {screen}
             <MessageStack messages={messages} onDismiss={dismissMessage} />
+            {showPlayerArchives && token && (
+                <PlayerArchivesPanel
+                    token={token}
+                    onClose={handleClosePlayerArchives}
+                />
+            )}
         </div>
     );
 }

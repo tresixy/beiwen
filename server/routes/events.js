@@ -36,7 +36,7 @@ router.get('/active', authMiddleware, async (req, res) => {
 router.post('/complete', authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
-    const { eventId, key } = req.body;
+    const { eventId, key, selectedHex } = req.body;
 
     if (!eventId || !key) {
       return res.status(400).json({ error: '缺少eventId或key参数' });
@@ -48,8 +48,9 @@ router.post('/complete', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: '该event未激活或已完成' });
     }
 
-    // 验证钥匙
-    if (activeEvent.required_key !== key) {
+    // 验证钥匙（特殊处理第二次分野时代的多选钥匙）
+    const requiredKeys = activeEvent.required_key.split('或').map(k => k.trim());
+    if (!requiredKeys.includes(key)) {
       return res.status(400).json({ 
         error: '钥匙不匹配',
         required: activeEvent.required_key,
@@ -57,10 +58,10 @@ router.post('/complete', authMiddleware, async (req, res) => {
       });
     }
 
-    // 完成event
-    const result = await eventService.completeEvent(userId, eventId, key);
+    // 完成event（传入选中的地块坐标）
+    const result = await eventService.completeEvent(userId, eventId, key, selectedHex);
 
-    logger.info({ userId, eventId, key, result }, 'Event completed');
+    logger.info({ userId, eventId, key, selectedHex, result }, 'Event completed');
 
     res.json({
       success: true,
@@ -68,6 +69,7 @@ router.post('/complete', authMiddleware, async (req, res) => {
       reward: activeEvent.reward,
       newEra: result.newEra,
       nextEventId: result.nextEventId,
+      tileMarkers: result.tileMarkers,
       progress: {
         completed: result.completedCount,
         total: activeEvent.totalEvents,

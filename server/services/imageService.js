@@ -60,9 +60,12 @@ export async function generateImage(prompt, itemId = null, options = {}) {
     };
     
     // 缓存结果（30天）
-    await cacheSet(cacheKey, imageData, 30 * 24 * 3600);
+    const cacheSuccess = await cacheSet(cacheKey, imageData, 30 * 24 * 3600);
+    if (!cacheSuccess) {
+      logger.warn({ imageId: imageData.id, promptHash }, 'Failed to cache image result (Redis unavailable or error)');
+    }
     
-    logger.info({ imageId: imageData.id, promptHash }, 'Image generated');
+    logger.info({ imageId: imageData.id, promptHash, cached: cacheSuccess }, 'Image generated');
     
     return imageData;
   } catch (err) {

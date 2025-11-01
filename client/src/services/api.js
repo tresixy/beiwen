@@ -32,10 +32,10 @@ export async function apiRequest(path, { method = 'GET', body, token, headers } 
     return payload;
 }
 
-export function loginRequest({ email }) {
+export function loginRequest({ email, password }) {
     return apiRequest('/api/auth/login', {
         method: 'POST',
-        body: { email },
+        body: { email, password },
     });
 }
 

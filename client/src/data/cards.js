@@ -5,27 +5,10 @@ export const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
 
 const RARITY_WEIGHTS = [0.38, 0.28, 0.2, 0.1, 0.04];
 
-// 生存时代初始卡牌（游戏开始时发放）
-const STARTER_CARDS = [
-    { name: '人', type: 'inspiration', rarity: 'common', era: '生存时代' },
-    { name: '石头', type: 'inspiration', rarity: 'common', era: '生存时代' },
-];
-
-// 生存时代基础卡牌池
-const SURVIVAL_ERA_CARDS = [
-    { name: '水', type: 'inspiration', rarity: 'common', era: '生存时代' },
-    { name: '木头', type: 'inspiration', rarity: 'common', era: '生存时代' },
-    { name: '土地', type: 'inspiration', rarity: 'common', era: '生存时代' },
-    { name: '种子', type: 'inspiration', rarity: 'common', era: '生存时代' },
-    { name: '冲突', type: 'inspiration', rarity: 'common', era: '生存时代' },
-    { name: '风', type: 'inspiration', rarity: 'common', era: '生存时代' },
-];
-
-// 兼容旧代码的基础元素定义
-const BASIC_ELEMENTS = [
-    ...STARTER_CARDS,
-    ...SURVIVAL_ERA_CARDS,
-];
+// ============================================
+// 已废弃：前端硬编码的卡牌数据
+// 所有卡牌数据现在从数据库加载
+// ============================================
 
 let cardIdCursor = 0;
 
@@ -64,30 +47,11 @@ export function createCard(overrides = {}) {
     };
 }
 
+// 已废弃：不再使用前端创建初始手牌
+// 所有手牌从服务器通过 /api/deck/draw 获取
 export function createInitialHand(size = 5) {
-    // 新卡牌系统：从生存时代卡牌中选择初始手牌
-    const selected = [];
-    
-    // 先加入2张起始卡（人、石头）
-    STARTER_CARDS.forEach(card => {
-        selected.push({
-            ...card,
-            id: `card-${cardIdCursor += 1}`,
-        });
-    });
-    
-    // 从生存时代卡牌池中随机选择剩余卡牌
-    const poolCopy = [...SURVIVAL_ERA_CARDS];
-    while (selected.length < size && poolCopy.length > 0) {
-        const randomIndex = Math.floor(Math.random() * poolCopy.length);
-        const card = poolCopy.splice(randomIndex, 1)[0];
-        selected.push({
-            ...card,
-            id: `card-${cardIdCursor += 1}`,
-        });
-    }
-    
-    return selected.slice(0, size);
+    console.error('createInitialHand 已废弃，请使用服务器 API: /api/deck/draw');
+    return [];
 }
 
 export function upgradeRarity(cards) {
@@ -110,18 +74,17 @@ export function forgeCards(selectedCards, name) {
     return createCard({ rarity, name });
 }
 
-// 根据时代获取卡牌池
+// 已废弃：不再使用前端获取卡牌池
+// 所有卡牌数据从服务器 API 获取
 export function getCardsByEra(eraName) {
-    // TODO: 实现从服务器获取时代卡牌
-    // 目前返回基础卡牌作为默认
-    return BASIC_ELEMENTS;
+    console.error('getCardsByEra 已废弃，请使用服务器 API: /api/cards/era/' + eraName);
+    return [];
 }
 
-// 获取起始卡牌
+// 已废弃：不再使用前端获取起始卡牌
+// 用户卡牌从 /api/deck/state 获取
 export function getStarterCards() {
-    return STARTER_CARDS.map(card => ({
-        ...card,
-        id: `card-${cardIdCursor += 1}`,
-    }));
+    console.error('getStarterCards 已废弃，请使用服务器 API: /api/deck/state');
+    return [];
 }
 

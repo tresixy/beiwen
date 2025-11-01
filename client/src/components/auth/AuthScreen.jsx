@@ -2,13 +2,18 @@ import { useCallback, useState } from 'react';
 
 export function AuthScreen({ onLogin, loading }) {
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     const handleEmailChange = useCallback((event) => {
         setEmail(event.target.value);
     }, []);
 
-    const validateEmail = useCallback(() => {
+    const handlePasswordChange = useCallback((event) => {
+        setPassword(event.target.value);
+    }, []);
+
+    const validateForm = useCallback(() => {
         if (!email.trim()) {
             return '请输入邮箱地址';
         }
@@ -16,14 +21,20 @@ export function AuthScreen({ onLogin, loading }) {
         if (!emailRegex.test(email.trim())) {
             return '请输入有效的邮箱地址';
         }
+        if (!password) {
+            return '请输入密码';
+        }
+        if (password.length < 4) {
+            return '密码至少4位';
+        }
         return '';
-    }, [email]);
+    }, [email, password]);
 
     const handleSubmit = useCallback(async (event) => {
         event.preventDefault();
         setError('');
 
-        const invalid = validateEmail();
+        const invalid = validateForm();
         if (invalid) {
             setError(invalid);
             return;
@@ -32,11 +43,12 @@ export function AuthScreen({ onLogin, loading }) {
         try {
             await onLogin({
                 email: email.trim(),
+                password: password,
             });
         } catch (err) {
             setError(err?.message || '操作失败，请稍后再试');
         }
-    }, [email, onLogin, validateEmail]);
+    }, [email, password, onLogin, validateForm]);
 
     return (
         <div className="auth-screen">
@@ -44,15 +56,28 @@ export function AuthScreen({ onLogin, loading }) {
                 <h1>无限合成</h1>
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className="auth-field">
-                        <label htmlFor="email">邮箱</label>
+                        <label htmlFor="email">公司邮箱</label>
                         <input
                             id="email"
                             name="email"
                             type="email"
                             autoComplete="email"
-                            placeholder="请输入您的邮箱"
+                            placeholder="请输入您的公司邮箱"
                             value={email}
                             onChange={handleEmailChange}
+                            disabled={loading}
+                        />
+                    </div>
+                    <div className="auth-field">
+                        <label htmlFor="password">初始密码</label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            placeholder="请输入密码（至少6位）"
+                            value={password}
+                            onChange={handlePasswordChange}
                             disabled={loading}
                         />
                     </div>
@@ -69,7 +94,7 @@ export function AuthScreen({ onLogin, loading }) {
                     </button>
                 </form>
                 <div className="auth-hint">
-                    这是一款由 AI 与合成哲学驱动的策略体验。首次使用邮箱登录将自动创建账号。
+                    首次登录将自动注册账号。忘记密码请联系管理员。
                 </div>
             </div>
         </div>

@@ -7,21 +7,21 @@ import { TECH_TIERS } from '../config/eraConfig.js';
 
 let openai = null;
 
-if (env.aiEnabled && env.openaiApiKey) {
+if (env.aiEnabled && env.aiApiKey) {
   const clientOptions = {
-    apiKey: env.openaiApiKey,
+    apiKey: env.aiApiKey,
   };
 
-  if (env.openaiBaseUrl) {
-    clientOptions.baseURL = env.openaiBaseUrl;
+  if (env.aiBaseUrl) {
+    clientOptions.baseURL = env.aiBaseUrl;
   }
 
   const defaultHeaders = {};
-  if (env.openaiHttpReferer) {
-    defaultHeaders['HTTP-Referer'] = env.openaiHttpReferer;
+  if (env.aiHttpReferer) {
+    defaultHeaders['HTTP-Referer'] = env.aiHttpReferer;
   }
-  if (env.openaiXTitle) {
-    defaultHeaders['X-Title'] = env.openaiXTitle;
+  if (env.aiXTitle) {
+    defaultHeaders['X-Title'] = env.aiXTitle;
   }
 
   if (Object.keys(defaultHeaders).length > 0) {
@@ -32,14 +32,14 @@ if (env.aiEnabled && env.openaiApiKey) {
 }
 
 // AI合成
-export async function synthesizeByAI(inputItems, name, userId, profession = null, currentEra = '生存时代') {
+export async function synthesizeByAI(inputItems, name, userId, currentEra = '生存时代') {
   if (!env.aiEnabled || !openai) {
     throw new Error('AI service not available');
   }
 
   const recipeHash = generateRecipeHash(
     inputItems.map(i => i.id),
-    `${name || '未命名'}${profession?.name ? `#${profession.name}` : ''}#${currentEra}`
+    `${name || '未命名'}#${currentEra}`
   );
   const cacheKey = `cache:recipe:${recipeHash}`;
 
@@ -53,9 +53,8 @@ export async function synthesizeByAI(inputItems, name, userId, profession = null
     const inputNames = inputItems.map(item => item.name);
     const combinationSentence = formatCombinationInputs(inputNames);
 
-    const professionLine = profession?.name
-      ? `职业：${profession.name}（偏好：${Array.isArray(profession.focus) && profession.focus.length ? profession.focus.join('、') : '综合'}）`
-      : '职业：无';
+    // 获取AI文明名称（优先使用第一张卡牌的ai_civilization_name，否则使用currentEra）
+    const aiCivilizationName = inputItems[0]?.ai_civilization_name || currentEra || '石器时代';
 
     // 获取时代限制
     const techConfig = TECH_TIERS[currentEra] || TECH_TIERS['生存时代'];
@@ -66,25 +65,25 @@ export async function synthesizeByAI(inputItems, name, userId, profession = null
     ].join('；');
 
     const prompt = [
-      `我在做一个游戏，我需要你用json格式回复我：${combinationSentence}可以合成什么东西。`,
+      `我在做一个游戏，我需要你用json格式回复我：${combinationSentence}在${aiCivilizationName}可以合成什么东西。`,
       '你需要想象所有可能合成的东西，可以是现实的、魔法的、科幻的、魔幻的等等所有能想象到的内容。',
-      professionLine,
       techRestriction,
       '请确保只返回一个JSON，格式如下：',
       '{',
       '  "combinations": [',
-      '    {"results": "...", "prompt": "..."}',
+      '    {"name": "合成物名称", "prompt": "生图提示词"}',
       '  ]',
       '}',
       '要求：',
       '1. 至少给出3个不同的合成结果设想；',
-      '2. results 使用中文详细描述每个合成物，prompt 填写用于生成图标的中文提示词；',
+      '2. name 字段填写合成物的名称（中文），prompt 字段填写简单的生图提示词（中文）；',
       '3. 合成结果必须符合当前时代的科技限制，不能包含禁止的概念；',
-      '4. 不要输出JSON以外的任何多余文字。'
+      '4. 每个合成物都要有独立的 {name:"", prompt:""} 对象；',
+      '5. 只返回JSON，不要有其他文字。'
     ].join('\n');
 
     const response = await openai.chat.completions.create({
-      model: env.openaiModel,
+      model: env.aiModel,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.9,
       max_tokens: 800,
@@ -97,7 +96,7 @@ export async function synthesizeByAI(inputItems, name, userId, profession = null
 
     const parsed = parseAiCombination(rawContent);
     const ideas = Array.isArray(parsed.combinations)
-      ? parsed.combinations.filter(entry => entry && entry.results)
+      ? parsed.combinations.filter(entry => entry && (entry.name || entry.results))
       : [];
 
     if (ideas.length === 0) {
@@ -106,21 +105,15 @@ export async function synthesizeByAI(inputItems, name, userId, profession = null
 
     const tier = calculateTier(inputItems);
     const primaryIdea = ideas[0];
-    const outputName = deriveNameFromIdea(primaryIdea.results, name, inputNames);
+    // 支持新格式(name)和旧格式(results)
+    const ideaName = primaryIdea.name || primaryIdea.results;
+    const outputName = deriveNameFromIdea(ideaName, name, inputNames);
 
     const attrs = {
-      description: primaryIdea.results,
+      description: ideaName,
       ideas,
       source: 'ai',
     };
-
-    if (profession?.name) {
-      attrs.professionSynergy = {
-        profession: profession.name,
-        focus: profession.focus || [],
-        bonus: profession.bonus || '职业偏好影响了本次合成结果',
-      };
-    }
 
     const iconPrompts = ideas.map(entry => entry.prompt).filter(Boolean);
     if (iconPrompts.length > 0) {
@@ -137,12 +130,16 @@ export async function synthesizeByAI(inputItems, name, userId, profession = null
       output,
       ideas,
       prompt,
-      model: env.openaiModel,
+      model: env.aiModel,
     };
 
-    await cacheSet(cacheKey, payload, 7 * 24 * 3600);
+    // 缓存AI合成结果（7天）
+    const cacheSuccess = await cacheSet(cacheKey, payload, 7 * 24 * 3600);
+    if (!cacheSuccess) {
+      logger.warn({ userId, recipe_hash: recipeHash }, 'Failed to cache AI synthesis result (Redis unavailable or error)');
+    }
 
-    logger.info({ userId, recipe_hash: recipeHash }, 'AI synthesis completed');
+    logger.info({ userId, recipe_hash: recipeHash, cached: cacheSuccess }, 'AI synthesis completed');
 
     return payload;
   } catch (err) {
@@ -173,7 +170,7 @@ export async function generateImage(prompt, options = {}) {
     return {
       url: imageUrl,
       prompt,
-      provider: 'openai',
+      provider: 'openrouter',
     };
   } catch (err) {
     logger.error({ err, prompt }, 'Image generation error');
@@ -282,7 +279,7 @@ export async function generateProfessionOptions(context) {
 
   try {
     const response = await openai.chat.completions.create({
-      model: env.openaiModel,
+      model: env.aiModel,
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.85,
       max_tokens: 800,

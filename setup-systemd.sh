@@ -53,3 +53,4 @@ echo "  查看日志: sudo journalctl -u minigame -f"
 echo "  查看应用日志: tail -f /root/minigame/logs/server.log"
 echo ""
 
+

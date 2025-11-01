@@ -4,7 +4,7 @@ import { findCustomRule } from '../rules/customRules.js';
 import logger from '../utils/logger.js';
 
 // 规则合成（确定性）
-export async function synthesizeByRule(inputItems, name, profession = null, currentEra = '生存时代') {
+export async function synthesizeByRule(inputItems, name, currentEra = '生存时代') {
   try {
     const inputNames = inputItems.map(item => item.name);
     
@@ -20,7 +20,7 @@ export async function synthesizeByRule(inputItems, name, profession = null, curr
     
     // 基础合成逻辑
     const avgTier = Math.ceil(inputItems.reduce((sum, item) => sum + (item.tier || 1), 0) / inputItems.length);
-    let tier = Math.min(avgTier + 1, 10);
+    const tier = Math.min(avgTier + 1, 10);
     
     // 合并属性
     const attrs = {};
@@ -28,20 +28,6 @@ export async function synthesizeByRule(inputItems, name, profession = null, curr
       Object.assign(attrs, item.attrs_json);
     });
     
-    if (profession?.name) {
-      const focus = Array.isArray(profession.focus) ? profession.focus : [];
-      const synergyScore = calculateProfessionSynergy(inputItems, focus);
-      if (synergyScore > 0) {
-        tier = Math.min(tier + 1, 10);
-      }
-      attrs.professionSynergy = {
-        profession: profession.name,
-        focus,
-        bonus: profession.bonus || '职业为该次合成带来灵感',
-        synergyScore,
-      };
-    }
-
     attrs.era = currentEra;
 
     return {
@@ -53,31 +39,6 @@ export async function synthesizeByRule(inputItems, name, profession = null, curr
     logger.error({ err, inputItems }, 'SynthesizeByRule error');
     throw err;
   }
-}
-
-function calculateProfessionSynergy(inputItems, focus = []) {
-  if (!focus || focus.length === 0) {
-    return 0;
-  }
-
-  const keywords = focus.map(f => String(f).toLowerCase());
-  let score = 0;
-
-  inputItems.forEach(item => {
-    const name = (item.name || '').toLowerCase();
-    const attrs = item.attrs_json || {};
-    keywords.forEach(keyword => {
-      if (keyword && name.includes(keyword)) {
-        score += 1;
-      }
-      const attrValues = Object.values(attrs).map(v => String(v).toLowerCase());
-      if (attrValues.some(v => v.includes(keyword))) {
-        score += 1;
-      }
-    });
-  });
-
-  return score;
 }
 
 // 保存合成结果
@@ -125,14 +86,47 @@ export function generateRecipeHash(inputItemIds, name) {
 // 获取输入物品
 export async function getInputItems(inputItemIds) {
   try {
-    // 如果输入是字符串数组（名称），创建临时物品对象
+    // 如果输入是字符串数组（名称），从cards表查询
     if (Array.isArray(inputItemIds) && inputItemIds.length > 0 && typeof inputItemIds[0] === 'string' && !inputItemIds[0].match(/^\d+$/)) {
-      return inputItemIds.map(name => ({
-        id: null,
-        name: name,
-        tier: 1,
-        attrs_json: { type: '基础元素' },
-      }));
+      const cardResult = await pool.query(
+        `SELECT id, name, rarity, attrs_json, era, ai_civilization_name
+         FROM cards
+         WHERE name = ANY($1)`,
+        [inputItemIds]
+      );
+      
+      // 将卡牌稀有度映射为tier
+      const rarityToTier = {
+        'common': 1,
+        'uncommon': 2,
+        'rare': 3,
+        'epic': 4,
+        'legendary': 5
+      };
+      
+      // 为每个输入名称创建物品对象
+      return inputItemIds.map(name => {
+        const card = cardResult.rows.find(c => c.name === name);
+        if (card) {
+          return {
+            id: card.id,
+            name: card.name,
+            tier: rarityToTier[card.rarity] || 1,
+            attrs_json: card.attrs_json || { type: '基础元素' },
+            era: card.era,
+            ai_civilization_name: card.ai_civilization_name,
+          };
+        }
+        // 如果找不到卡牌，返回默认对象
+        return {
+          id: null,
+          name: name,
+          tier: 1,
+          attrs_json: { type: '基础元素' },
+          era: null,
+          ai_civilization_name: null,
+        };
+      });
     }
     
     const result = await pool.query(

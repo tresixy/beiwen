@@ -5,7 +5,6 @@ import { synthesizeSchema } from '../utils/validators.js';
 import * as synthService from '../services/synthService.js';
 import * as aiService from '../services/aiService.js';
 import * as inventoryService from '../services/inventoryService.js';
-import * as professionService from '../services/professionService.js';
 import * as eventService from '../services/eventService.js';
 import * as cardService from '../services/cardService.js';
 import { isTechAllowed } from '../config/eraConfig.js';
@@ -23,17 +22,12 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
     // 获取输入物品
     const inputItems = await synthService.getInputItems(inputs);
     
-    // 获取职业信息和时代信息
-    const [professionState, eventState] = await Promise.all([
-      professionService.getProfessionState(userId),
-      eventService.getEventState(userId),
-    ]);
-    const activeProfession = professionState.carryOver !== false ? professionState.active : null;
+    // 获取时代信息
+    const eventState = await eventService.getEventState(userId);
     const currentEra = eventState.era || '生存时代';
 
     // 生成配方哈希
-    const hashName = activeProfession?.name ? `${name || '未命名'}#${activeProfession.name}` : name;
-    const recipe_hash = synthService.generateRecipeHash(inputs, hashName);
+    const recipe_hash = synthService.generateRecipeHash(inputs, name || '未命名');
     
     let output;
     let aiUsed = false;
@@ -44,7 +38,7 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
     // 尝试AI合成
     if ((mode === 'ai' || mode === 'auto') && env.aiEnabled) {
       try {
-        const aiResult = await aiService.synthesizeByAI(inputItems, name, userId, activeProfession, currentEra);
+        const aiResult = await aiService.synthesizeByAI(inputItems, name, userId, currentEra);
         output = aiResult.output;
         aiIdeas = aiResult.ideas;
         aiPromptUsed = aiResult.prompt;
@@ -61,7 +55,7 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
     
     // 降级到规则合成
     if (!output) {
-      output = await synthService.synthesizeByRule(inputItems, name, activeProfession, currentEra);
+      output = await synthService.synthesizeByRule(inputItems, name, currentEra);
       logger.info({ userId, mode: 'rule', preview, era: currentEra }, 'Rule synthesis used');
     }
     
@@ -90,13 +84,6 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
         responsePayload.ideas = aiIdeas;
       }
 
-      if (activeProfession) {
-        responsePayload.profession = {
-          active: activeProfession,
-          carryOver: professionState.carryOver !== false,
-        };
-      }
-
       return res.json(responsePayload);
     }
     
@@ -107,7 +94,7 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
       output,
       recipe_hash,
       aiPromptUsed,
-      aiModelUsed || (aiUsed ? env.openaiModel : null)
+      aiModelUsed || (aiUsed ? env.aiModel : null)
     );
     
     // 添加到背包
@@ -163,13 +150,6 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
 
     if (aiIdeas) {
       responsePayload.ideas = aiIdeas;
-    }
-
-    if (activeProfession) {
-      responsePayload.profession = {
-        active: activeProfession,
-        carryOver: professionState.carryOver !== false,
-      };
     }
     
     if (inventoryFull) {

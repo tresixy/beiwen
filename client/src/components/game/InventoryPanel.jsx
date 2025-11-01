@@ -50,3 +50,4 @@ export function InventoryPanel({ open, items, onClose }) {
 
 
 
+

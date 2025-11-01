@@ -196,7 +196,7 @@ export async function createOrGetUserCard(userId, cardData) {
     const {
       name,
       type = 'inspiration',
-      rarity = 'common',
+      rarity = 'rare', // 用户生成的卡默认为蓝色
       era = null,
       card_type = 'inspiration',
       attrs_json = {},

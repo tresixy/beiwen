@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 const RESOURCE_LIST = [
     { key: 'food', icon: '🍖', label: '食粮' },
     { key: 'production', icon: '⚙️', label: '生产' },
@@ -9,8 +11,45 @@ export function HUD({
     pulses,
     turn,
     user,
+    activeEvent,
+    era,
+    onCompleteEvent,
     onShowGuide,
 }) {
+    const [isDragOver, setIsDragOver] = useState(false);
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e) => {
+        setIsDragOver(false);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        
+        // 获取拖拽的卡牌ID，需要找到对应的卡牌名称
+        const cardId = e.dataTransfer.getData('text/plain');
+        
+        // 从data属性中获取卡牌名称
+        const cardName = e.dataTransfer.getData('card-name');
+        
+        console.log('🎯 卡牌拖到事件上:', cardName, cardId);
+        
+        if (cardName && activeEvent) {
+            // 检查卡牌名称是否匹配事件所需的钥匙
+            if (activeEvent.required_key === cardName) {
+                onCompleteEvent?.(cardName);
+            } else {
+                console.log('❌ 钥匙不匹配，需要:', activeEvent.required_key, '得到:', cardName);
+            }
+        }
+    };
+
     return (
         <header className="hud">
             <div className="resources">
@@ -23,9 +62,25 @@ export function HUD({
                     </div>
                 ))}
             </div>
-            <div className="turn-info">回合 {turn}</div>
+            <div 
+                className={`event-info ${isDragOver ? 'drag-over' : ''}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+            >
+                {activeEvent ? (
+                    <>
+                        <div className="event-name">{activeEvent.name}</div>
+                        <div className="event-desc">{activeEvent.description}</div>
+                        <div className="event-key-hint">需要：【{activeEvent.required_key}】</div>
+                    </>
+                ) : (
+                    <div className="event-name">回合 {turn}</div>
+                )}
+            </div>
             <div className="hud-user">
                 <span>{user?.username ?? '旅者'}</span>
+                <span className="era-badge">{era}</span>
             </div>
             <button 
                 type="button" 

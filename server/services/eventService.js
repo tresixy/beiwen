@@ -2,6 +2,7 @@ import pool from '../db/connection.js';
 import logger from '../utils/logger.js';
 import { getEraOrder } from '../config/eraConfig.js';
 import * as cardService from './cardService.js';
+import * as tileMarkerService from './tileMarkerService.js';
 
 // 为玩家生成本局的events序列
 export async function generateEventSequence(userId) {
@@ -23,7 +24,7 @@ export async function generateEventSequence(userId) {
 
     // 为每个时代随机选择一个event
     const sequence = [];
-    const eras = ['生存时代', '城邦时代', '分野时代', '帝国时代', '理性时代', '信仰时代', '启蒙时代'];
+    const eras = ['生存时代', '城邦时代', '分野时代', '帝国时代', '理性时代', '信仰时代', '启蒙时代', '全球时代', '第二次分野时代', '星辰时代', '奇点时代'];
     
     for (const era of eras) {
       const eraEvents = eventsByEra[era] || [];
@@ -124,7 +125,7 @@ export async function getActiveEvent(userId) {
 }
 
 // 完成event，解锁钥匙并激活下一个event
-export async function completeEvent(userId, eventId, unlockedKey) {
+export async function completeEvent(userId, eventId, unlockedKey, selectedHex = null) {
   const client = await pool.connect();
   
   try {
@@ -168,7 +169,46 @@ export async function completeEvent(userId, eventId, unlockedKey) {
 
     // 检查是否需要升级时代
     let newEra = state.era;
-    if (nextEventId) {
+    
+    // 特殊处理第二次分野时代：根据选择的钥匙决定进入星辰时代还是奇点时代
+    if (state.era === '第二次分野时代') {
+      if (unlockedKey === '太空电梯') {
+        newEra = '星辰时代';
+        logger.info({ userId, choice: unlockedKey, newEra }, 'Chosen stellar path');
+      } else if (unlockedKey === '脑机接口') {
+        newEra = '奇点时代';
+        logger.info({ userId, choice: unlockedKey, newEra }, 'Chosen singularity path');
+      }
+      
+      // 第二次分野后需要生成新的事件序列
+      if (newEra !== state.era) {
+        const eras = newEra === '星辰时代' 
+          ? ['星辰时代']
+          : ['奇点时代'];
+        
+        const newSequence = [];
+        for (const era of eras) {
+          const eraResult = await client.query(
+            'SELECT id FROM events WHERE era = $1 ORDER BY event_number',
+            [era]
+          );
+          newSequence.push(...eraResult.rows.map(r => r.id));
+        }
+        
+        // 更新事件序列
+        await client.query(
+          'UPDATE user_game_state SET event_sequence = $1 WHERE user_id = $2',
+          [JSON.stringify(newSequence), userId]
+        );
+        
+        // 设置下一个事件为新序列的第一个
+        const firstNewEventId = newSequence.length > 0 ? newSequence[0] : null;
+        await client.query(
+          'UPDATE user_game_state SET active_event_id = $1 WHERE user_id = $2',
+          [firstNewEventId, userId]
+        );
+      }
+    } else if (nextEventId) {
       const nextEventResult = await client.query(
         'SELECT era FROM events WHERE id = $1',
         [nextEventId]
@@ -205,17 +245,46 @@ export async function completeEvent(userId, eventId, unlockedKey) {
 
     logger.info({ userId, eventId, unlockedKey, newEra }, 'Event completed');
 
-    // 完成事务后，解锁奖励卡牌（不在事务中执行，避免阻塞）
+    // 获取事件信息用于后续处理
+    let eventName = '';
+    let eventReward = '';
     try {
-      const eventResult = await pool.query('SELECT name FROM events WHERE id = $1', [eventId]);
+      const eventResult = await pool.query('SELECT name, reward FROM events WHERE id = $1', [eventId]);
       if (eventResult.rows.length > 0) {
-        const eventName = eventResult.rows[0].name.replace(/【|】/g, ''); // 移除【】符号
+        eventName = eventResult.rows[0].name.replace(/【|】/g, ''); // 移除【】符号
+        eventReward = eventResult.rows[0].reward;
+        
+        // 解锁奖励卡牌
         const unlockedRewardCards = await cardService.checkAndUnlockRewardCards(userId, eventName);
         logger.info({ userId, eventId, eventName, unlockedRewardCards }, 'Reward cards unlocked after event');
       }
     } catch (cardErr) {
       logger.error({ err: cardErr, userId, eventId }, 'Failed to unlock reward cards');
       // 不抛出错误，因为event已经完成
+    }
+
+    // 在地图上放置标志并高亮地块
+    let tileMarkerResult = null;
+    if (selectedHex && eventReward) {
+      try {
+        tileMarkerResult = await tileMarkerService.markEventCompletion(
+          userId,
+          selectedHex.q,
+          selectedHex.r,
+          eventReward,
+          eventName
+        );
+        logger.info({ 
+          userId, 
+          eventId, 
+          selectedHex, 
+          reward: eventReward,
+          tileMarkerResult 
+        }, 'Tile markers placed for event completion');
+      } catch (markerErr) {
+        logger.error({ err: markerErr, userId, eventId, selectedHex }, 'Failed to place tile markers');
+        // 不抛出错误，标志放置失败不影响事件完成
+      }
     }
     
     // 如果进入新时代，解锁该时代的初始卡牌
@@ -234,6 +303,7 @@ export async function completeEvent(userId, eventId, unlockedKey) {
       unlockedKey,
       nextEventId,
       completedCount: completedEvents.length,
+      tileMarkers: tileMarkerResult,
     };
   } catch (err) {
     await client.query('ROLLBACK');

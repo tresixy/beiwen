@@ -330,7 +330,7 @@ function isWithinLandShape(q, r) {
     return dist <= radius;
 }
 
-export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
+export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = [], highlightedTiles = [] }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -340,6 +340,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
     const [hoveredHex, setHoveredHex] = useState(null);
     const [selectedHex, setSelectedHex] = useState(null);
     const hexMapRef = useRef(new Map());
+    const [breathePhase, setBreathePhase] = useState(0);
 
     const terrainMap = useMemo(() => {
         const map = new Map();
@@ -823,10 +824,77 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         // 按Y坐标排序（从上到下绘制）
         hexesToDraw.sort((a, b) => a.py - b.py);
 
+        // 创建高亮地块的Set以便快速查找
+        const highlightedSet = new Set(highlightedTiles.map(t => `${t.q},${t.r}`));
+        
         for (const hex of hexesToDraw) {
             const isSelected = selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r;
             const isHovered = hoveredHex && hoveredHex.q === hex.q && hoveredHex.r === hex.r;
+            const isHighlighted = highlightedSet.has(`${hex.q},${hex.r}`);
+            
             drawSketchTile(hex.px, hex.py, hex.terrainData, isSelected, isHovered);
+            
+            // 绘制永久高亮效果（呼吸边缘）
+            if (isHighlighted) {
+                const tileW = size * 1.5;
+                const tileH = size * 0.75;
+                const points = [
+                    { x: hex.px, y: hex.py - tileH },
+                    { x: hex.px + tileW, y: hex.py },
+                    { x: hex.px, y: hex.py + tileH },
+                    { x: hex.px - tileW, y: hex.py },
+                ];
+                
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.closePath();
+                
+                // 呼吸效果：alpha从0.3到0.8之间变化
+                const alpha = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(breathePhase));
+                ctx.strokeStyle = `rgba(255, 215, 0, ${alpha})`;
+                ctx.lineWidth = 4 * scale;
+                ctx.stroke();
+                
+                // 内发光效果
+                ctx.shadowColor = `rgba(255, 215, 0, ${alpha * 0.5})`;
+                ctx.shadowBlur = 12 * scale;
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+        
+        // 绘制标志（必须在地块之后绘制，按Y轴排序确保遮挡关系正确）
+        const markersToRender = markers
+            .map(marker => {
+                const key = `${marker.q},${marker.r}`;
+                const hexPos = hexMapRef.current.get(key);
+                if (!hexPos) return null;
+                return { ...marker, px: hexPos.px, py: hexPos.py };
+            })
+            .filter(m => m !== null)
+            .sort((a, b) => a.py - b.py); // 按Y坐标排序，上面的先画
+        
+        for (const marker of markersToRender) {
+            if (marker.image_path) {
+                // TODO: 加载并绘制标志图片
+                // 这里先绘制一个占位符
+                const markerSize = size * 0.8;
+                ctx.save();
+                ctx.fillStyle = 'rgba(255, 100, 50, 0.8)';
+                ctx.beginPath();
+                ctx.arc(marker.px, marker.py, markerSize * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = `${markerSize * 0.4}px var(--font-game)`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(marker.marker_type.substring(0, 2), marker.px, marker.py);
+                ctx.restore();
+            }
         }
 
         // 绘制区域名称标签 - 使用预计算的区域中心
@@ -862,11 +930,31 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         });
 
         ctx.shadowBlur = 0;
-    }, [width, height, offset, scale, terrainMap, hoveredHex, selectedHex]);
+    }, [width, height, offset, scale, terrainMap, hoveredHex, selectedHex, markers, highlightedTiles, breathePhase]);
 
     useEffect(() => {
         drawMap();
     }, [drawMap]);
+    
+    // 呼吸动画
+    useEffect(() => {
+        let animationFrame;
+        let startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            setBreathePhase(elapsed * 0.002); // 呼吸周期约3秒
+            animationFrame = requestAnimationFrame(animate);
+        };
+        
+        animate();
+        
+        return () => {
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+        };
+    }, []);
 
     // 设置高分辨率canvas以解决文字模糊
     useEffect(() => {
@@ -895,9 +983,12 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
     }, [width, height, drawMap]);
 
     const wasDraggingRef = useRef(false);
+    const mouseDownPosRef = useRef({ x: 0, y: 0 });
+    const DRAG_THRESHOLD = 5; // 移动超过5像素才算拖拽
 
     const handleMouseDown = useCallback((e) => {
         wasDraggingRef.current = false;
+        mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
         setIsDragging(true);
         setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
     }, [offset]);
@@ -917,14 +1008,21 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
         const canvasY = mouseY * scaleY;
 
         if (isDragging) {
-            wasDraggingRef.current = true;
-            const newX = e.clientX - dragStart.x;
-            const newY = e.clientY - dragStart.y;
-            const MAX_OFFSET = 2000; // 增加拖动范围以适应更大的地图
-            setOffset({
-                x: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newX)),
-                y: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newY)),
-            });
+            // 检查是否真的在拖拽（移动超过阈值）
+            const dx = e.clientX - mouseDownPosRef.current.x;
+            const dy = e.clientY - mouseDownPosRef.current.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance > DRAG_THRESHOLD) {
+                wasDraggingRef.current = true;
+                const newX = e.clientX - dragStart.x;
+                const newY = e.clientY - dragStart.y;
+                const MAX_OFFSET = 2000; // 增加拖动范围以适应更大的地图
+                setOffset({
+                    x: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newX)),
+                    y: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newY)),
+                });
+            }
         } else {
             const originX = width / 2 + offset.x;
             const originY = height / 3 + offset.y;
@@ -948,6 +1046,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex }) {
     }, []);
 
     const handleClick = useCallback((e) => {
+        // 如果发生了拖拽（移动超过阈值），不触发选中
         if (wasDraggingRef.current) {
             wasDraggingRef.current = false;
             return;

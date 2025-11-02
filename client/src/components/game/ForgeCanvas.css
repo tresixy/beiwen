@@ -22,63 +22,180 @@
     }
 }
 
-.forge-furnace.forge-furnace--drag-over {
-    border-color: rgba(255, 210, 150, 0.95);
-    transform: scale(1.06);
-    box-shadow:
-        0 26px 68px rgba(18, 8, 4, 0.65),
-        inset 0 0 42px rgba(255, 155, 40, 0.6);
+/* 合成区域 - 横向布局 */
+.forge-synthesis-area {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 25px;
+    background: rgba(18, 8, 4, 0.75);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
 }
 
-.forge-furnace__cards {
+/* 卡槽容器 */
+.forge-slot-container {
+    position: relative;
+    width: 120px;
+    height: 160px;
+    background-image: url('/assets/UI/局内合成的卡槽.webp');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+.forge-slot-container:hover {
+    transform: scale(1.05);
+}
+
+/* 空卡槽 */
+.forge-slot-empty {
+    width: 100%;
+    height: 100%;
+}
+
+/* 卡槽内的卡牌 */
+.forge-slot-card {
+    width: 90%;
+    height: 90%;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 18px;
-    background: rgba(32, 18, 10, 0.55);
-    backdrop-filter: blur(6px);
-}
-
-.forge-furnace__card {
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     cursor: grab;
     transition: transform 0.18s ease, opacity 0.18s ease;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.forge-furnace__card:active {
+.forge-slot-card:active {
     cursor: grabbing;
 }
 
-.forge-furnace__card.is-dragging {
+.forge-slot-card.is-dragging {
     opacity: 0.65;
     transform: scale(0.96);
 }
 
-.forge-furnace__progress {
+.forge-slot-card.is-forging {
+    pointer-events: none;
+    animation: forge-card-pulse 1s ease-in-out infinite;
+}
+
+@keyframes forge-card-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+.forge-slot-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #FFF;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.forge-slot-type {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+}
+
+/* 合成按钮 */
+.forge-button {
+    width: 100px;
+    height: 100px;
+    background-image: url('/assets/UI/合成卡的按钮.webp');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+    opacity: 0.5;
+    filter: grayscale(0.8);
+}
+
+.forge-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: grayscale(0.8);
+}
+
+.forge-button.active {
+    opacity: 1;
+    filter: grayscale(0);
+}
+
+.forge-button.active:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}
+
+.forge-button.forging {
+    animation: forge-button-pulse 0.8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes forge-button-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+/* 结果显示区域 */
+.forge-result-area {
+    width: 140px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(32, 18, 10, 0.55);
+    border-radius: 16px;
+    border: 2px dashed rgba(255, 153, 70, 0.4);
+}
+
+/* 进度条 */
+.forge-progress {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    padding: 6px 10px;
-    border-radius: 14px;
-    background: rgba(0, 0, 0, 0.35);
-    box-shadow: inset 0 0 12px rgba(255, 140, 40, 0.35);
-    color: #FFEFD6;
-    font-weight: 600;
+    padding: 10px;
 }
 
-.forge-furnace__progress-track {
+.forge-progress-track {
     width: 100%;
-    height: 10px;
+    height: 8px;
     border-radius: 999px;
     background: rgba(255, 214, 172, 0.2);
     overflow: hidden;
     position: relative;
 }
 
-.forge-furnace__progress-fill {
+.forge-progress-fill {
     position: absolute;
     left: 0;
     top: 0;
@@ -88,14 +205,12 @@
     transition: width 0.18s ease;
 }
 
-.forge-furnace__progress-label {
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+.forge-progress-label {
+    font-size: 0.75rem;
+    color: #FFEFD6;
+    font-weight: 600;
+    letter-spacing: 0.05em;
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
-}
-
-.forge-furnace.forging .forge-furnace__progress-label {
     animation: forge-progress-glow 1.2s ease-in-out infinite;
 }
 

@@ -79,7 +79,7 @@ html:has(.lobby-shell) #app {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: url('/assets/UI/登录底板.webp');
+    background-image: url('/assets/UI/loading背景.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -92,9 +92,10 @@ html:has(.lobby-shell) #app {
     padding: 32px 28px;
     border-radius: 18px 14px 16px 20px / 16px 20px 14px 18px;
     border: 4px solid #8b6f47;
-    background: 
-        repeating-linear-gradient(90deg, #f4e8d8, #f4e8d8 2px, #f8ede0 2px, #f8ede0 4px),
-        #f4e8d8;
+    background-image: url('/assets/UI/登录底板.webp');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
     box-shadow: 
         0 12px 32px rgba(42, 24, 16, 0.5),
         inset 0 2px 0 rgba(255, 255, 255, 0.3);
@@ -512,11 +513,30 @@ html:has(.lobby-shell) #app {
     transform: scale(1.05);
 }
 
+.event-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
 .event-name {
     font-size: 1.2rem;
     font-weight: bold;
     color: var(--accent-fire);
     letter-spacing: 0.05em;
+}
+
+.event-progress {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    font-weight: 600;
+    padding: 2px 8px;
+    background: rgba(127, 176, 105, 0.15);
+    border: 1px solid rgba(127, 176, 105, 0.5);
+    border-radius: 12px;
+    white-space: nowrap;
 }
 
 .event-desc {
@@ -913,395 +933,6 @@ html:has(.lobby-shell) #app {
     text-align: center;
 }
 
-/* 熔炉区域 */
-.forge-furnace {
-    position: absolute;
-    top: clamp(240px, 25vh, 320px);
-    left: clamp(16px, 4vw, 40px);
-    width: clamp(420px, 45vw, 560px);
-    min-height: clamp(160px, 20vh, 240px);
-    padding: 20px;
-    background: linear-gradient(180deg, rgba(20, 12, 6, 0.92), rgba(36, 18, 10, 0.95));
-    border-radius: 26px;
-    border: 4px dashed rgba(255, 196, 128, 0.85);
-    outline: 3px solid rgba(58, 32, 16, 0.75);
-    box-shadow:
-        0 18px 42px rgba(15, 8, 4, 0.55),
-        inset 0 0 24px rgba(255, 132, 28, 0.35);
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    grid-template-rows: auto auto;
-    gap: 12px;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.26s ease, border-color 0.26s ease, box-shadow 0.26s ease;
-    z-index: 8;
-}
-
-.forge-furnace:hover {
-    transform: scale(1.05);
-    border-color: rgba(255, 210, 150, 0.95);
-    box-shadow:
-        0 22px 54px rgba(15, 8, 4, 0.65),
-        inset 0 0 30px rgba(255, 150, 40, 0.46);
-}
-
-.forge-furnace.has-cards {
-    background: linear-gradient(180deg, rgba(48, 14, 8, 0.95), rgba(82, 20, 12, 0.92));
-    border-style: solid;
-    border-color: rgba(255, 94, 58, 0.95);
-    box-shadow:
-        0 24px 60px rgba(18, 8, 4, 0.65),
-        inset 0 0 38px rgba(255, 110, 32, 0.55);
-}
-
-.forge-furnace.forging {
-    animation: forge-pulse 0.9s ease-in-out infinite;
-    background: linear-gradient(180deg, rgba(82, 18, 12, 0.98), rgba(255, 96, 32, 0.95));
-}
-
-@keyframes forge-pulse {
-    0%, 100% {
-        transform: scale(1);
-        box-shadow:
-            0 10px 0 rgba(70, 40, 20, 0.85),
-            0 24px 48px rgba(255, 140, 0, 0.75),
-            inset 0 -6px 18px rgba(0, 0, 0, 0.55),
-            inset 0 6px 22px rgba(255, 200, 0, 0.75);
-    }
-    50% {
-        transform: scale(1.08);
-        box-shadow:
-            0 14px 0 rgba(70, 40, 20, 0.85),
-            0 30px 56px rgba(255, 160, 0, 0.95),
-            inset 0 -8px 24px rgba(0, 0, 0, 0.6),
-            inset 0 8px 28px rgba(255, 255, 0, 0.95);
-    }
-}
-
-.forge-furnace__icon {
-    grid-column: 2;
-    grid-row: 1;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 3px solid rgba(255, 200, 120, 0.7);
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: clamp(2.4rem, 3.8vw, 3.2rem);
-    color: #FFEBD2;
-    background: radial-gradient(circle at 50% 35%, rgba(255, 200, 120, 0.85), rgba(255, 120, 36, 0.55), rgba(0, 0, 0, 0.1));
-    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.65);
-    animation: flame-flicker 1.35s ease-in-out infinite;
-    justify-self: center;
-}
-
-@keyframes flame-flicker {
-    0%, 100% {
-        transform: scale(1) rotate(0deg);
-        filter: brightness(1);
-    }
-    25% {
-        transform: scale(1.12) rotate(-4deg);
-        filter: brightness(1.15);
-    }
-    50% {
-        transform: scale(0.96) rotate(3deg);
-        filter: brightness(0.9);
-    }
-    75% {
-        transform: scale(1.08) rotate(-2deg);
-        filter: brightness(1.1);
-    }
-}
-
-/* 已废弃：改用 forge-furnace__status-board
-.forge-furnace__title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #FFEFD6;
-    pointer-events: none;
-    text-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.75),
-        0 0 14px rgba(255, 200, 100, 0.65);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-*/
-
-.forge-furnace__count {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #FFE5B3;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
-    pointer-events: none;
-}
-
-.forge-furnace__hint {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: #FFEFD0;
-    text-align: center;
-    padding: 0 12px;
-    line-height: 1.5;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-    pointer-events: none;
-}
-
-/* 木牌状态区域 */
-.forge-furnace__status-board {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    padding: 12px 16px;
-    background: 
-        linear-gradient(135deg, rgba(90, 60, 40, 0.95), rgba(70, 45, 30, 0.9)),
-        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="2" fill="rgba(0,0,0,0.2)"/></svg>');
-    background-size: 100% 100%, 100% 8px;
-    border: 3px solid rgba(60, 40, 25, 0.85);
-    border-radius: 12px;
-    box-shadow: 
-        0 4px 0 rgba(40, 25, 15, 0.8),
-        0 6px 12px rgba(0, 0, 0, 0.5),
-        inset 0 2px 4px rgba(255, 200, 120, 0.15);
-    position: relative;
-    pointer-events: none;
-}
-
-.forge-furnace__status-board::before,
-.forge-furnace__status-board::after {
-    content: '✕';
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.5rem;
-    color: rgba(40, 25, 15, 0.6);
-    font-weight: bold;
-}
-
-.forge-furnace__status-board::before {
-    left: 8px;
-}
-
-.forge-furnace__status-board::after {
-    right: 8px;
-}
-
-.forge-furnace__status {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #FFFF80;
-    text-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.75),
-        0 0 16px rgba(255, 255, 120, 0.75);
-    text-align: center;
-    pointer-events: none;
-}
-
-@keyframes status-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.55; }
-}
-
-/* 熔炉卡槽 */
-.forge-furnace__slots {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-    pointer-events: none;
-}
-
-.forge-furnace__slot {
-    width: clamp(100px, 12vw, 140px);
-    height: clamp(140px, 18vh, 180px);
-    aspect-ratio: 2 / 3;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    pointer-events: auto;
-    position: relative;
-}
-
-/* 凹槽嵌入效果 - 空槽 */
-.forge-furnace__slot.empty {
-    background: 
-        linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(20, 10, 5, 0.5) 100%),
-        radial-gradient(ellipse at center, rgba(40, 22, 14, 0.7), rgba(20, 12, 8, 0.8));
-    border: 3px solid rgba(80, 50, 30, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 
-        inset 0 4px 12px rgba(0, 0, 0, 0.6),  /* 内阴影制造凹陷感 */
-        inset 0 -2px 8px rgba(255, 200, 120, 0.1),
-        0 2px 0 rgba(255, 200, 120, 0.05);  /* 底部高光 */
-}
-
-.forge-furnace__slot.empty::before {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    border-radius: 12px;
-    background: 
-        linear-gradient(180deg, 
-            rgba(0, 0, 0, 0.3) 0%, 
-            transparent 30%, 
-            transparent 70%, 
-            rgba(255, 200, 100, 0.05) 100%);
-    pointer-events: none;
-}
-
-.forge-furnace__slot.empty:hover {
-    border-color: rgba(255, 214, 160, 0.7);
-    background: 
-        linear-gradient(135deg, rgba(60, 32, 20, 0.7) 0%, rgba(40, 22, 14, 0.8) 100%),
-        radial-gradient(ellipse at center, rgba(60, 35, 20, 0.8), rgba(30, 18, 12, 0.9));
-    box-shadow: 
-        inset 0 4px 14px rgba(0, 0, 0, 0.7),
-        inset 0 -2px 10px rgba(255, 200, 120, 0.15),
-        0 2px 0 rgba(255, 200, 120, 0.1);
-}
-
-/* 卡牌嵌入效果 - 已填充 */
-.forge-furnace__slot.filled {
-    background: 
-        linear-gradient(135deg, rgba(255, 240, 210, 0.25), rgba(255, 220, 180, 0.2)),
-        radial-gradient(ellipse at top, rgba(255, 250, 240, 0.15), transparent 60%);
-    border: 3px solid rgba(255, 214, 160, 0.85);
-    cursor: grab;
-    box-shadow: 
-        inset 0 3px 8px rgba(0, 0, 0, 0.35),  /* 轻微内阴影保持嵌入感 */
-        inset 0 -2px 6px rgba(255, 200, 120, 0.2),
-        0 4px 0 rgba(90, 60, 40, 0.4),
-        0 8px 16px rgba(0, 0, 0, 0.25);
-}
-
-.forge-furnace__slot.filled:hover {
-    border-color: rgba(255, 200, 120, 1);
-    transform: translateY(-2px);  /* 轻微抬起 */
-    box-shadow: 
-        inset 0 3px 8px rgba(0, 0, 0, 0.3),
-        inset 0 -2px 8px rgba(255, 200, 120, 0.3),
-        0 6px 0 rgba(90, 60, 40, 0.5),
-        0 12px 24px rgba(255, 180, 80, 0.4);
-}
-
-.forge-furnace__slot.filled:active {
-    cursor: grabbing;
-    transform: translateY(0);  /* 按下时回到原位 */
-    box-shadow: 
-        inset 0 4px 10px rgba(0, 0, 0, 0.4),
-        inset 0 -1px 4px rgba(255, 200, 120, 0.15),
-        0 2px 0 rgba(90, 60, 40, 0.3),
-        0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.forge-furnace__slot.is-forging {
-    animation: slot-glow 0.8s ease-in-out infinite;
-}
-
-@keyframes slot-glow {
-    0%, 100% {
-        box-shadow: 0 0 10px rgba(255, 148, 71, 0.5);
-    }
-    50% {
-        box-shadow: 0 0 20px rgba(255, 148, 71, 0.8);
-    }
-}
-
-.forge-furnace__slot-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: rgba(255, 214, 160, 0.6);
-    pointer-events: none;
-}
-
-.forge-furnace__slot-number {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: rgba(255, 200, 100, 0.8);
-}
-
-.forge-furnace__slot-hint {
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-}
-
-.forge-furnace__slot-card {
-    padding: 14px 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 8px;
-    height: 100%;
-    pointer-events: none;
-}
-
-/* 熔炉卡槽边框颜色与手牌一致 */
-.forge-furnace__slot.filled.rarity-common {
-    border-color: rgba(168, 153, 104, 0.8);
-}
-
-.forge-furnace__slot.filled.rarity-ruby {
-    border-color: rgba(220, 20, 60, 0.9);
-    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.6);
-}
-
-.forge-furnace__slot.filled.rarity-uncommon {
-    border-color: rgba(127, 176, 105, 0.9);
-    box-shadow: 0 4px 12px rgba(127, 176, 105, 0.4);
-}
-
-.forge-furnace__slot.filled.rarity-rare {
-    border-color: rgba(111, 175, 232, 0.9);
-    box-shadow: 0 4px 12px rgba(111, 175, 232, 0.5);
-}
-
-.forge-furnace__slot.filled.rarity-epic {
-    border-color: rgba(167, 112, 213, 0.9);
-    box-shadow: 0 4px 12px rgba(167, 112, 213, 0.6);
-}
-
-.forge-furnace__slot.filled.rarity-legendary {
-    border-color: rgba(255, 148, 71, 1);
-    box-shadow: 0 4px 12px rgba(255, 148, 71, 0.7);
-}
-
-.forge-furnace__slot-name {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #FFF8E8;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-    letter-spacing: 0.05em;
-    line-height: 1.3;
-    text-align: center;
-}
-
-.forge-furnace__slot-type {
-    font-size: 0.8rem;
-    color: rgba(255, 230, 190, 0.95);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-    text-align: center;
-    margin-top: auto;  /* 推到底部 */
-}
-
-.forge-furnace__slot-rarity {
-    font-size: 0.7rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: rgba(255, 214, 160, 0.9);
-    letter-spacing: 0.08em;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    text-align: center;
-}
-
 .card-dock {
     position: fixed;
     left: 50%;
@@ -1337,18 +968,27 @@ html:has(.lobby-shell) #app {
 }
 
 .card-dock__draw {
-    padding: 6px 14px;
-    border-radius: var(--radius-sketch);
-    border: 2px solid var(--border-sketch);
-    background: linear-gradient(135deg, #a8d08d, #7fb069);
-    color: #fff;
+    width: 80px;
+    height: 80px;
+    background-image: url('/assets/UI/局内补牌.webp');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;
+    color: transparent;
+    font-size: 0;
     cursor: pointer;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-weight: 600;
-    box-shadow: var(--shadow-stamp);
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.card-dock__draw:hover {
+    transform: scale(1.1);
+    filter: brightness(1.15);
+}
+
+.card-dock__draw:active {
+    transform: scale(0.95);
+    filter: brightness(0.95);
 }
 
 .card-dock__rail {
@@ -2282,15 +1922,23 @@ html:has(.lobby-shell) #app {
 .lobby-content-frame {
     position: relative;
     overflow: hidden;
-    /* 添加黑色边框覆盖抗锯齿缝隙 */
-    box-shadow: 0 0 0 2px #000;
+}
+
+/* 添加边缘遮罩层覆盖canvas边缘 */
+.lobby-content-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 3px #000;
+    z-index: 1;
 }
 
 .lobby-content-frame .lobby-hex-canvas {
     position: absolute;
-    inset: 0;
-    width: 100% !important;
-    height: 100% !important;
+    inset: -2px;
+    width: calc(100% + 4px) !important;
+    height: calc(100% + 4px) !important;
 }
 
 /* 主页装饰层 - 覆盖在hex canvas上 */
@@ -2568,10 +2216,10 @@ html:has(.lobby-shell) #app {
 
 .lobby-hex-canvas {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100% !important;
-    height: 100% !important;
+    top: -2px;
+    left: -2px;
+    width: calc(100% + 4px) !important;
+    height: calc(100% + 4px) !important;
     display: block;
     object-fit: cover;
     z-index: 0;

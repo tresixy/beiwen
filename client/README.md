@@ -1,6 +1,6 @@
 # Infinite Synthesis Client
 
-React 19 + Phaser 3 单页前端，服务于无限合成游戏。该客户端通过 Vite 打包，登录/注册直接调用后端 `/api/auth/*` 接口，游戏主循环以单机模拟运行，可无缝接入实时多人逻辑。
+React 19 + Phaser 3 单页前端，服务于 Oops, Civilization ! 游戏。该客户端通过 Vite 打包，登录/注册直接调用后端 `/api/auth/*` 接口，游戏主循环以单机模拟运行，可无缝接入实时多人逻辑。
 
 ## 运行先决条件
 

@@ -60,18 +60,6 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
         return { x, y };
     };
 
-    const furnaceStatus = useMemo(() => {
-        if (isForging) {
-            return '合成进行中';
-        }
-        if (furnaceCards.length === 0) {
-            return '等待投放卡牌';
-        }
-        if (furnaceCards.length === 1) {
-            return '继续放入一张卡牌';
-        }
-        return '准备触发合成';
-    }, [furnaceCards.length, isForging]);
 
     const stopProgressTimer = useCallback(() => {
         if (progressTimerRef.current) {
@@ -168,7 +156,7 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
         }
         
         // 检查是否拖到熔炉
-        const furnaceZone = containerRef.current?.querySelector('.forge-furnace');
+        const furnaceZone = containerRef.current?.querySelector('.forge-synthesis-area');
         const insideFurnace = furnaceZone && (furnaceZone.contains(hovered) || isPointInsideElement(furnaceZone, event.clientX, event.clientY));
         if (insideFurnace) {
             handleCardDropInFurnace(normalizedId);
@@ -244,8 +232,8 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
         });
     }, [hand]);
 
-    // 监听熔炉卡牌数量，达到2张时触发合成
-    useEffect(() => {
+    // 手动触发合成按钮
+    const handleForgeClick = useCallback(() => {
         if (furnaceCards.length >= MAX_FURNACE_CARDS && !isForging) {
             console.log('========================================');
             console.log('✓ 触发合成! 熔炉卡牌:', furnaceCards.map(c => c.name).join(' + '));
@@ -336,7 +324,7 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
         }
 
         const hovered = document.elementFromPoint(event.clientX, event.clientY);
-        const furnaceZone = containerRef.current?.querySelector('.forge-furnace');
+        const furnaceZone = containerRef.current?.querySelector('.forge-synthesis-area');
         const insideFurnace = furnaceZone && (furnaceZone.contains(hovered) || isPointInsideElement(furnaceZone, event.clientX, event.clientY));
         if (insideFurnace) {
             setIsFurnaceDragOver(false);
@@ -375,12 +363,6 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
         isCanvasDragActive ? 'forge-canvas--drop-active' : '',
     ].filter(Boolean).join(' ');
 
-    const furnaceClassName = [
-        'forge-furnace',
-        isForging ? 'forging' : '',
-        furnaceCards.length > 0 ? 'has-cards' : '',
-        isFurnaceDragOver ? 'forge-furnace--drag-over' : '',
-    ].filter(Boolean).join(' ');
 
     const showProgress = isForging || furnaceProgress > 0;
     const progressDisplay = Math.min(100, Math.round(furnaceProgress));
@@ -398,73 +380,82 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
         >
             <div className="forge-canvas__halo" />
             
-            {/* 熔炉区域 */}
-            <div 
-                className={furnaceClassName}
-                onDragOver={handleFurnaceDragOver}
-                onDragEnter={handleFurnaceDragEnter}
-                onDragLeave={handleFurnaceDragLeave}
-                onDrop={handleFurnaceDrop}
-            >
-                {/* 卡槽 */}
-                <div className="forge-furnace__slots">
-                    {[0, 1].map((slotIndex) => {
-                        const card = furnaceCards[slotIndex];
-                        const rarityClass = card?.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
-                        
-                        if (card) {
-                            return (
-                                <div
-                                    key={card.id}
-                                    className={`forge-furnace__slot filled ${rarityClass} ${isForging ? 'is-forging' : ''} ${draggingCardId === card.id ? 'is-dragging' : ''}`}
-                                    draggable={!isForging}
-                                    onDragStart={(event) => handleFurnaceCardDragStart(event, card.id)}
-                                    onDragEnd={(event) => handleFurnaceCardDragEnd(event, card.id)}
-                                >
-                                    <div className="forge-furnace__slot-card">
-                                        <div className="forge-furnace__slot-name">{card.name}</div>
-                                        <div className="forge-furnace__slot-type">{card.type}</div>
-                                        {card.rarity && (
-                                            <div className="forge-furnace__slot-rarity">{card.rarity}</div>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        }
-                        
-                        return (
-                            <div key={`slot-${slotIndex}`} className="forge-furnace__slot empty">
-                                <div className="forge-furnace__slot-placeholder">
-                                    <span className="forge-furnace__slot-number">{slotIndex + 1}</span>
-                                    <span className="forge-furnace__slot-hint">拖入卡牌</span>
-                                </div>
-                            </div>
-                        );
-                    })}
+            {/* 合成区域 - 横向布局 */}
+            <div className="forge-synthesis-area">
+                {/* 卡槽1 */}
+                <div 
+                    className="forge-slot-container"
+                    onDragOver={handleFurnaceDragOver}
+                    onDragEnter={handleFurnaceDragEnter}
+                    onDragLeave={handleFurnaceDragLeave}
+                    onDrop={handleFurnaceDrop}
+                    data-slot-index="0"
+                >
+                    {furnaceCards[0] ? (
+                        <div
+                            className={`forge-slot-card ${furnaceCards[0]?.rarity ? `rarity-${furnaceCards[0].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[0].id ? 'is-dragging' : ''}`}
+                            draggable={!isForging}
+                            onDragStart={(event) => handleFurnaceCardDragStart(event, furnaceCards[0].id)}
+                            onDragEnd={(event) => handleFurnaceCardDragEnd(event, furnaceCards[0].id)}
+                        >
+                            <div className="forge-slot-name">{furnaceCards[0].name}</div>
+                            <div className="forge-slot-type">{furnaceCards[0].type}</div>
+                        </div>
+                    ) : (
+                        <div className="forge-slot-empty" />
+                    )}
                 </div>
-                
-                {/* 火焰图标 */}
-                <div className="forge-furnace__icon">🔥</div>
-                
-                {/* 状态木牌 */}
-                <div className="forge-furnace__status-board">
-                    <div className="forge-furnace__status" aria-live="polite">{furnaceStatus}</div>
+
+                {/* 卡槽2 */}
+                <div 
+                    className="forge-slot-container"
+                    onDragOver={handleFurnaceDragOver}
+                    onDragEnter={handleFurnaceDragEnter}
+                    onDragLeave={handleFurnaceDragLeave}
+                    onDrop={handleFurnaceDrop}
+                    data-slot-index="1"
+                >
+                    {furnaceCards[1] ? (
+                        <div
+                            className={`forge-slot-card ${furnaceCards[1]?.rarity ? `rarity-${furnaceCards[1].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[1].id ? 'is-dragging' : ''}`}
+                            draggable={!isForging}
+                            onDragStart={(event) => handleFurnaceCardDragStart(event, furnaceCards[1].id)}
+                            onDragEnd={(event) => handleFurnaceCardDragEnd(event, furnaceCards[1].id)}
+                        >
+                            <div className="forge-slot-name">{furnaceCards[1].name}</div>
+                            <div className="forge-slot-type">{furnaceCards[1].type}</div>
+                        </div>
+                    ) : (
+                        <div className="forge-slot-empty" />
+                    )}
+                </div>
+
+                {/* 合成按钮 */}
+                <button
+                    className={`forge-button ${furnaceCards.length >= MAX_FURNACE_CARDS && !isForging ? 'active' : ''} ${isForging ? 'forging' : ''}`}
+                    onClick={handleForgeClick}
+                    disabled={furnaceCards.length < MAX_FURNACE_CARDS || isForging}
+                    aria-label="合成卡牌"
+                />
+
+                {/* 结果显示区域 */}
+                <div className="forge-result-area">
                     {showProgress && (
-                        <div className="forge-furnace__progress" role="status" aria-live="polite">
-                            <div className="forge-furnace__progress-track">
-                                <div className="forge-furnace__progress-fill" style={{ width: `${progressDisplay}%` }} />
+                        <div className="forge-progress" role="status" aria-live="polite">
+                            <div className="forge-progress-track">
+                                <div className="forge-progress-fill" style={{ width: `${progressDisplay}%` }} />
                             </div>
-                            <div className="forge-furnace__progress-label">熔炼中 {progressDisplay}%</div>
+                            <div className="forge-progress-label">合成中 {progressDisplay}%</div>
                         </div>
                     )}
                 </div>
             </div>
 
             {cards.length === 0 && (
-                <div className="forge-canvas__hint">拖动卡牌到左上角熔炉进行合成</div>
+                <div className="forge-canvas__hint">拖动卡牌到上方卡槽进行合成</div>
             )}
             {cards.length >= 1 && cards.length < 2 && (
-                <div className="forge-canvas__hint">继续拖入卡牌到熔炉（需要2张）</div>
+                <div className="forge-canvas__hint">继续拖入卡牌到卡槽（需要2张），然后点击合成按钮</div>
             )}
             
             {withPositions.map(({ card, position }) => {

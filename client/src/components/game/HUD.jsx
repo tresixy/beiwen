@@ -70,7 +70,14 @@ export function HUD({
             >
                 {activeEvent ? (
                     <>
-                        <div className="event-name">{activeEvent.name}</div>
+                        <div className="event-header">
+                            <div className="event-name">{activeEvent.name}</div>
+                            {activeEvent.progress !== undefined && activeEvent.totalEvents !== undefined && (
+                                <div className="event-progress">
+                                    {activeEvent.progress + 1}/{activeEvent.totalEvents}
+                                </div>
+                            )}
+                        </div>
                         <div className="event-desc">{activeEvent.description}</div>
                         <div className="event-key-hint">需要：【{activeEvent.required_key}】</div>
                     </>

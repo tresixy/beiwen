@@ -341,6 +341,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
     const [selectedHex, setSelectedHex] = useState(null);
     const hexMapRef = useRef(new Map());
     const [breathePhase, setBreathePhase] = useState(0);
+    const labelBgImgRef = useRef(null);
 
     const terrainMap = useMemo(() => {
         const map = new Map();
@@ -918,11 +919,36 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                     // 组合显示：英文直译 + 英文魔幻翻译
                     const labelText = `${regionDef.literalName} ${regionDef.fantasyName}`;
                     
-                    // 背景描边
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-                    ctx.lineWidth = 12 * scale;
-                    ctx.strokeText(labelText, centerX, centerY);
-                    // 主文字
+                    // 绘制地名底板图片
+                    if (labelBgImgRef.current) {
+                        ctx.save();
+                        // 使用图片原始比例
+                        const imgWidth = labelBgImgRef.current.width;
+                        const imgHeight = labelBgImgRef.current.height;
+                        const imgAspectRatio = imgWidth / imgHeight;
+                        
+                        // 测量文字宽度以确定底板缩放
+                        const textMetrics = ctx.measureText(labelText);
+                        const textWidth = textMetrics.width;
+                        const padding = 80 * scale;
+                        const targetWidth = Math.max(textWidth + padding, imgWidth * scale * 0.3);
+                        
+                        // 根据原始宽高比计算高度
+                        const bgWidth = targetWidth;
+                        const bgHeight = bgWidth / imgAspectRatio;
+                        
+                        // 绘制底板
+                        ctx.drawImage(
+                            labelBgImgRef.current,
+                            centerX - bgWidth / 2,
+                            centerY - bgHeight / 2,
+                            bgWidth,
+                            bgHeight
+                        );
+                        ctx.restore();
+                    }
+                    
+                    // 主文字（深色）
                     ctx.fillStyle = '#2a1810';
                     ctx.fillText(labelText, centerX, centerY);
                 }
@@ -936,6 +962,16 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         drawMap();
     }, [drawMap]);
     
+    // 加载地名底板图片
+    useEffect(() => {
+        const img = new Image();
+        img.src = '/assets/UI/地名底板02.webp';
+        img.onload = () => {
+            labelBgImgRef.current = img;
+            drawMap(); // 图片加载完成后重新绘制
+        };
+    }, [drawMap]);
+
     // 呼吸动画
     useEffect(() => {
         let animationFrame;

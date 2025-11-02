@@ -3,12 +3,12 @@ import { z } from 'zod';
 export const registerSchema = z.object({
   email: z.string().email(),
   username: z.string().min(3).max(50),
-  password: z.string().min(4, '密码至少4位'),
+  password: z.string().min(6, '密码至少6位'),
 });
 
 export const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(4, '密码至少4位'),
+  password: z.string().min(6, '密码至少6位'),
 });
 
 export const synthesizeSchema = z.object({

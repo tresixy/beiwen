@@ -25,8 +25,8 @@ export function AuthScreen({ onLogin, loading }) {
         if (!password) {
             return '请输入密码';
         }
-        if (password.length < 4) {
-            return '密码至少4位';
+        if (password.length < 6) {
+            return '密码至少6位';
         }
         return '';
     }, [email, password]);
@@ -61,7 +61,7 @@ export function AuthScreen({ onLogin, loading }) {
     return (
         <div className="auth-screen">
             <div className="auth-card">
-                <h1>无限合成</h1>
+                <h1>Oops, Civilization !</h1>
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className="auth-field auth-field--email">
                         <label htmlFor="email">公司邮箱</label>
@@ -96,7 +96,7 @@ export function AuthScreen({ onLogin, loading }) {
                         </div>
                     </div>
                     <div className="auth-hint" style={{ color: '#ffcc80', border: '1px solid rgba(255,204,128,0.35)', marginBottom: '1rem' }}>
-                        请使用公司邮箱登录，与最后奖励结算有关哦
+                        请使用公司邮箱登录。首次登录自动注册账号。
                     </div>
                     {error ? (
                         <div className="auth-hint" style={{ color: '#ff8080', border: '1px solid rgba(255,128,128,0.35)' }}>
@@ -121,7 +121,7 @@ export function AuthScreen({ onLogin, loading }) {
                     </button>
                 </form>
                 <div className="auth-hint">
-                    首次登录将自动注册账号。忘记密码请联系管理员。
+                    忘记密码请联系管理员
                 </div>
             </div>
         </div>

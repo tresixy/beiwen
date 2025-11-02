@@ -16,8 +16,8 @@ export function BottomControls({ onOpenForge, onOpenContract, onEndTurn, onShowI
             <button type="button" onClick={onShowCardBook}>
                 卡册
             </button>
-            <button type="button" onClick={onBackLobby}>
-                返回大厅
+            <button type="button" onClick={onBackLobby} className="btn-back-lobby" title="返回大厅">
+                <img src="/assets/UI/退出.webp" alt="返回大厅" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
             </button>
         </div>
     );

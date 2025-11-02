@@ -47,7 +47,7 @@
         }
 
         .loading-logo {
-            width: clamp(280px, 50vw, 420px);
+            width: clamp(420px, 75vw, 630px);
             height: auto;
             object-fit: contain;
             filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.8));
@@ -156,7 +156,7 @@
 <body>
         <div id="loading-screen">
         <div class="loading-panel">
-            <img src="/assets/UI/Logo.webp" alt="Oops, Civilization!" class="loading-logo" />
+            <img alt="Oops, Civilization!" class="loading-logo" style="opacity: 0;" />
         </div>
         <div class="loading-progress">
             <div class="loading-progress__track">
@@ -175,6 +175,7 @@
 
             const fill = screen.querySelector('.loading-progress__fill');
             const label = screen.querySelector('.loading-progress__label');
+            const logoImg = screen.querySelector('.loading-logo');
             if (!fill || !label) {
                 return;
             }
@@ -183,6 +184,7 @@
             let current = 0;
             let rafId = null;
             let autoTimer = null;
+            let assetsLoaded = false;
 
             const clamp = (value) => Math.max(0, Math.min(100, value));
 
@@ -226,15 +228,21 @@
                 }
             };
 
-            autoTimer = window.setInterval(() => {
-                if (target >= 85) {
-                    window.clearInterval(autoTimer);
-                    autoTimer = null;
+            const startProgress = () => {
+                if (!assetsLoaded) {
                     return;
                 }
-                const increment = 5 + Math.random() * 6;
-                setTarget(Math.min(85, target + increment));
-            }, 200);
+                
+                autoTimer = window.setInterval(() => {
+                    if (target >= 85) {
+                        window.clearInterval(autoTimer);
+                        autoTimer = null;
+                        return;
+                    }
+                    const increment = 5 + Math.random() * 6;
+                    setTarget(Math.min(85, target + increment));
+                }, 200);
+            };
 
             const finish = () => {
                 if (autoTimer !== null) {
@@ -243,6 +251,45 @@
                 }
                 setTarget(100);
             };
+
+            // 预加载loading页面所需的美术资源
+            const loadingAssets = [
+                '/assets/UI/Logo.webp',
+                '/assets/UI/loading背景.webp',
+                '/assets/UI/loading进度条空条.webp',
+                '/assets/UI/loading进度条满条.webp'
+            ];
+
+            const preloadImage = (src) => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => resolve({ success: true, img, src });
+                    img.onerror = () => resolve({ success: false, img: null, src });
+                    img.src = src;
+                });
+            };
+
+            // 优先加载logo并立即显示
+            const logoPromise = preloadImage('/assets/UI/Logo.webp').then((result) => {
+                if (result.success && logoImg) {
+                    logoImg.src = result.img.src;
+                    logoImg.style.opacity = '1';
+                    logoImg.style.transition = 'opacity 0.3s ease-in';
+                }
+                return result;
+            });
+
+            // 加载其他资源
+            const otherAssetsPromise = Promise.all(
+                loadingAssets.slice(1).map(preloadImage)
+            );
+
+            // 等待所有资源加载完成后再开始进度条
+            Promise.all([logoPromise, otherAssetsPromise]).then(() => {
+                assetsLoaded = true;
+                updateDom();
+                startProgress();
+            });
 
             window.addEventListener('app-ready', finish, { once: true });
             window.setTimeout(finish, 4000);

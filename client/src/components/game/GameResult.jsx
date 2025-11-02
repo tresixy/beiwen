@@ -24,10 +24,11 @@ export function GameResult({ result, score, era, onRestart, onBackToLobby }) {
                     </button>
                     <button 
                         type="button" 
-                        className="result-btn lobby-btn"
+                        className="result-btn lobby-btn lobby-btn-img"
                         onClick={onBackToLobby}
+                        title="返回主页"
                     >
-                        🏠 返回主页
+                        <img src="/assets/UI/退出.webp" alt="返回主页" />
                     </button>
                 </div>
             </div>

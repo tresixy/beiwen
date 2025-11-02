@@ -61,7 +61,7 @@ export function AuthScreen({ onLogin, loading }) {
     return (
         <div className="auth-screen">
             <div className="auth-card">
-                <h1>Oops, Civilization !</h1>
+                <img src="/assets/UI/Logo.webp" alt="Oops, Civilization!" className="auth-logo" />
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className="auth-field auth-field--email">
                         <label htmlFor="email">公司邮箱</label>
@@ -119,7 +119,8 @@ export function AuthScreen({ onLogin, loading }) {
                             cursor: loading ? 'not-allowed' : 'pointer',
                             fontSize: loading ? '1rem' : '0',
                             color: loading ? '#fff' : 'transparent',
-                            fontWeight: 'bold'
+                            fontWeight: 'bold',
+                            marginTop: '-10px'
                         }}
                     >
                         {loading ? '处理中…' : '\u00A0'}

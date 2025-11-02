@@ -185,7 +185,7 @@ export function PlayerArchivesPanel({ token, onClose, onBack }) {
     return (
         <div className="player-archives-panel">
             <div className="panel-header">
-                {onBack && <button onClick={onBack} className="back-btn">← 返回</button>}
+                {onBack && <button onClick={onBack} className="back-btn back-btn-img" title="返回"><img src="/assets/UI/退出.webp" alt="返回" /></button>}
                 <h2>玩家存档管理</h2>
                 {onClose && <button onClick={onClose} className="close-btn">×</button>}
             </div>

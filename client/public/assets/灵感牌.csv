@@ -1,0 +1,1707 @@
+卡牌名称 (Card Name),卡牌类型 (Card Type),Column 3
+【人】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Cheerful Crayon-Red Icon: Human -->
+  <g stroke=""#E63946"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Head -->
+    <circle cx=""100"" cy=""100"" r=""20""/>
+    <!-- Body -->
+    <path d=""M 100 120 V 170""/>
+    <!-- Arms -->
+    <path d=""M 70 145 L 100 130 L 130 145""/>
+    <!-- Legs -->
+    <path d=""M 100 170 L 75 200""/>
+    <path d=""M 100 170 L 125 200""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">人</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Human</text>
+</svg>
+"
+【石头】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Earthy Grey Icon: Stone -->
+  <g stroke=""#98948F"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Irregular Stone Shape -->
+    <path d=""M 75 160 L 90 115 L 135 110 L 150 145 L 120 175 Z""/>
+    <!-- Crack Texture -->
+    <path d=""M 125 120 L 110 140""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">石</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Stone</text>
+</svg>"
+【木头】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Warm Brown Icon: Wood -->
+  <g stroke=""#8B5E34"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Log Cross-section with Tree Rings -->
+    <circle cx=""100"" cy=""140"" r=""45""/>
+    <circle cx=""100"" cy=""140"" r=""30""/>
+    <circle cx=""100"" cy=""140"" r=""15""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">木</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Wood</text>
+</svg>"
+【水】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Flowing Blue Icon: Water -->
+  <g stroke=""#457B9D"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Wavy Lines -->
+    <path d=""M 60 120 C 90 100, 110 140, 140 120""/>
+    <path d=""M 55 145 C 85 125, 115 165, 145 145""/>
+    <path d=""M 65 170 C 95 150, 105 190, 135 170""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">水</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Water</text>
+</svg>"
+【风】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Airy Blue Icon: Wind -->
+  <g fill=""#A8DADC"" stroke=""none"">
+    <!-- Tapering spiral curve -->
+    <path d=""M 65 120 C 130 110, 150 180, 80 180 C 130 180, 140 135, 90 130 Z""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">风</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Wind</text>
+</svg>
+"
+【土地】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Rich Earth Icon: Land -->
+  <g fill=""#A98467"" stroke=""none"">
+    <!-- Horizon line with solid earth below -->
+    <rect x=""50"" y=""135"" width=""100"" height=""50""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">土</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Land</text>
+</svg>"
+【种子】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Sprouting Seed Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Sprout -->
+    <path d=""M 100 150 C 100 130, 115 130, 110 115"" stroke=""#99D98C"" stroke-width=""7""/>
+    <!-- Seed -->
+    <circle cx=""100"" cy=""155"" r=""8"" fill=""#6D4C41"" stroke=""none""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">种子</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Seed</text>
+</svg>"
+【冲突】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Clashing Arrows Icon: Conflict -->
+  <g stroke=""#E63946"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Left Arrow -->
+    <path d=""M 50 140 H 90""/>
+    <path d=""M 75 125 L 90 140 L 75 155""/>
+    <!-- Right Arrow -->
+    <path d=""M 150 140 H 110""/>
+    <path d=""M 125 125 L 110 140 L 125 155""/>
+    <!-- Impact Sparks -->
+    <g stroke-width=""4"">
+      <path d=""M 100 120 v -8""/>
+      <path d=""M 94 128 l -4 -4""/>
+      <path d=""M 106 128 l 4 -4""/>
+    </g>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">冲突</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Conflict</text>
+</svg>"
+【智慧】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Eye of Wisdom Icon -->
+  <g stroke-linecap=""round"">
+    <!-- Eye Shape -->
+    <path d=""M 60 140 C 80 110, 120 110, 140 140 C 120 170, 80 170, 60 140 Z"" stroke=""#1D3557"" stroke-width=""8"" fill=""#F1FAEE""/>
+    <!-- Iris -->
+    <circle cx=""100"" cy=""140"" r=""15"" fill=""#457B9D"" stroke=""none""/>
+    <!-- Pupil/Glint -->
+    <circle cx=""105"" cy=""135"" r=""5"" fill=""#F1FAEE"" stroke=""none""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">智慧</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Wisdom</text>
+</svg>"
+【部落】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Tribe Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Enclosing Circle -->
+    <circle cx=""100"" cy=""140"" r=""50"" stroke=""#B5838D"" stroke-width=""4"" stroke-dasharray=""12 6"" transform=""rotate(-30 100 140)""/>
+    
+    <!-- Group of Humans -->
+    <g stroke=""#E63946"" stroke-width=""7"">
+      <!-- Central Human -->
+      <g transform=""translate(0, 5) scale(0.6) translate(66, 133)"">
+        <circle cx=""100"" cy=""100"" r=""20""/>
+        <path d=""M 100 120 V 170""/>
+        <path d=""M 70 145 L 100 130 L 130 145""/>
+        <path d=""M 100 170 L 75 200""/>
+        <path d=""M 100 170 L 125 200""/>
+      </g>
+      <!-- Left Human -->
+      <g transform=""translate(-25, 20) scale(0.6) translate(66, 133)"">
+        <circle cx=""100"" cy=""100"" r=""20""/>
+        <path d=""M 100 120 V 170""/>
+        <path d=""M 70 145 L 100 130 L 130 145""/>
+        <path d=""M 100 170 L 75 200""/>
+        <path d=""M 100 170 L 125 200""/>
+      </g>
+      <!-- Right Human -->
+      <g transform=""translate(25, 20) scale(0.6) translate(66, 133)"">
+        <circle cx=""100"" cy=""100"" r=""20""/>
+        <path d=""M 100 120 V 170""/>
+        <path d=""M 70 145 L 100 130 L 130 145""/>
+        <path d=""M 100 170 L 75 200""/>
+        <path d=""M 100 170 L 125 200""/>
+      </g>
+    </g>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">部落</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Tribe</text>
+</svg>
+"
+【价值】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Value Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Glowing Gem -->
+    <path d=""M 90 120 L 100 105 L 110 120 L 100 135 Z"" fill=""#FFD166"" stroke=""none""/>
+    <g stroke=""#FFD166"" stroke-width=""3"">
+        <path d=""M100 95 v-5""/>
+        <path d=""M80 120 h-5""/>
+        <path d=""M120 120 h 5""/>
+        <path d=""M100 145 v 5""/>
+    </g>
+    <!-- Reaching Hand -->
+    <path d=""M 85 180 C 70 180, 70 160, 80 150 C 90 140, 90 140, 90 140"" stroke=""#E63946"" stroke-width=""8""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">价值</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Value</text>
+</svg>"
+【符号】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Symbol Icon -->
+  <g stroke=""#1D3557"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Frame (Signifier) -->
+    <rect x=""70"" y=""110"" width=""60"" height=""60"" rx=""5"" ry=""5""/>
+    <!-- Content (Signified) -->
+    <path d=""M 85 150 C 95 130, 105 130, 115 150""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">符号</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Symbol</text>
+</svg>"
+【矿石】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Ore Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Rock Shape -->
+    <path d=""M 70 165 L 80 120 L 130 115 L 145 140 L 125 170 Z"" fill=""#8D8177""/>
+    <!-- Glimmering Vein/Crack -->
+    <path d=""M 120 123 L 130 115 L 135 125"" stroke=""#FFD166"" stroke-width=""5""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">矿石</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Ore</text>
+</svg>
+"
+【劳力】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Labor Icon -->
+  <g stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Block of Matter -->
+    <rect x=""110"" y=""130"" width=""40"" height=""40"" rx=""5"" ry=""5"" stroke=""#98948F""/>
+    
+    <!-- Pushing Human -->
+    <g stroke=""#E63946"">
+      <!-- Leaning Body -->
+      <path d=""M 95 170 L 110 130""/>
+      <!-- Head -->
+      <circle cx=""115"" cy=""120"" r=""15""/>
+      <!-- Pushing Arms -->
+      <path d=""M 95 145 L 110 145""/>
+      <!-- Bracing Legs -->
+      <path d=""M 95 170 L 75 190""/>
+      <path d=""M 95 170 L 100 195""/>
+    </g>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">劳力</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Labor</text>
+</svg>
+"
+【信仰】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Faith Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Divine Symbol -->
+    <g stroke=""#FFD166"" stroke-width=""6"">
+      <circle cx=""100"" cy=""100"" r=""25""/>
+      <circle cx=""100"" cy=""100"" r=""10""/>
+    </g>
+    <!-- Kneeling Human -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <!-- Head -->
+      <circle cx=""100"" cy=""145"" r=""15""/>
+      <!-- Torso -->
+      <path d=""M 100 160 V 180""/>
+      <!-- Kneeling Legs -->
+      <path d=""M 100 180 L 80 180""/>
+      <path d=""M 100 180 L 100 200""/>
+    </g>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">信仰</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Faith</text>
+</svg>
+"
+【知识】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Knowledge Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Human Symbol -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""100"" r=""20""/>
+      <path d=""M 100 120 V 170""/>
+      <path d=""M 70 145 L 100 130 L 130 145""/>
+      <path d=""M 100 170 L 75 200""/>
+      <path d=""M 100 170 L 125 200""/>
+    </g>
+    <!-- Knowledge spiral inside head -->
+    <path d=""M 96 105 C 100 97, 108 100, 104 106"" stroke=""#1D3557"" stroke-width=""5""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">知识</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Knowledge</text>
+</svg>
+"
+【财富】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Wealth Icon -->
+  <g fill=""#FFD166"" stroke=""none"">
+    <!-- Top gem -->
+    <path d=""M 90 125 L 100 110 L 110 125 L 100 140 Z""/>
+    <!-- Bottom left gem -->
+    <path d=""M 75 153 L 85 138 L 95 153 L 85 168 Z""/>
+    <!-- Bottom right gem -->
+    <path d=""M 105 153 L 115 138 L 125 153 L 115 168 Z""/>
+  </g>
+
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">财富</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Wealth</text>
+</svg>
+"
+【权力】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Power Icon -->
+  <g stroke=""#E63946"" stroke-linecap=""round"" fill=""none"">
+    <!-- Large Human at top -->
+    <g stroke-width=""9"">
+      <circle cx=""100"" cy=""95"" r=""22""/>
+      <path d=""M 100 117 V 160""/>
+      <path d=""M 70 140 L 100 125 L 130 140""/>
+      <path d=""M 100 160 L 75 190""/>
+      <path d=""M 100 160 L 125 190""/>
+    </g>
+    <!-- Smaller Humans at bottom -->
+    <g stroke-width=""6"">
+      <!-- Left -->
+      <circle cx=""70"" cy=""180"" r=""12""/>
+      <path d=""M 70 192 V 205""/>
+      <path d=""M 70 205 L 60 220""/>
+      <path d=""M 70 205 L 80 220""/>
+      <!-- Right -->
+      <circle cx=""130"" cy=""180"" r=""12""/>
+      <path d=""M 130 192 V 205""/>
+      <path d=""M 130 205 L 120 220""/>
+      <path d=""M 130 205 L 140 220""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">权力</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Power</text>
+</svg>"
+【阶级】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Class Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Divider Lines -->
+    <g fill=""#A98467"">
+      <rect x=""40"" y=""125"" width=""120"" height=""8""/>
+      <rect x=""40"" y=""175"" width=""120"" height=""8""/>
+    </g>
+    
+    <!-- Human Symbols -->
+    <g stroke=""#E63946"" stroke-width=""5"">
+      <!-- Top Layer (Sparse) -->
+      <g transform=""translate(45, -10) scale(0.5) "">
+        <circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 80 135 L 100 125 L 120 135""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/>
+      </g>
+      <!-- Middle Layer -->
+      <g transform=""translate(-10, 50) scale(0.5) "">
+        <circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 80 135 L 100 125 L 120 135""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/>
+      </g>
+      <g transform=""translate(50, 50) scale(0.5) "">
+        <circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 80 135 L 100 125 L 120 135""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/>
+      </g>
+      <!-- Bottom Layer (Dense) -->
+      <g transform=""translate(-40, 100) scale(0.5) "">
+        <circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 80 135 L 100 125 L 120 135""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/>
+      </g>
+      <g transform=""translate(0, 100) scale(0.5) "">
+        <circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 80 135 L 100 125 L 120 135""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/>
+      </g>
+      <g transform=""translate(40, 100) scale(0.5) "">
+        <circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 80 135 L 100 125 L 120 135""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/>
+      </g>
+       <g transform=""translate(80, 100) scale(0.5) "">
+        <circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 80 135 L 100 125 L 120 135""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">阶级</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Class</text>
+</svg>
+"
+【哲学】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Philosophy Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Human Symbol -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""100"" r=""20""/>
+      <path d=""M 100 120 V 170""/>
+      <path d=""M 70 145 L 100 130 L 130 145""/>
+      <path d=""M 100 170 L 75 200""/>
+      <path d=""M 100 170 L 125 200""/>
+    </g>
+    <!-- Question Mark inside head -->
+    <g stroke=""#1D3557"" stroke-width=""5"" >
+      <path d=""M 98 95 C 98 88, 105 88, 105 95 C 105 100, 100 102, 100 104"" />
+      <circle cx=""100"" cy=""109"" r=""1.5"" fill=""#1D3557"" stroke=""none""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">哲学</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Philosophy</text>
+</svg>
+"
+【国家】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- State Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Border of the State -->
+    <rect x=""40"" y=""70"" width=""120"" height=""140"" rx=""8"" ry=""8"" stroke=""#1D3557"" stroke-width=""8""/>
+    
+    <!-- Population (many small humans) -->
+    <g stroke=""#E63946"" stroke-width=""3"" opacity=""0.7"">
+      <g transform=""translate(45 155) scale(0.3)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+      <g transform=""translate(75 165) scale(0.3)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+      <g transform=""translate(105 155) scale(0.3)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+    </g>
+
+    <!-- Power Symbol in the center -->
+    <g stroke=""#E63946"" transform=""translate(0, 5) scale(0.6)"">
+        <g stroke-width=""8"">
+          <circle cx=""100"" cy=""95"" r=""18""/><path d=""M 100 113 V 150""/><path d=""M 75 130 L 100 118 L 125 130""/><path d=""M 100 150 L 80 175""/><path d=""M 100 150 L 120 175""/>
+        </g>
+        <g stroke-width=""6"">
+          <circle cx=""70"" cy=""170"" r=""10""/><path d=""M 70 180 V 190""/><path d=""M 70 190 L 62 205""/>
+          <circle cx=""130"" cy=""170"" r=""10""/><path d=""M 130 180 V 190""/><path d=""M 130 190 L 138 205""/>
+        </g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">国家</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">State</text>
+</svg>
+"
+【迷惘】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Bewilderment Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Chaotic Maze Lines -->
+    <g stroke=""#98948F"" stroke-width=""7"">
+      <path d=""M 50 100 H 90 L 90 180 H 60""/>
+      <path d=""M 150 180 H 110 L 110 100 H 140""/>
+      <path d=""M 80 120 H 120""/>
+      <path d=""M 80 160 H 120""/>
+      <path d=""M 70 80 L 130 200""/>
+      <path d=""M 130 80 L 70 200""/>
+    </g>
+    <!-- Human Symbol in the center -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""130"" r=""15""/>
+      <path d=""M 100 145 V 170""/>
+      <path d=""M 85 155 L 100 150 L 115 155""/>
+      <path d=""M 100 170 L 90 185""/>
+      <path d=""M 100 170 L 110 185""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">迷惘</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Bewilderment</text>
+</svg>
+"
+【君主】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Monarch Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Large Human Symbol -->
+    <g stroke=""#E63946"" stroke-width=""9"">
+      <circle cx=""100"" cy=""115"" r=""22""/>
+      <path d=""M 100 137 V 180""/>
+      <path d=""M 70 160 L 100 145 L 130 160""/>
+      <path d=""M 100 180 L 75 210""/>
+      <path d=""M 100 180 L 125 210""/>
+    </g>
+    <!-- Simple Crown -->
+    <path d=""M 85 95 L 90 85 L 100 92 L 110 85 L 115 95"" stroke=""#FFD166"" stroke-width=""7""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">君主</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Monarch</text>
+</svg>"
+【征服】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Conquest Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- State Border -->
+    <rect x=""60"" y=""90"" width=""80"" height=""100"" rx=""8"" ry=""8"" stroke=""#1D3557"" stroke-width=""8""/>
+    <!-- Piercing Spear -->
+    <g stroke=""#E63946"">
+      <path d=""M 40 160 L 160 120"" stroke-width=""9""/>
+      <path d=""M 160 120 L 150 105 L 170 115 Z"" fill=""#E63946"" stroke=""none""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">征服</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Conquest</text>
+</svg>"
+【税收】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Taxation Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Wealth/Coins at bottom -->
+    <g fill=""#FFD166"" stroke=""#F4A261"" stroke-width=""2"">
+        <circle cx=""90"" cy=""195"" r=""12""/>
+        <circle cx=""110"" cy=""195"" r=""12""/>
+        <circle cx=""100"" cy=""185"" r=""12""/>
+    </g>
+
+    <!-- Arrow of transfer -->
+    <g stroke=""#1D3557"" stroke-width=""6"">
+      <path d=""M 100 170 C 100 140, 100 140, 100 110""/>
+      <path d=""M 92 120 L 100 110 L 108 120"" />
+    </g>
+
+    <!-- Monarch symbol at top (scaled down) -->
+    <g transform=""translate(33, 20) scale(0.6)"">
+        <g stroke=""#E63946"" stroke-width=""9"">
+          <circle cx=""100"" cy=""95"" r=""20""/>
+          <path d=""M 100 115 V 140""/>
+        </g>
+        <path d=""M 85 80 L 90 70 L 100 77 L 110 70 L 115 80"" stroke=""#FFD166"" stroke-width=""7""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">税收</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Taxation</text>
+</svg>"
+【异族】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Foreigner Icon -->
+  <g stroke=""#2A9D8F"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Square Head -->
+    <rect x=""80"" y=""80"" width=""40"" height=""40"" rx=""4"" ry=""4""/>
+    <!-- Body -->
+    <path d=""M 100 120 V 170""/>
+    <!-- Arms -->
+    <path d=""M 70 145 L 100 130 L 130 145""/>
+    <!-- Legs -->
+    <path d=""M 100 170 L 75 200""/>
+    <path d=""M 100 170 L 125 200""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">异族</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Foreigner</text>
+</svg>"
+【荣耀】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Glory Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Laurel Wreath Arcs -->
+    <g stroke=""#FFD166"" stroke-width=""8"">
+      <path d=""M 60 200 C 70 140, 90 100, 100 90""/>
+      <path d=""M 140 200 C 130 140, 110 100, 100 90""/>
+    </g>
+    <!-- Human Symbol -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""120"" r=""20""/>
+      <path d=""M 100 140 V 190""/>
+      <path d=""M 70 165 L 100 150 L 130 165""/>
+      <path d=""M 100 190 L 75 220""/>
+      <path d=""M 100 190 L 125 220""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">荣耀</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Glory</text>
+</svg>
+"
+【帝国文化】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Imperial Culture Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Central Power Symbol -->
+    <g stroke=""#E63946"" stroke-width=""9"" transform=""scale(0.8) translate(25, 35)"">
+      <circle cx=""100"" cy=""95"" r=""22""/>
+      <path d=""M 100 117 V 160""/>
+      <path d=""M 70 140 L 100 125 L 130 140""/>
+    </g>
+    
+    <!-- Cultural Ripples -->
+    <g stroke=""#1D3557"" stroke-width=""3"" stroke-dasharray=""8 4"">
+      <circle cx=""100"" cy=""100"" r=""45""/>
+      <circle cx=""100"" cy=""100"" r=""70""/>
+    </g>
+
+    <!-- Foreigners being assimilated -->
+    <g stroke-width=""6"" stroke=""#2A9D8F"">
+        <!-- Unchanged Foreigner -->
+        <g transform=""scale(0.5) translate(20, 240)"">
+            <rect x=""85"" y=""85"" width=""30"" height=""30"" rx=""2"" ry=""2""/>
+            <path d=""M 100 115 V 140 L 80 160""/>
+            <path d=""M 100 140 L 120 160""/>
+        </g>
+        <!-- Transforming Foreigner -->
+        <g transform=""scale(0.5) translate(180, 240)"">
+            <rect x=""85"" y=""85"" width=""30"" height=""30"" rx=""15"" ry=""15""/>
+            <path d=""M 100 115 V 140 L 80 160""/>
+            <path d=""M 100 140 L 120 160""/>
+        </g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">帝国文化</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Imperial Culture</text>
+</svg>
+"
+【神启】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Divine Revelation Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Divine Symbol -->
+    <g stroke=""#FFD166"" stroke-width=""6"">
+      <circle cx=""100"" cy=""90"" r=""25""/>
+      <circle cx=""100"" cy=""90"" r=""10""/>
+    </g>
+    <!-- Lightning Bolt -->
+    <path d=""M 100 115 L 95 125 L 105 135 L 100 145"" stroke=""#FFD166"" stroke-width=""6""/>
+    
+    <!-- Human Symbol receiving the message -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <!-- Head -->
+      <circle cx=""100"" cy=""160"" r=""15""/>
+      <!-- Torso -->
+      <path d=""M 100 175 V 195""/>
+      <!-- Kneeling Legs -->
+      <path d=""M 100 195 L 80 195""/>
+      <path d=""M 100 195 L 100 215""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">神启</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Divine Revelation</text>
+</svg>"
+【救赎】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Divine Revelation Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Divine Symbol -->
+    <g stroke=""#FFD166"" stroke-width=""6"">
+      <circle cx=""100"" cy=""90"" r=""25""/>
+      <circle cx=""100"" cy=""90"" r=""10""/>
+    </g>
+    <!-- Lightning Bolt -->
+    <path d=""M 100 115 L 95 125 L 105 135 L 100 145"" stroke=""#FFD166"" stroke-width=""6""/>
+    
+    <!-- Human Symbol receiving the message -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <!-- Head -->
+      <circle cx=""100"" cy=""160"" r=""15""/>
+      <!-- Torso -->
+      <path d=""M 100 175 V 195""/>
+      <!-- Kneeling Legs -->
+      <path d=""M 100 195 L 80 195""/>
+      <path d=""M 100 195 L 100 215""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">神启</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Divine Revelation</text>
+</svg>"
+【信徒】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Follower Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Faith Symbol -->
+    <g stroke=""#FFD166"" stroke-width=""6"">
+      <circle cx=""100"" cy=""95"" r=""25""/>
+      <circle cx=""100"" cy=""95"" r=""10""/>
+    </g>
+
+    <!-- Followers (Group of Humans) -->
+    <g stroke=""#E63946"" stroke-width=""6"">
+        <!-- Back row -->
+        <g transform=""translate(0, 30) scale(0.5)"">
+            <circle cx=""70"" cy=""145"" r=""15""/><path d=""M 70 160 V 180 L 60 200""/>
+        </g>
+        <g transform=""translate(40, 30) scale(0.5)"">
+            <circle cx=""100"" cy=""145"" r=""15""/><path d=""M 100 160 V 180 L 90 200""/>
+        </g>
+        <g transform=""translate(80, 30) scale(0.5)"">
+            <circle cx=""130"" cy=""145"" r=""15""/><path d=""M 130 160 V 180 L 120 200""/>
+        </g>
+        <!-- Front row -->
+        <g transform=""translate(20, 60) scale(0.5)"">
+            <circle cx=""85"" cy=""145"" r=""15""/><path d=""M 85 160 V 180 L 75 200""/>
+        </g>
+        <g transform=""translate(60, 60) scale(0.5)"">
+            <circle cx=""115"" cy=""145"" r=""15""/><path d=""M 115 160 V 180 L 105 200""/>
+        </g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">信徒</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Follower</text>
+</svg>
+"
+【神迹】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Miracle Icon: Parting the Sea -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Walls of Water -->
+    <path d=""M 75 210 C 20 180, 10 100, 75 70 L 40 70 C -10 100, -10 180, 40 210 Z"" fill=""#457B9D""/>
+    <path d=""M 125 210 C 180 180, 190 100, 125 70 L 160 70 C 210 100, 210 180, 160 210 Z"" fill=""#457B9D""/>
+
+    <!-- Small human figure for scale -->
+    <g stroke=""#E63946"" stroke-width=""5"" transform=""translate(0 25)"">
+       <circle cx=""100"" cy=""150"" r=""8""/>
+       <path d=""M 100 158 V 175""/>
+       <path d=""M 100 175 L 90 190""/>
+       <path d=""M 100 175 L 110 190""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">神迹</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Miracle</text>
+</svg>"
+【教义】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Doctrine Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Stone Tablet -->
+    <rect x=""60"" y=""90"" width=""80"" height=""100"" rx=""8"" ry=""8"" fill=""#A99985""/>
+    <!-- Engraved Lines -->
+    <g stroke=""#6D4C41"" stroke-width=""5"">
+        <path d=""M 75 110 H 125""/>
+        <path d=""M 75 130 H 125""/>
+        <path d=""M 75 150 H 125""/>
+        <path d=""M 75 170 H 125""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">教义</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Doctrine</text>
+</svg>
+"
+【手稿】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Manuscript Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Scroll Paper -->
+    <path d=""M 60 110 H 140 C 155 110, 155 170, 140 170 H 60 C 45 170, 45 110, 60 110 Z"" fill=""#F0EAD6"" stroke=""#8B5E34"" stroke-width=""7""/>
+    <!-- Written Lines -->
+    <g stroke=""#A1887F"" stroke-width=""4"">
+      <path d=""M 75 130 H 125""/>
+      <path d=""M 75 145 H 125""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">手稿</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Manuscript</text>
+</svg>"
+【工匠】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Artisan Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Human Symbol -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""100"" r=""20""/>
+      <path d=""M 100 120 V 170""/>
+      <path d=""M 70 145 L 100 130 L 130 145""/>
+      <path d=""M 100 170 L 75 200""/>
+      <path d=""M 100 170 L 125 200""/>
+    </g>
+    <!-- Hammer Tool -->
+    <g stroke=""#8B5E34"" stroke-width=""8"">
+        <path d=""M 130 150 V 130 M 120 130 H 140""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">工匠</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Artisan</text>
+</svg>"
+【旧秩序】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Old Order Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Cracked Frame -->
+    <rect x=""45"" y=""80"" width=""110"" height=""120"" rx=""8"" ry=""8"" stroke=""#70665f"" stroke-width=""10"" fill=""#EAE0D1""/>
+    <path d=""M 145 80 L 155 98"" stroke=""#70665f"" stroke-width=""3""/>
+    <path d=""M 45 185 L 35 195"" stroke=""#70665f"" stroke-width=""3""/>
+
+    <!-- Class structure inside -->
+    <g transform=""translate(0, 5)"">
+      <g fill=""#A98467"">
+        <rect x=""55"" y=""125"" width=""90"" height=""6""/>
+        <rect x=""55"" y=""160"" width=""90"" height=""6""/>
+      </g>
+      <g stroke=""#E63946"" stroke-width=""4"">
+        <!-- Top Layer -->
+        <g transform=""translate(48, 25) scale(0.35)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+        <!-- Middle Layer -->
+        <g transform=""translate(18, 88) scale(0.35)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+        <g transform=""translate(78, 88) scale(0.35)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+        <!-- Bottom Layer -->
+        <g transform=""translate(-2, 145) scale(0.35)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+        <g transform=""translate(38, 145) scale(0.35)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+        <g transform=""translate(78, 145) scale(0.35)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">旧秩序</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Old Order</text>
+</svg>"
+【逻辑】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Logic Icon -->
+  <g stroke-width=""6"" stroke-linecap=""round"" fill=""none"">
+    <!-- Sequence of shapes -->
+    <circle cx=""45"" cy=""140"" r=""12"" stroke=""#457B9D""/>
+    <rect x=""73"" y=""128"" width=""24"" height=""24"" rx=""3"" stroke=""#E63946""/>
+    <path d=""M 115 128 L 127 152 L 103 152 Z"" stroke=""#FFD166""/>
+    
+    <!-- Question Mark -->
+    <g stroke=""#1D3557"" >
+      <path d=""M 148 130 C 148 123, 155 123, 155 130 C 155 135, 150 137, 150 142"" />
+      <circle cx=""150"" cy=""148"" r=""2"" fill=""#1D3557"" stroke=""none""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">逻辑</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Logic</text>
+</svg>"
+【公众】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- The Public Icon -->
+  <g stroke-linecap=""round"" fill=""none"" stroke=""#E63946"">
+    <!-- A sea of people -->
+    <g opacity=""0.7"" transform=""translate(-10, 40) scale(0.4)""><circle cx=""100"" cy=""100"" r=""20""/><path d=""M 100 120 V 170""/><path d=""M 100 170 L 75 200""/><path d=""M 100 170 L 125 200""/></g>
+    <g opacity=""0.8"" transform=""translate(60, 50) scale(0.4)""><circle cx=""100"" cy=""100"" r=""20""/><path d=""M 100 120 V 170""/><path d=""M 100 170 L 75 200""/><path d=""M 100 170 L 125 200""/></g>
+    <g opacity=""0.7"" transform=""translate(110, 35) scale(0.4)""><circle cx=""100"" cy=""100"" r=""20""/><path d=""M 100 120 V 170""/><path d=""M 100 170 L 75 200""/><path d=""M 100 170 L 125 200""/></g>
+    
+    <g transform=""translate(25, 10) scale(0.5)""><circle cx=""100"" cy=""100"" r=""20""/><path d=""M 100 120 V 170""/><path d=""M 100 170 L 75 200""/><path d=""M 100 170 L 125 200""/></g>
+    <g transform=""translate(90, 5) scale(0.5)""><circle cx=""100"" cy=""100"" r=""20""/><path d=""M 100 120 V 170""/><path d=""M 100 170 L 75 200""/><path d=""M 100 170 L 125 200""/></g>
+
+    <g opacity=""0.7"" transform=""translate(10, 80) scale(0.4)""><circle cx=""100"" cy=""100"" r=""20""/><path d=""M 100 120 V 170""/><path d=""M 100 170 L 75 200""/><path d=""M 100 170 L 125 200""/></g>
+    <g transform=""translate(50, 65) scale(0.5)""><circle cx=""100"" cy=""100"" r=""20""/><path d=""M 100 120 V 170""/><path d=""M 100 170 L 75 200""/><path d=""M 100 170 L 125 200""/></g>
+    <g opacity=""0.8"" transform=""translate(100, 85) scale(0.4)""><circle cx=""100"" cy=""100"" r=""20""/><path d=""M 100 120 V 170""/><path d=""M 100 170 L 75 200""/><path d=""M 100 170 L 125 200""/></g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">公众</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">The Public</text>
+</svg>
+"
+【教条】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Dogma Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Human Symbol trapped inside -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""120"" r=""20""/>
+      <path d=""M 100 140 V 170""/>
+      <path d=""M 80 155 L 100 145 L 120 155""/>
+      <path d=""M 100 170 L 85 190""/>
+      <path d=""M 100 170 L 115 190""/>
+    </g>
+
+    <!-- Cage made of Doctrine lines -->
+    <g stroke=""#70665f"" stroke-width=""10"">
+      <path d=""M 60 100 H 140""/>
+      <path d=""M 60 140 H 140""/>
+      <path d=""M 60 180 H 140""/>
+      <path d=""M 60 100 V 180""/>
+      <path d=""M 140 100 V 180""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">教条</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Dogma</text>
+</svg>"
+【特权】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Privilege Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- The Barrier -->
+    <g fill=""#A98467"">
+      <rect x=""40"" y=""136"" width=""45"" height=""8""/>
+      <rect x=""115"" y=""136"" width=""45"" height=""8""/>
+    </g>
+
+    <!-- Blocked people -->
+    <g stroke=""#E63946"" stroke-width=""6"" opacity=""0.6"">
+        <g transform=""translate(10, 80) scale(0.5)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150 L 80 170""/></g>
+        <g transform=""translate(70, 80) scale(0.5)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150 L 120 170""/></g>
+    </g>
+
+    <!-- Privileged person -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""120"" r=""20""/>
+      <path d=""M 100 140 V 170""/>
+      <path d=""M 100 170 L 85 190""/>
+      <path d=""M 100 170 L 115 190""/>
+    </g>
+    <!-- Special Mark -->
+    <circle cx=""100"" cy=""120"" r=""28"" stroke=""#FFD166"" stroke-width=""4""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">特权</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Privilege</text>
+</svg>"
+【闪电】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Lightning Icon -->
+  <g stroke=""#FFD166"" stroke-width=""9"" stroke-linecap=""round"" fill=""none"">
+    <path d=""M 100 80 L 90 150 L 110 150 L 100 220""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">闪电</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Lightning</text>
+</svg>"
+【自由】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Freedom Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Breaking Human -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""110"" r=""20""/>
+      <path d=""M 100 130 V 180""/>
+      <path d=""M 70 155 L 100 140 L 130 155""/>
+      <path d=""M 100 180 L 75 210""/>
+      <path d=""M 100 180 L 125 180""/>
+    </g>
+
+    <!-- Broken Cage -->
+    <g stroke=""#70665f"" stroke-width=""9"">
+        <path d=""M 130 95 A 50 50 0 1 1 70 195""/>
+        <!-- Debris -->
+        <g stroke-width=""4"">
+            <path d=""M 68 198 L 58 202""/>
+            <path d=""M 132 92 L 140 85""/>
+            <path d=""M 138 98 L 148 95""/>
+        </g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">自由</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Freedom</text>
+</svg>"
+【公民】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Citizen Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Human Symbol -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <circle cx=""100"" cy=""100"" r=""20""/>
+      <path d=""M 100 120 V 170""/>
+      <path d=""M 70 145 L 100 130 L 130 145""/>
+      <path d=""M 100 170 L 75 200""/>
+      <path d=""M 100 170 L 125 200""/>
+    </g>
+    <!-- Shield Symbol on chest -->
+    <path d=""M 92 135 V 145 Q 100 155 108 145 V 135 Z"" fill=""#1D3557"" stroke=""none""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">公民</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Citizen</text>
+</svg>
+"
+【民族国家】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Nation-State Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- State Border -->
+    <rect x=""40"" y=""80"" width=""120"" height=""120"" rx=""8"" ry=""8"" stroke=""#1D3557"" stroke-width=""8""/>
+    
+    <!-- Homogenous Population (Citizens) -->
+    <g>
+      <!-- Row 1 -->
+      <g transform=""translate(60, 90) scale(0.4)""><g stroke=""#E63946"" stroke-width=""6""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g><path d=""M 94 120 v 8 q 6 8 12 0 v -8 z"" fill=""#1D3557""/></g>
+      <g transform=""translate(100, 90) scale(0.4)""><g stroke=""#E63946"" stroke-width=""6""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g><path d=""M 94 120 v 8 q 6 8 12 0 v -8 z"" fill=""#1D3557""/></g>
+      <!-- Row 2 -->
+      <g transform=""translate(40, 135) scale(0.4)""><g stroke=""#E63946"" stroke-width=""6""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g><path d=""M 94 120 v 8 q 6 8 12 0 v -8 z"" fill=""#1D3557""/></g>
+      <g transform=""translate(80, 135) scale(0.4)""><g stroke=""#E63946"" stroke-width=""6""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g><path d=""M 94 120 v 8 q 6 8 12 0 v -8 z"" fill=""#1D3557""/></g>
+      <g transform=""translate(120, 135) scale(0.4)""><g stroke=""#E63946"" stroke-width=""6""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g><path d=""M 94 120 v 8 q 6 8 12 0 v -8 z"" fill=""#1D3557""/></g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">民族国家</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Nation-State</text>
+</svg>
+"
+【大众媒体】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Mass Media Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Emitter -->
+    <circle cx=""100"" cy=""90"" r=""10"" fill=""#1D3557""/>
+
+    <!-- Waves connecting to public -->
+    <g stroke=""#1D3557"" stroke-width=""4"">
+      <path d=""M 100 100 C 100 120, 90 130, 80 150""/>
+      <path d=""M 100 100 C 100 120, 110 130, 120 150""/>
+      <path d=""M 100 100 C 80 110, 60 130, 50 150""/>
+      <path d=""M 100 100 C 120 110, 140 130, 150 150""/>
+    </g>
+
+    <!-- The Public -->
+    <g stroke=""#E63946"" stroke-width=""6"" transform=""translate(0, 60)"">
+      <g transform=""translate(30, 80) scale(0.4)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/></g>
+      <g transform=""translate(60, 80) scale(0.4)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/></g>
+      <g transform=""translate(90, 80) scale(0.4)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/></g>
+      <g transform=""translate(120, 80) scale(0.4)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/></g>
+      <g transform=""translate(150, 80) scale(0.4)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/></g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">大众媒体</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Mass Media</text>
+</svg>"
+【化石燃料】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Fossil Fuel Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Ore Symbol -->
+    <g transform=""translate(0 -25)"">
+      <path d=""M 70 165 L 80 120 L 130 115 L 145 140 L 125 170 Z"" fill=""#8D8177""/>
+      <path d=""M 120 123 L 130 115 L 135 125"" stroke=""#FFD166"" stroke-width=""5""/>
+    </g>
+    <!-- Flames -->
+    <g stroke-width=""8"">
+      <path d=""M 100 200 C 90 180, 110 180, 100 150"" stroke=""#FFD166""/>
+      <path d=""M 85 200 C 75 180, 95 180, 85 150"" stroke=""#E63946""/>
+      <path d=""M 115 200 C 105 180, 125 180, 115 150"" stroke=""#E63946""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">化石燃料</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Fossil Fuel</text>
+</svg>"
+【意识形态】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Ideology Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Giant Star Symbol -->
+    <path d=""M 100 70 L 115 110 L 155 110 L 125 135 L 140 175 L 100 150 L 60 175 L 75 135 L 45 110 L 85 110 Z"" fill=""#1D3557""/>
+
+    <!-- Light Cone -->
+    <path d=""M 60 175 L 40 210 H 160 L 140 175 Z"" fill=""#1D3557"" opacity=""0.3""/>
+
+    <!-- The Public underneath -->
+    <g stroke=""#E63946"" stroke-width=""5"" opacity=""0.8"">
+      <g transform=""translate(60, 110) scale(0.3)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+      <g transform=""translate(90, 110) scale(0.3)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+      <g transform=""translate(120, 110) scale(0.3)""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/><path d=""M 100 150 L 80 170""/><path d=""M 100 150 L 120 170""/></g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">意识形态</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Ideology</text>
+</svg>
+"
+【人类共同体】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Human Community Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Earth Circle -->
+    <circle cx=""100"" cy=""140"" r=""70"" fill=""#A8DADC"" opacity=""0.6""/>
+    
+    <!-- Connection Grid -->
+    <g stroke=""#1D3557"" stroke-width=""2"" opacity=""0.7"">
+        <path d=""M 80 110 L 120 110""/>
+        <path d=""M 80 110 L 65 140""/>
+        <path d=""M 120 110 L 135 140""/>
+        <path d=""M 65 140 L 80 170""/>
+        <path d=""M 135 140 L 120 170""/>
+        <path d=""M 80 170 L 120 170""/>
+    </g>
+
+    <!-- Diverse Human symbols -->
+    <g stroke-width=""6"">
+        <g transform=""translate(60, 5) scale(0.4)"" stroke=""#E63946""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/></g>
+        <g transform=""translate(140, 5) scale(0.4)"" stroke=""#E63946""><circle cx=""100"" cy=""100"" r=""15""/><path d=""M 100 115 V 150""/></g>
+
+        <g transform=""translate(25, 75) scale(0.4)"" stroke=""#2A9D8F""><rect x=""85"" y=""85"" width=""30"" height=""30"" rx=""3""/><path d=""M 100 115 V 150""/></g>
+        <g transform=""translate(175, 75) scale(0.4)"" stroke=""#2A9D8F""><rect x=""85"" y=""85"" width=""30"" height=""30"" rx=""3""/><path d=""M 100 115 V 150""/></g>
+        
+        <g transform=""translate(60, 145) scale(0.4)"" stroke=""#F4A261""><path d=""M 85 115 L 115 115 L 100 85 Z""/><path d=""M 100 115 V 150""/></g>
+        <g transform=""translate(140, 145) scale(0.4)"" stroke=""#F4A261""><path d=""M 85 115 L 115 115 L 100 85 Z""/><path d=""M 100 115 V 150""/></g>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">人类共同体</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Human Community</text>
+</svg>"
+【后稀缺】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Post-Scarcity Icon -->
+  <g fill=""#FFD166"" stroke=""#F4A261"" stroke-width=""2"">
+    <!-- Raining wealth -->
+    <path d=""M 90 90 L 100 75 L 110 90 L 100 105 Z""/>
+    <path d=""M 50 130 L 60 115 L 70 130 L 60 145 Z"" opacity=""0.8""/>
+    <path d=""M 130 140 L 140 125 L 150 140 L 140 155 Z"" opacity=""0.9""/>
+    <path d=""M 90 160 L 100 145 L 110 160 L 100 175 Z""/>
+    <path d=""M 60 200 L 70 185 L 80 200 L 70 215 Z""/>
+    <path d=""M 120 210 L 130 195 L 140 210 L 130 225 Z"" opacity=""0.7""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">后稀缺</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Post-Scarcity</text>
+</svg>"
+【基因工程】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Genetic Engineering Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- DNA Helix -->
+    <g stroke=""#457B9D"" stroke-width=""6"">
+      <path d=""M 80 90 C 120 130, 80 150, 120 190""/>
+      <path d=""M 120 90 C 80 130, 120 150, 80 190""/>
+      <!-- Base pairs -->
+      <g stroke-width=""4"">
+        <path d=""M 88 106 H 112""/>
+        <path d=""M 80 140 H 120""/>
+        <path d=""M 88 174 H 112""/>
+      </g>
+    </g>
+
+    <!-- Scissors cutting the helix -->
+    <g transform=""rotate(25 100 140)"">
+      <path d=""M 100 140 L 80 120 M 100 140 L 80 160"" stroke=""#E63946"" stroke-width=""7""/>
+      <!-- Gap in DNA -->
+      <rect x=""75"" y=""137"" width=""10"" height=""6"" fill=""#FDF5E6""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">基因工程</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Genetic Engineering</text>
+</svg>
+"
+【存在主义】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Existentialism Icon -->
+  <g stroke=""#E63946"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"" transform=""translate(0, 30)"">
+    <!-- Solitary Human -->
+    <circle cx=""100"" cy=""120"" r=""20""/>
+    <path d=""M 100 140 V 190""/>
+    <path d=""M 70 165 L 100 150 L 130 165""/>
+    <path d=""M 100 190 L 75 220""/>
+    <path d=""M 100 190 L 125 220""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">存在主义</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Existentialism</text>
+</svg>"
+【虚拟现实】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Virtual Reality Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- VR Headset -->
+    <rect x=""75"" y=""80"" width=""50"" height=""30"" rx=""5"" ry=""5"" fill=""#1D3557""/>
+    <!-- Scene inside headset -->
+    <circle cx=""90"" cy=""100"" r=""4"" fill=""#FFD166""/>
+    <path d=""M 105 102 L 110 95 L 115 102 Z"" fill=""#99D98C""/>
+    <!-- Human Body -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+      <path d=""M 100 110 V 170""/>
+      <path d=""M 70 145 L 100 130 L 130 145""/>
+      <path d=""M 100 170 L 75 200""/>
+      <path d=""M 100 170 L 125 200""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">虚拟现实</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Virtual Reality</text>
+</svg>"
+【开拓者精神】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Pioneer Spirit Icon -->
+  <g stroke-linecap=""round"" fill=""none"" transform=""translate(-30, 0)"">
+    <!-- Pioneer -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+        <circle cx=""100"" cy=""100"" r=""20""/>
+        <path d=""M 100 120 V 170""/>
+        <path d=""M 70 145 L 100 130 L 130 145""/>
+        <path d=""M 100 170 L 75 200""/>
+        <path d=""M 100 170 L 125 200""/>
+    </g>
+    <!-- Flag -->
+    <g stroke=""#E63946"" stroke-width=""7"">
+        <path d=""M 130 145 V 90""/>
+        <path d=""M 130 90 L 150 100 L 130 110 Z"" fill=""#E63946""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">开拓者精神</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Pioneer Spirit</text>
+</svg>
+"
+【虚拟飞升】,灵感卡 (解锁),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Virtual Ascension Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Data Stream at the top -->
+    <rect x=""40"" y=""70"" width=""120"" height=""30"" rx=""10"" ry=""10"" fill=""#457B9D""/>
+
+    <!-- Dissolving Human -->
+    <g stroke=""#E63946"" stroke-width=""8"">
+        <circle cx=""100"" cy=""140"" r=""20""/>
+        <path d=""M 100 160 v -10""/>
+        <path d=""M 70 180 L 100 165""/>
+    </g>
+
+    <!-- Pixels and 0s/1s -->
+    <g fill=""#E63946"">
+      <rect x=""100"" y=""165"" width=""6"" height=""6"" rx=""1""/>
+      <rect x=""92"" y=""155"" width=""6"" height=""6"" rx=""1""/>
+      <rect x=""105"" y=""175"" width=""6"" height=""6"" rx=""1""/>
+      <rect x=""85"" y=""185"" width=""6"" height=""6"" rx=""1""/>
+    </g>
+    <g font-family=""monospace"" font-size=""10"" fill=""#1D3557"">
+      <text x=""98"" y=""130"">1</text>
+      <text x=""108"" y=""122"">0</text>
+      <text x=""88"" y=""145"">0</text>
+      <text x=""102"" y=""150"">1</text>
+    </g>
+    <path d=""M 100 185 C 100 150, 100 120, 100 100"" stroke-width=""4"" stroke=""#457B9D"" stroke-dasharray=""4 4""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">虚拟飞升</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor-middle"" fill=""#A1887F"">Virtual Ascension</text>
+</svg>
+"
+【小行星】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Asteroid Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Earth Symbol (Target) -->
+    <circle cx=""140"" cy=""180"" r=""30"" fill=""#A8DADC""/>
+    <g stroke=""#FDF5E6"" stroke-width=""2"" opacity=""0.7"">
+        <path d=""M 140 150 v 60""/>
+        <path d=""M 120 160 h 40""/>
+        <path d=""M 120 200 h 40""/>
+    </g>
+    
+    <!-- Asteroid -->
+    <g transform=""translate(-20, -20)"">
+      <circle cx=""80"" cy=""110"" r=""25"" fill=""#70665f""/>
+      <!-- Tail -->
+      <path d=""M 80 110 C 130 60, 150 70, 170 40"" stroke=""#70665f"" stroke-width=""12""/>
+      <path d=""M 80 110 C 120 70, 130 80, 140 60"" stroke=""#FFD166"" stroke-width=""6""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">小行星</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor-middle"" fill=""#A1887F"">Asteroid</text>
+</svg>
+"
+【相对论】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Relativity Icon -->
+  <g stroke-width=""3"" stroke-linecap=""round"" stroke=""#1D3557"" fill=""none"">
+    <!-- Warped Spacetime Grid -->
+    <path d=""M 40 100 C 80 120, 120 120, 160 100""/>
+    <path d=""M 40 120 C 80 145, 120 145, 160 120""/>
+    <path d=""M 40 140 C 80 170, 120 170, 160 140""/>
+    <path d=""M 40 160 C 80 195, 120 195, 160 160""/>
+    <path d=""M 40 180 C 80 210, 120 210, 160 180""/>
+    
+    <path d=""M 80 80 C 95 120, 95 160, 80 200""/>
+    <path d=""M 100 80 C 100 120, 100 160, 100 200""/>
+    <path d=""M 120 80 C 105 120, 105 160, 120 200""/>
+    
+    <!-- Mass in the center -->
+    <circle cx=""100"" cy=""140"" r=""18"" fill=""#FFD166"" stroke=""#F4A261"" stroke-width=""3""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">相对论</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor-middle"" fill=""#A1887F"">Relativity</text>
+</svg>
+"
+【孤独】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Loneliness Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Vast Empty Frame -->
+    <rect x=""40"" y=""80"" width=""120"" height=""120"" rx=""8"" ry=""8"" stroke=""#A98467"" stroke-width=""6"" fill=""#f8f1e3""/>
+    
+    <!-- Tiny Human Symbol -->
+    <g transform=""translate(68, 78) scale(0.3)"" stroke=""#E63946"" stroke-width=""8"">
+        <circle cx=""100"" cy=""100"" r=""15""/>
+        <path d=""M 100 115 V 150""/>
+        <path d=""M 100 150 L 80 170""/>
+        <path d=""M 100 150 L 120 170""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">孤独</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Loneliness</text>
+</svg>
+"
+【神经信号】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Neural Signal Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Neuron -->
+    <g stroke=""#1D3557"" stroke-width=""6"">
+      <circle cx=""80"" cy=""120"" r=""15""/>
+      <!-- Dendrites -->
+      <path d=""M 65 120 h -10 l -5 -5 m 5 5 l -5 5""/>
+      <path d=""M 70 108 l -5 -10""/>
+      <path d=""M 90 108 l 5 -10""/>
+      <!-- Axon -->
+      <path d=""M 95 120 H 160""/>
+    </g>
+    <!-- The Signal -->
+    <circle cx=""130"" cy=""120"" r=""5"" fill=""#FFD166""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">神经信号</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Neural Signal</text>
+</svg>
+"
+【带宽】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280""rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Bandwidth Icon -->
+  <g stroke-linecap=""round"" fill=""none"">
+    <!-- Wide Pipe -->
+    <path d=""M 40 120 H 160 M 40 160 H 160"" stroke=""#1D3557"" stroke-width=""8""/>
+    
+    <!-- Data dots -->
+    <g fill=""#A8DADC"">
+      <!-- Row 1 -->
+      <circle cx=""60"" cy=""130"" r=""4""/>
+      <circle cx=""90"" cy=""130"" r=""4""/>
+      <circle cx=""120"" cy=""130"" r=""4""/>
+      <circle cx=""150"" cy=""130"" r=""4""/>
+      <!-- Row 2 -->
+      <circle cx=""70"" cy=""140"" r=""4"" opacity=""0.8""/>
+      <circle cx=""100"" cy=""140"" r=""4"" opacity=""0.8""/>
+      <circle cx=""130"" cy=""140"" r=""4"" opacity=""0.8""/>
+      <!-- Row 3 -->
+      <circle cx=""50"" cy=""150"" r=""4""/>
+      <circle cx=""80"" cy=""150"" r=""4""/>
+      <circle cx=""110"" cy=""150"" r=""4""/>
+      <circle cx=""140"" cy=""150"" r=""4""/>
+    </g>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">带宽</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Bandwidth</text>
+</svg>"
+【死亡】,灵感卡 (初始),"<svg width=""180"" height=""270"" viewBox=""0 0 200 280"" xmlns=""http://www.w3.org/2000/svg"">
+  <!-- Soft Cream Background -->
+  <rect width=""200"" height=""280"" rx=""15"" ry=""15"" fill=""#FDF5E6""/>
+
+  <!-- Playful Stitched Border -->
+  <rect x=""5"" y=""5"" width=""190"" height=""270"" rx=""10"" ry=""10"" fill=""none"" stroke=""#B5838D"" stroke-width=""3"" stroke-dasharray=""10 5""/>
+
+  <!-- Death Icon -->
+  <g stroke=""#E63946"" stroke-width=""8"" stroke-linecap=""round"" fill=""none"">
+    <!-- Head -->
+    <circle cx=""100"" cy=""130"" r=""20""/>
+    <!-- Horizontal Body -->
+    <path d=""M70 150 H 130""/>
+  </g>
+  
+  <!-- Soft Brown Card Name -->
+  <text x=""100"" y=""245"" font-family=""'Kaiti', 'STKaiti', 'serif'"" font-size=""32"" text-anchor=""middle"" fill=""#6D4C41"">死亡</text>
+  <text x=""100"" y=""265"" font-family=""'Georgia', 'serif'"" font-size=""14"" text-anchor=""middle"" fill=""#A1887F"">Death</text>
+</svg>"

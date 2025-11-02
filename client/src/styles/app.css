@@ -88,9 +88,9 @@ html:has(.lobby-shell) #app {
 }
 
 .auth-card {
-    width: min(440px, 92%);
+    width: min(540px, 92%);
     min-height: 500px;
-    padding: 40px 28px;
+    padding: 40px 36px;
     background-image: url('/assets/UI/登录底板.webp');
     background-size: 100% 100%;
     background-position: center;
@@ -103,6 +103,15 @@ html:has(.lobby-shell) #app {
 
 .auth-card > * {
     position: relative;
+}
+
+.auth-logo {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    object-fit: contain;
+    align-self: center;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
 }
 
 .auth-card h1 {
@@ -1011,7 +1020,7 @@ html:has(.lobby-shell) #app {
 
 .card-dock__rail {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: 16px;
 }
 
@@ -1026,6 +1035,8 @@ html:has(.lobby-shell) #app {
     cursor: grab;
     box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6);
     transition: border 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    aspect-ratio: 2 / 3;
+    width: 100%;
 }
 
 .dock-slot:active {
@@ -1504,6 +1515,28 @@ html:has(.lobby-shell) #app {
 
 .bottom-controls button:active {
     transform: translateY(0);
+}
+
+.bottom-controls .btn-back-lobby {
+    flex: 0 0 auto;
+    padding: 0;
+    background: transparent;
+    border: none;
+}
+
+.bottom-controls .btn-back-lobby:hover {
+    transform: scale(1.1);
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.bottom-controls .btn-back-lobby img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.bottom-controls .btn-back-lobby:hover img {
+    filter: drop-shadow(0 4px 8px rgba(255, 148, 71, 0.6));
 }
 
 .inventory-overlay {
@@ -2152,8 +2185,8 @@ html:has(.lobby-shell) #app {
 /* 右下角功能按钮组 */
 .lobby-bottom-right {
     position: absolute;
-    bottom: 60px;
-    right: 60px;
+    bottom: 30px;
+    right: 200px;
     display: flex;
     gap: 12px;
     z-index: 200;
@@ -2195,8 +2228,8 @@ html:has(.lobby-shell) #app {
 
 /* GO按钮 */
 .lobby-go-btn {
-    width: 234px;
-    height: 234px;
+    width: 308px;
+    height: 308px;
     border: none;
     background: transparent;
     cursor: pointer;
@@ -2578,9 +2611,31 @@ html:has(.lobby-shell) #app {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+.settings-logout-img {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.settings-logout-img img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
 .settings-logout:hover {
     transform: translateY(-2px) scale(1.02);
     box-shadow: 0 6px 14px rgba(255, 148, 71, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.settings-logout-img:hover {
+    transform: scale(1.1);
+    box-shadow: none;
+}
+
+.settings-logout-img:hover img {
+    filter: drop-shadow(0 4px 8px rgba(255, 148, 71, 0.6));
 }
 
 .settings-close {
@@ -3158,11 +3213,33 @@ html:has(.lobby-shell) #app {
     color: #fff;
 }
 
+.result-btn.lobby-btn-img {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.result-btn.lobby-btn-img img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
 .result-btn.lobby-btn:hover {
     transform: translateY(-3px) scale(1.05);
     box-shadow: 
         0 8px 20px rgba(127, 176, 105, 0.6),
         inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.result-btn.lobby-btn-img:hover {
+    transform: scale(1.15);
+    box-shadow: none;
+}
+
+.result-btn.lobby-btn-img:hover img {
+    filter: drop-shadow(0 8px 16px rgba(255, 148, 71, 0.8));
 }
 
 /* 事件危机UI */

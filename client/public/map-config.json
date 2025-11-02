@@ -1,0 +1,14 @@
+{
+  "0,0": { "terrain": "grassland" },
+  "1,0": { "terrain": "grassland" },
+  "-1,0": { "terrain": "grassland" },
+  "0,1": { "terrain": "grassland" },
+  "0,-1": { "terrain": "grassland" },
+  "1,-1": { "terrain": "forest" },
+  "-1,1": { "terrain": "forest" },
+  "2,0": { "terrain": "mountain" },
+  "-2,0": { "terrain": "mountain" },
+  "0,2": { "terrain": "ocean" },
+  "0,-2": { "terrain": "ocean" }
+}
+

@@ -173,8 +173,8 @@ export function CardsDatabase({ token, onBack }) {
     <div className="cards-database">
       <div className="cards-database-header">
         <h1>卡牌数据库管理</h1>
-        <button className="btn-back" onClick={onBack}>
-          返回大厅
+        <button className="btn-back btn-back-img" onClick={onBack} title="返回大厅">
+          <img src="/assets/UI/退出.webp" alt="返回大厅" />
         </button>
       </div>
 

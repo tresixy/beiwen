@@ -80,9 +80,9 @@ body {
 }
 
 .auth-card {
-    width: min(440px, 90%);
+    width: min(540px, 90%);
     min-height: 500px;
-    padding: 40px 28px;
+    padding: 40px 36px;
     background-image: url('/assets/UI/登录底板.webp');
     background-size: 100% 100%;
     background-position: center;
@@ -90,6 +90,15 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+.auth-logo {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    object-fit: contain;
+    align-self: center;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
 }
 
 .auth-card h1 {
@@ -653,6 +662,28 @@ body {
         0 4px 12px rgba(255, 107, 53, 0.3),
         inset 0 1px 0 rgba(255, 255, 255, 0.3),
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.esc-menu-btn-img {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.esc-menu-btn-img img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+.esc-menu-btn-img:hover {
+    transform: scale(1.1) !important;
+    box-shadow: none !important;
+}
+
+.esc-menu-btn-img:hover img {
+    filter: drop-shadow(0 8px 16px rgba(255, 148, 71, 0.8));
 }
 
 /* 游戏舞台 - 全屏Phaser背景 */

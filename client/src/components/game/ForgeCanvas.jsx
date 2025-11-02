@@ -393,13 +393,17 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
                 >
                     {furnaceCards[0] ? (
                         <div
-                            className={`forge-slot-card ${furnaceCards[0]?.rarity ? `rarity-${furnaceCards[0].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[0].id ? 'is-dragging' : ''}`}
+                            className={`dock-slot ${furnaceCards[0]?.rarity ? `rarity-${furnaceCards[0].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[0].id ? 'is-dragging' : ''}`}
                             draggable={!isForging}
                             onDragStart={(event) => handleFurnaceCardDragStart(event, furnaceCards[0].id)}
                             onDragEnd={(event) => handleFurnaceCardDragEnd(event, furnaceCards[0].id)}
+                            style={{ width: '110px', height: '150px', margin: 0 }}
                         >
-                            <div className="forge-slot-name">{furnaceCards[0].name}</div>
-                            <div className="forge-slot-type">{furnaceCards[0].type}</div>
+                            <div className="dock-slot__header">
+                                <span className="dock-slot__name">{furnaceCards[0].name}</span>
+                                <span className={`dock-slot__rarity ${furnaceCards[0].rarity}`}>{furnaceCards[0].rarity}</span>
+                            </div>
+                            <div className="dock-slot__meta">{furnaceCards[0].type}</div>
                         </div>
                     ) : (
                         <div className="forge-slot-empty" />
@@ -417,13 +421,17 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
                 >
                     {furnaceCards[1] ? (
                         <div
-                            className={`forge-slot-card ${furnaceCards[1]?.rarity ? `rarity-${furnaceCards[1].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[1].id ? 'is-dragging' : ''}`}
+                            className={`dock-slot ${furnaceCards[1]?.rarity ? `rarity-${furnaceCards[1].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[1].id ? 'is-dragging' : ''}`}
                             draggable={!isForging}
                             onDragStart={(event) => handleFurnaceCardDragStart(event, furnaceCards[1].id)}
                             onDragEnd={(event) => handleFurnaceCardDragEnd(event, furnaceCards[1].id)}
+                            style={{ width: '110px', height: '150px', margin: 0 }}
                         >
-                            <div className="forge-slot-name">{furnaceCards[1].name}</div>
-                            <div className="forge-slot-type">{furnaceCards[1].type}</div>
+                            <div className="dock-slot__header">
+                                <span className="dock-slot__name">{furnaceCards[1].name}</span>
+                                <span className={`dock-slot__rarity ${furnaceCards[1].rarity}`}>{furnaceCards[1].rarity}</span>
+                            </div>
+                            <div className="dock-slot__meta">{furnaceCards[1].type}</div>
                         </div>
                     ) : (
                         <div className="forge-slot-empty" />

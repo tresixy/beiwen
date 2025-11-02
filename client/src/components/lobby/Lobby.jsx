@@ -352,10 +352,11 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                             )}
                             <button 
                                 type="button" 
-                                className="settings-logout" 
+                                className="settings-logout settings-logout-img" 
                                 onClick={onLogout}
+                                title="离开"
                             >
-                                🚪 离开
+                                <img src="/assets/UI/退出.webp" alt="离开" />
                             </button>
                             <button 
                                 type="button" 

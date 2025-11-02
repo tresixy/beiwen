@@ -48,8 +48,8 @@ const TERRAIN_TYPES = {
 
 const REGION_ROWS = [
     // 右上角区域 - 东北三省
-    ['heilongjiang', '黑龙江', 'Black Dragon River', '黑龙之河', '东北', false, true, 'NE'],
-    ['jilin', '吉林', 'Lucky Forest', '幸运森林', '东北', false, true, 'N'],
+    ['heilongjiang', '黑龙江', 'Black Dragon River', '黑龙之河', '东北', false, true, 'N'],
+    ['jilin', '吉林', 'Lucky Forest', '幸运森林', '东北', false, true, 'NW'],
     ['liaoning', '辽宁', 'Distant Peace', '遥远和平', '东北', true, true, 'NE'],
     
     // 中上区域 - 华北
@@ -64,8 +64,7 @@ const REGION_ROWS = [
     ['jiangzhidongxi', '江之东西', 'The Great River', '长江腹地', '华东', true, false, 'E'],
     ['anhui', '安徽', 'Safe Emblem', '安全徽章', '华东', false, false, 'E'],
     ['zhejiang', '浙江', 'Crooked River', '弯曲河流', '华东', true, false, 'SE'],
-    ['fujian', '福建', 'Fortune Build', '财富建设', '华东', true, false, 'SE'],
-    ['taiwan', '台湾', 'Platform Bay', '高台湾地', '华东', true, false, 'SE'],
+    ['taiwan', '台湾', 'Platform Bay', '高台湾地', '华东', true, false, 'S'],
     
     // 华中区域
     ['hezhinnanbei', '河之南北', "River's Body", '黄河身躯', '华中', false, false, 'C'],
@@ -73,11 +72,11 @@ const REGION_ROWS = [
     
     // 西北区域
     ['neimenggu', '内蒙古', 'Inner Mongolia', '蒙古腹地', '华北', false, true, 'NW'],
-    ['qinghai', '青海', 'Turquoise Sea', '绿松石海', '西北', false, false, 'N'],
+    ['qinghai', '青海', 'Turquoise Sea', '绿松石海', '西北', false, false, 'NE'],
     ['xinjiang', '新疆', 'New Frontier', '新边疆', '西北', false, true, 'W'],
     ['ningxia', '宁夏', 'Quiet Summer', '宁静之夏', '西北', false, false, 'NW'],
     ['gansu', '甘肃', 'Sweet Eradicate', '甜根除', '西北', false, true, 'W'],
-    ['shaanxi', '陕西', 'Narrow West', '狭窄西部', '西北', false, false, 'NW'],
+    ['shaanxi', '陕西', 'Narrow West', '狭窄西部', '西北', false, false, 'N'],
     
     // 西南区域
     ['xizang', '西藏', 'Western Depository', '西部宝藏', '西南', false, true, 'W'],
@@ -88,9 +87,10 @@ const REGION_ROWS = [
     
     // 华南区域
     ['guangkuozhidi', '广阔之地', 'Wide Land', '岭南大地', '华南', true, true, 'S'],
+    ['fujian', '福建', 'Fortune Build', '财富建设', '华东', true, false, 'SE'],
     ['hongkong', '香港', 'Fragrant Harbour', '芳香的港湾', '华南', true, false, 'SE'],
     ['macau', '澳门', 'Bay Gate', '海湾之门', '华南', true, false, 'S'],
-    ['hainan', '海南', 'Sea South', '海之南', '华南', true, false, 'S'],
+    ['hainan', '海南', 'Sea South', '海之南', '华南', true, false, 'SE'],
 ];
 
 const REGION_DEFS = REGION_ROWS.map(([key, name, fantasyName, literalName, zone, coastal, border, direction]) => ({
@@ -669,7 +669,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             // 菱形顶点（确保无缝连接）
             const tileW = size * 1.5;
             const tileH = size * 0.75;
-            const seamFix = 2.0; // 增大重叠值以消除黑色细线
+            const seamFix = 4.0; // 增大重叠值以消除黑色细线
             const basePoints = [
                 { x: px, y: py - tileH },      // 上
                 { x: px + tileW, y: py },      // 右

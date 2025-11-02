@@ -98,10 +98,11 @@ export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, onResta
 
                         <button 
                             type="button" 
-                            className="esc-menu-btn"
+                            className="esc-menu-btn esc-menu-btn-img"
                             onClick={handleBackToLobbyClick}
+                            title="返回主页"
                         >
-                            🏠 返回主页
+                            <img src="/assets/UI/退出.webp" alt="返回主页" />
                         </button>
                     </div>
                 ) : showSaveDialog ? (

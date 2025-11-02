@@ -31,9 +31,31 @@
   transition: all 0.3s;
 }
 
+.btn-back-img {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.btn-back-img img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
 .btn-back:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
+}
+
+.btn-back-img:hover {
+  background: transparent;
+  transform: scale(1.1);
+}
+
+.btn-back-img:hover img {
+  filter: drop-shadow(0 4px 8px rgba(255, 148, 71, 0.6));
 }
 
 .cards-database-stats {

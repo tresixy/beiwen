@@ -6,6 +6,7 @@ import { Lobby } from './components/lobby/Lobby.jsx';
 import { MessageStack } from './components/common/MessageStack.jsx';
 import { CardsDatabase } from './components/admin/CardsDatabase.jsx';
 import { PlayerArchivesPanel } from './components/admin/PlayerArchivesPanel.jsx';
+import { EditorPage } from './pages/EditorPage.jsx';
 import { loginRequest } from './services/api.js';
 import { preloadUIAssets } from './utils/preloadImages.js';
 
@@ -39,6 +40,7 @@ function App() {
     const [activeView, setActiveView] = useState(() => {
         // 检查URL路径来确定初始视图
         const path = window.location.pathname;
+        if (path.startsWith('/editor')) return 'editor';
         if (path.startsWith('/cardsdatabase')) return 'cardsdatabase';
         if (path.startsWith('/playerarchives')) return 'playerarchives';
         return 'lobby';
@@ -183,6 +185,10 @@ function App() {
                     onBack={handleBackLobby}
                 />
             );
+        }
+
+        if (activeView === 'editor') {
+            return <EditorPage />;
         }
 
         return (

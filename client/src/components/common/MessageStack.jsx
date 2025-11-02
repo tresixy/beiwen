@@ -21,7 +21,16 @@ function MessageItem({ message, onDismiss }) {
         return () => window.clearTimeout(timer);
     }, [message.id, onDismiss]);
 
-    const toneStyle = TONE_STYLE[message.tone] ?? TONE_STYLE.info;
+    let toneStyle = TONE_STYLE[message.tone] ?? TONE_STYLE.info;
+    
+    // 如果是"手牌已满，无需抽牌"的消息，使用白底黑色样式
+    if (message.content === '手牌已满，无需抽牌。') {
+        toneStyle = {
+            backgroundColor: '#ffffff',
+            color: '#000000',
+            borderColor: 'rgba(0, 0, 0, 0.3)',
+        };
+    }
 
     return (
         <div className="message" style={toneStyle}>

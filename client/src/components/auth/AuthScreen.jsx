@@ -108,21 +108,23 @@ export function AuthScreen({ onLogin, loading }) {
                         type="submit" 
                         disabled={loading}
                         style={{
-                            backgroundImage: loading ? 'none' : 'url(/assets/UI/继续按钮.webp)',
+                            backgroundImage: loading ? 'linear-gradient(135deg, #ff9447, #ffb66f)' : 'url(/assets/UI/继续按钮.webp)',
                             backgroundSize: 'contain',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
-                            height: '60px',
+                            backgroundColor: 'transparent',
+                            height: '80px',
+                            width: '100%',
                             border: 'none',
-                            background: loading ? 'linear-gradient(135deg, #ff9447, #ffb66f)' : 'transparent'
+                            cursor: loading ? 'not-allowed' : 'pointer',
+                            fontSize: loading ? '1rem' : '0',
+                            color: loading ? '#fff' : 'transparent',
+                            fontWeight: 'bold'
                         }}
                     >
-                        {loading ? '处理中…' : ''}
+                        {loading ? '处理中…' : '\u00A0'}
                     </button>
                 </form>
-                <div className="auth-hint">
-                    忘记密码请联系管理员
-                </div>
             </div>
         </div>
     );

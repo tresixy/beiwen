@@ -1,4 +1,4 @@
-export function CardsPanel({ cards, selectedIds, onToggle, onDraw }) {
+export function CardsPanel({ cards = [], selectedIds, onToggle, onDraw }) {
     return (
         <section className="glass-panel">
             <div className="panel-header">
@@ -8,7 +8,7 @@ export function CardsPanel({ cards, selectedIds, onToggle, onDraw }) {
                 </button>
             </div>
             <div className="card-grid">
-                {cards.map((card) => {
+                {(Array.isArray(cards) ? cards : []).map((card) => {
                     const selected = selectedIds.includes(card.id);
                     return (
                         <div

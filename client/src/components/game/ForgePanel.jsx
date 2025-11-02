@@ -34,7 +34,7 @@ export function ForgePanel({
                 {selectedCards.length === 0 ? (
                     <EmptyState />
                 ) : (
-                    selectedCards.map((card) => (
+                    (Array.isArray(selectedCards) ? selectedCards : []).map((card) => (
                         <div key={card.id} className="card">
                             <div>
                                 <div className="card-name">{card.name}</div>
@@ -64,6 +64,7 @@ export function ForgePanel({
         </section>
     );
 }
+
 
 
 

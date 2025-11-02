@@ -54,3 +54,5 @@ echo "  查看应用日志: tail -f /root/minigame/logs/server.log"
 echo ""
 
 
+
+

@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
+import { preloadAll2DImages } from '../../utils/preloadImages';
 
 export function AuthScreen({ onLogin, loading }) {
     const [email, setEmail] = useState('');
@@ -49,6 +50,13 @@ export function AuthScreen({ onLogin, loading }) {
             setError(err?.message || '操作失败，请稍后再试');
         }
     }, [email, password, onLogin, validateForm]);
+
+    // 组件挂载时预加载所有2D图片
+    useEffect(() => {
+        preloadAll2DImages().catch(err => {
+            console.warn('[Preload] 2D图片预加载失败:', err);
+        });
+    }, []);
 
     return (
         <div className="auth-screen">

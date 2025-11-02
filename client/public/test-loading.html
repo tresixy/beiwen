@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Loading UI 测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .test-loading-bg {
+            position: fixed;
+            inset: 0;
+            background-image: url('/assets/UI/loading背景.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #2d1810;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .test-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.9),
+                0 0 20px rgba(0, 0, 0, 0.8),
+                2px 2px 4px rgba(0, 0, 0, 1);
+        }
+        
+        .test-progressbar {
+            width: 500px;
+            height: 40px;
+            position: relative;
+            background-image: url('/assets/UI/loading进度条空条.webp');
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .test-progressbar-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 60%;
+            height: 100%;
+            background-image: url('/assets/UI/loading进度条满条.webp');
+            background-size: 100% 100%;
+            background-position: left center;
+            background-repeat: no-repeat;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            mix-blend-mode: normal;
+            isolation: isolate;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+            will-change: width;
+        }
+        
+        .test-info {
+            color: white;
+            font-size: 1rem;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-loading-bg">
+        <div class="test-title">Loading UI 测试页面</div>
+        <div class="test-info">如果你能看到背景图和进度条，说明图片加载正常</div>
+        <div class="test-progressbar">
+            <div class="test-progressbar-fill"></div>
+        </div>
+        <div class="test-info">60% 进度</div>
+        <div class="test-info" style="margin-top: 40px;">
+            <a href="/" style="color: #ffcc80; text-decoration: underline;">返回主页</a>
+        </div>
+    </div>
+</body>
+</html>
+
+

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, volume, onVolumeChange }) {
+export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, onRestart, volume, onVolumeChange }) {
     const menuRef = useRef(null);
     const [showSaveDialog, setShowSaveDialog] = useState(false);
+    const [showRestartDialog, setShowRestartDialog] = useState(false);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -42,6 +43,20 @@ export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, volume,
         setShowSaveDialog(false);
     };
 
+    const handleRestartClick = () => {
+        setShowRestartDialog(true);
+    };
+
+    const handleConfirmRestart = () => {
+        setShowRestartDialog(false);
+        onRestart?.();
+        onClose();
+    };
+
+    const handleCancelRestart = () => {
+        setShowRestartDialog(false);
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -58,7 +73,7 @@ export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, volume,
                     </button>
                 </div>
 
-                {!showSaveDialog ? (
+                {!showSaveDialog && !showRestartDialog ? (
                     <div className="esc-menu-content">
                         <div className="esc-menu-item">
                             <label>🔊 音量</label>
@@ -75,13 +90,21 @@ export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, volume,
 
                         <button 
                             type="button" 
+                            className="esc-menu-btn restart-btn"
+                            onClick={handleRestartClick}
+                        >
+                            🔄 重新开始
+                        </button>
+
+                        <button 
+                            type="button" 
                             className="esc-menu-btn"
                             onClick={handleBackToLobbyClick}
                         >
                             🏠 返回主页
                         </button>
                     </div>
-                ) : (
+                ) : showSaveDialog ? (
                     <div className="esc-menu-content">
                         <div className="save-dialog">
                             <h4>💾 是否保存游戏进度？</h4>
@@ -108,6 +131,36 @@ export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, volume,
                                     type="button" 
                                     className="esc-menu-btn cancel-btn"
                                     onClick={handleCancelExit}
+                                >
+                                    ← 取消
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="esc-menu-content">
+                        <div className="save-dialog">
+                            <h4>🔄 确认重新开始？</h4>
+                            <p className="save-dialog-hint">
+                                重新开始将会：<br/>
+                                • 清空当前手牌<br/>
+                                • 重置关卡进度<br/>
+                                • 重新抽取起始手牌<br/>
+                                <br/>
+                                <strong>此操作不可撤销！</strong>
+                            </p>
+                            <div className="save-dialog-buttons">
+                                <button 
+                                    type="button" 
+                                    className="esc-menu-btn danger-btn"
+                                    onClick={handleConfirmRestart}
+                                >
+                                    ✓ 确认重新开始
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="esc-menu-btn cancel-btn"
+                                    onClick={handleCancelRestart}
                                 >
                                     ← 取消
                                 </button>

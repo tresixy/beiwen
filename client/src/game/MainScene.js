@@ -38,28 +38,55 @@ export class MainScene extends Phaser.Scene {
     renderBackdrop() {
         const { width, height } = this.scale;
 
+        // 羊皮纸底色渐变
         this.backdrop.clear();
-        this.backdrop.fillGradientStyle(0xd4c4a8, 0xb8a687, 0xa89968, 0xc8b896, 1, 1, 1, 1);
+        this.backdrop.fillGradientStyle(0xe8dcc8, 0xd4c4a8, 0xc8b896, 0xdcd0b8, 1, 1, 1, 1);
         this.backdrop.fillRect(0, 0, width, height);
 
+        // 羊皮纸质感：随机污渍和斑点
         this.highlightAurora.clear();
         this.highlightAurora.setBlendMode(Phaser.BlendModes.MULTIPLY);
-        this.highlightAurora.fillStyle(0x7fb069, 0.1);
-        this.highlightAurora.fillEllipse(width * 0.3, height * 0.4, width * 0.5, height * 0.38);
-        this.highlightAurora.fillStyle(0xff9447, 0.08);
-        this.highlightAurora.fillEllipse(width * 0.7, height * 0.35, width * 0.45, height * 0.32);
-        this.highlightAurora.fillStyle(0x6fafe8, 0.09);
-        this.highlightAurora.fillEllipse(width * 0.5, height * 0.65, width * 0.55, height * 0.35);
+        
+        Phaser.Math.RND.sow([12345]); // 固定种子保证每次渲染相同
+        
+        // 大面积褪色区域
+        const stainCount = 8;
+        for (let i = 0; i < stainCount; i += 1) {
+            const x = Phaser.Math.FloatBetween(width * 0.1, width * 0.9);
+            const y = Phaser.Math.FloatBetween(height * 0.1, height * 0.9);
+            const w = Phaser.Math.FloatBetween(width * 0.15, width * 0.35);
+            const h = Phaser.Math.FloatBetween(height * 0.15, height * 0.3);
+            const color = Phaser.Math.Between(0, 1) === 0 ? 0xb8a687 : 0xa89968;
+            const alpha = Phaser.Math.FloatBetween(0.03, 0.08);
+            
+            this.highlightAurora.fillStyle(color, alpha);
+            // 不规则形状
+            this.highlightAurora.fillCircle(x, y, Math.max(w, h) * 0.8);
+        }
 
+        // 小纹理斑点
         this.starfield.clear();
-        this.starfield.fillStyle(0x2a1810, 0.06);
+        this.starfield.fillStyle(0x8b7355, 0.12);
         Phaser.Math.RND.sow([Date.now()]);
-        const starCount = 32;
-        for (let i = 0; i < starCount; i += 1) {
-            const x = Phaser.Math.FloatBetween(width * 0.08, width * 0.92);
-            const y = Phaser.Math.FloatBetween(height * 0.12, height * 0.88);
-            const radius = Phaser.Math.FloatBetween(1.2, 2.8);
+        const spotCount = 120;
+        for (let i = 0; i < spotCount; i += 1) {
+            const x = Phaser.Math.FloatBetween(0, width);
+            const y = Phaser.Math.FloatBetween(0, height);
+            const radius = Phaser.Math.FloatBetween(0.5, 1.8);
             this.starfield.fillCircle(x, y, radius);
+        }
+        
+        // 纤维纹理线条
+        this.starfield.lineStyle(0.3, 0xa89968, 0.15);
+        const lineCount = 30;
+        for (let i = 0; i < lineCount; i += 1) {
+            const x1 = Phaser.Math.FloatBetween(0, width);
+            const y1 = Phaser.Math.FloatBetween(0, height);
+            const length = Phaser.Math.FloatBetween(10, 40);
+            const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+            const x2 = x1 + Math.cos(angle) * length;
+            const y2 = y1 + Math.sin(angle) * length;
+            this.starfield.lineBetween(x1, y1, x2, y2);
         }
     }
 

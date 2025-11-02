@@ -21,7 +21,7 @@ const isPointInsideElement = (element, clientX, clientY) => {
     );
 };
 
-export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge }) {
+export function ForgeCanvas({ cards = [], hand = [], positions = {}, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge }) {
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
     const [furnaceCards, setFurnaceCards] = useState([]);
@@ -40,7 +40,8 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
     }, []);
 
     const withPositions = useMemo(() => {
-        return cards.map((card) => {
+        const safeCards = Array.isArray(cards) ? cards : [];
+        return safeCards.map((card) => {
             const stored = positions[card.id];
             return {
                 card,
@@ -203,10 +204,11 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
         console.log('卡牌进入熔炉, ID:', normalizedId, 'hand 数组长度:', hand.length);
         
         // 从手牌中查找卡牌
-        const card = hand.find((c) => `${c?.id ?? ''}`.trim() === normalizedId);
+        const safeHand = Array.isArray(hand) ? hand : [];
+        const card = safeHand.find((c) => `${c?.id ?? ''}`.trim() === normalizedId);
         if (!card) {
             console.log('错误: 卡牌未在 hand 列表中找到:', normalizedId);
-            console.log('hand 内容:', hand.map((c) => c?.id));
+            console.log('hand 内容:', safeHand.map((c) => c?.id));
             return;
         }
         
@@ -233,7 +235,8 @@ export function ForgeCanvas({ cards, hand = [], positions = {}, onDrop, onRemove
 
     useEffect(() => {
         setFurnaceCards(prev => {
-            const filtered = prev.filter(card => hand.some(entry => entry.id === card.id));
+            const safeHand = Array.isArray(hand) ? hand : [];
+            const filtered = prev.filter(card => safeHand.some(entry => entry.id === card.id));
             if (filtered.length === prev.length) {
                 return prev;
             }

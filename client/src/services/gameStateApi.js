@@ -7,6 +7,9 @@ export async function getGameState(token) {
 
 // 保存手牌
 export async function saveHand(token, hand) {
+  if (!Array.isArray(hand)) {
+    throw new Error('hand must be an array');
+  }
   return apiRequest('/api/game/hand', {
     method: 'POST',
     token,

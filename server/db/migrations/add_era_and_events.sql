@@ -58,3 +58,5 @@ COMMENT ON COLUMN user_game_state.active_event_id IS '当前激活的event ID';
 COMMENT ON COLUMN user_game_state.event_sequence IS '玩家本局的events序列';
 
 
+
+

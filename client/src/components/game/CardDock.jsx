@@ -15,7 +15,8 @@ export function CardDock({
 }) {
     const slots = useMemo(() => {
         // 只显示未被放到画布上的卡牌
-        const availableCards = cards.filter(card => !stagedIds.includes(card.id));
+        const safeCards = Array.isArray(cards) ? cards : [];
+        const availableCards = safeCards.filter(card => !stagedIds.includes(card.id));
         const filled = availableCards.slice(0, MAX_SLOTS);
         return [...filled, ...Array.from({ length: Math.max(0, MAX_SLOTS - filled.length) })];
     }, [cards, stagedIds]);

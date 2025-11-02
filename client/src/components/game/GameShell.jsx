@@ -75,6 +75,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         saveHandToServer,
         clearHandFromServer,
         fillHandToMax,
+        restartGame,
     } = useGameSimulation({ pushMessage, token });
 
     const [resourcePulse, setResourcePulse] = useState({ food: false, production: false, research: false });
@@ -222,6 +223,10 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         }, 800);
     }, [saveHandToServer, clearHandFromServer, onBackLobby, pushMessage]);
 
+    const handleRestart = useCallback(async () => {
+        await restartGame();
+    }, [restartGame]);
+
     const handleCardRemove = useCallback((cardId) => {
         unstageCard(cardId);
     }, [unstageCard]);
@@ -284,6 +289,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                     isOpen={escMenuOpen}
                     onClose={() => setEscMenuOpen(false)}
                     onSaveAndExit={handleSaveAndExit}
+                    onRestart={handleRestart}
                     volume={volume}
                     onVolumeChange={setVolume}
                 />

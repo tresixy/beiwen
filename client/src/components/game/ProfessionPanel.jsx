@@ -1,6 +1,6 @@
 export function ProfessionPanel({
     open,
-    choices,
+    choices = [],
     onSelect,
     onRegenerate,
     onClose,
@@ -22,7 +22,7 @@ export function ProfessionPanel({
                 {choices.length === 0 ? (
                     <div className="empty">暂无可选职业，请刷新灵感。</div>
                 ) : (
-                    choices.map((choice, index) => (
+                    (Array.isArray(choices) ? choices : []).map((choice, index) => (
                         <div key={choice.name} className="profession-card" onClick={() => onSelect(index)}>
                             <div className="name">{choice.name}</div>
                             <div className="focus">倾向：{Array.isArray(choice.focus) ? choice.focus.join('、') : '综合'}</div>
@@ -43,6 +43,7 @@ export function ProfessionPanel({
         </section>
     );
 }
+
 
 
 

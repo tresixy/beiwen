@@ -6,7 +6,7 @@ const rarityColor = {
     legendary: 'rgba(255, 204, 128, 0.9)',
 };
 
-export function InventoryPanel({ open, items, onClose }) {
+export function InventoryPanel({ open, items = [], onClose }) {
     if (!open) {
         return null;
     }
@@ -24,7 +24,7 @@ export function InventoryPanel({ open, items, onClose }) {
                     {items.length === 0 ? (
                         <div className="inventory-empty">你的背包还很轻盈，尝试去熔炉中创造些什么吧。</div>
                     ) : (
-                        items.map((item) => (
+                        (Array.isArray(items) ? items : []).map((item) => (
                             <div key={item.id} className="inventory-card">
                                 <div className="inventory-icon" aria-hidden>{item.icon || '📦'}</div>
                                 <div className="inventory-info">
@@ -46,6 +46,7 @@ export function InventoryPanel({ open, items, onClose }) {
         </div>
     );
 }
+
 
 
 

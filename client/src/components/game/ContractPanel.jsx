@@ -28,7 +28,7 @@ export function ContractPanel({ open, contract, onChoose, onClose }) {
             </div>
             <p>{contract.description}</p>
             <div style={{ display: 'grid', gap: '12px', marginTop: '16px' }}>
-                {contract.choices.map((choice) => (
+                {(Array.isArray(contract.choices) ? contract.choices : []).map((choice) => (
                     <div key={choice.id} className="contract-choice" onClick={() => onChoose(choice.id)}>
                         <h4>{choice.text}</h4>
                         <p style={{ color: '#4ecdc4', marginTop: '8px' }}>效果：{formatEffects(choice.effects)}</p>
@@ -38,6 +38,7 @@ export function ContractPanel({ open, contract, onChoose, onClose }) {
         </section>
     );
 }
+
 
 
 

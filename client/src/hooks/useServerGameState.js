@@ -77,6 +77,7 @@ export function useServerGameState({ token, pushMessage }) {
     // 防抖保存手牌
     const debouncedSaveHand = useCallback((handToSave) => {
         if (!token) return;
+        if (!Array.isArray(handToSave) || handToSave.length === 0) return;
 
         if (saveTimeoutRef.current) {
             clearTimeout(saveTimeoutRef.current);
@@ -93,7 +94,7 @@ export function useServerGameState({ token, pushMessage }) {
 
     // 手牌变化时保存
     useEffect(() => {
-        if (!loading && hand.length > 0) {
+        if (!loading && Array.isArray(hand) && hand.length > 0) {
             debouncedSaveHand(hand);
         }
     }, [hand, loading, debouncedSaveHand]);
@@ -217,7 +218,7 @@ export function useServerGameState({ token, pushMessage }) {
 
     // 选中的卡牌
     const selectedCards = useMemo(
-        () => hand.filter((card) => selectedIds.includes(card.id) && card.type !== 'empty'),
+        () => (Array.isArray(hand) ? hand : []).filter((card) => selectedIds.includes(card.id) && card.type !== 'empty'),
         [hand, selectedIds]
     );
 

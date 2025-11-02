@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 const CARDS_PER_PAGE = 9;
 
@@ -15,7 +15,21 @@ export function CardBookPanel({ open, cardBook, onClose }) {
     const [currentPage, setCurrentPage] = useState(0);
     const [filterRarity, setFilterRarity] = useState('all');
 
-    const cards = cardBook?.cards ?? [];
+    // ESC键退出
+    useEffect(() => {
+        if (!open) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [open, onClose]);
+
+    const cards = Array.isArray(cardBook?.cards) ? cardBook.cards : [];
     const totalCollected = cardBook?.totalCollected ?? 0;
 
     const filteredCards = useMemo(() => {

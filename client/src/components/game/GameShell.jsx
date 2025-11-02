@@ -261,7 +261,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                         <div className="loading-bar__track">
                             <div
                                 className="loading-bar__fill"
-                                style={{ width: `${progressDisplay}%` }}
+                                style={{ clipPath: `inset(0 ${100 - progressDisplay}% 0 0)` }}
                             />
                         </div>
                         <div className="loading-bar__label">{progressDisplay}%</div>

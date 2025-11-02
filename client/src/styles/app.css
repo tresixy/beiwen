@@ -336,19 +336,21 @@ body {
     position: absolute;
     left: 0;
     top: 0;
+    width: 100%;
     height: 100%;
     background-image: url('/assets/UI/loading进度条满条.webp');
     background-size: 100% 100%;
-    background-position: left center;
+    background-position: center;
     background-repeat: no-repeat;
-    transition: width 0.28s ease-out;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.28s ease-out;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
     mix-blend-mode: normal;
     isolation: isolate;
     backface-visibility: hidden;
     transform: translateZ(0);
-    will-change: width;
+    will-change: clip-path;
 }
 
 .loading-bar__label {
@@ -2161,10 +2163,19 @@ body {
     position: fixed;
     inset: 0;
     overflow: hidden;
+    background: linear-gradient(180deg, rgba(45, 24, 16, 0.1) 0%, rgba(45, 24, 16, 0.05) 100%);
+}
+
+/* 主页装饰层 - 覆盖在hex canvas上 */
+.lobby-decoration-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
     background-image: url('/assets/UI/主页.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    pointer-events: none;
 }
 
 .lobby-ui {
@@ -2181,8 +2192,8 @@ body {
 /* 复古手绘风 - 左上角用户面板 */
 .lobby-user-panel {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 60px;
+    left: 60px;
     display: flex;
     gap: 14px;
     align-items: center;
@@ -2296,7 +2307,7 @@ body {
 /* 顶部中央位置信息 */
 .lobby-top-center {
     position: absolute;
-    top: 20px;
+    top: 60px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 100;
@@ -2332,8 +2343,8 @@ body {
 /* 左下角功能按钮组 */
 .lobby-bottom-left {
     position: absolute;
-    bottom: 24px;
-    left: 24px;
+    bottom: 60px;
+    left: 60px;
     display: flex;
     gap: 12px;
     z-index: 100;
@@ -2382,8 +2393,8 @@ body {
 /* 右下角功能按钮组 */
 .lobby-bottom-right {
     position: absolute;
-    bottom: 24px;
-    right: 24px;
+    bottom: 60px;
+    right: 60px;
     display: flex;
     gap: 12px;
     z-index: 200;
@@ -2428,10 +2439,13 @@ body {
 }
 
 .lobby-hex-canvas {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    z-index: 0;
 }
 
 .lobby-hint {

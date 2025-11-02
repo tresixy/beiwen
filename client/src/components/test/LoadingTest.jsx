@@ -16,7 +16,7 @@ export function LoadingTest() {
                     <div className="loading-bar__track">
                         <div 
                             className="loading-bar__fill" 
-                            style={{ width: `${progress}%` }} 
+                            style={{ clipPath: `inset(0 ${100 - progress}% 0 0)` }} 
                         />
                     </div>
                     <div className="loading-bar__label">{progress}%</div>

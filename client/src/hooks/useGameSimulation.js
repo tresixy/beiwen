@@ -275,7 +275,8 @@ export function useGameSimulation({ pushMessage, token }) {
                 const localToken = token || localStorage.getItem('token');
                 if (localToken && serverSyncEnabled) {
                     const drawCount = MAX_HAND_SIZE - remaining.length;
-                    const drawnCards = await gameStateApi.drawCards(localToken, drawCount);
+                    const drawn = await gameStateApi.drawCards(localToken, drawCount);
+                    const drawnCards = drawn.hand || [];
                     setHand([...remaining, ...drawnCards]);
                 } else {
                     // 无token时直接设置手牌
@@ -411,8 +412,13 @@ export function useGameSimulation({ pushMessage, token }) {
                         if (remainingHand.length < MAX_HAND_SIZE) {
                             try {
                                 const drawCount = MAX_HAND_SIZE - remainingHand.length;
-                                const drawnCards = await gameStateApi.drawCards(localToken, drawCount);
-                                setHand([...remainingHand, ...drawnCards]);
+                                const drawn = await gameStateApi.drawCards(localToken, drawCount);
+                                const drawnCards = drawn.hand || [];
+                                if (drawnCards.length > 0) {
+                                    setHand([...remainingHand, ...drawnCards]);
+                                    updateCardBook((prevBook) => drawnCards.reduce((book, card) => addCardToBook(book, card), prevBook));
+                                    console.log(`✅ 合成后自动补充了 ${drawnCards.length} 张卡牌`);
+                                }
                             } catch (drawErr) {
                                 console.error('补牌失败:', drawErr);
                                 // 补牌失败不影响合成结果

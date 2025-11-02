@@ -23,6 +23,12 @@ export async function drawCards(userId, count = 3) {
     
     // 权重抽卡（灵感卡通常都是common，权重相同）
     const cards = result.rows;
+    logger.info({ 
+      userId, 
+      availableCards: cards.length, 
+      cardList: cards.map(c => ({ name: c.name, rarity: c.rarity, count: c.count }))
+    }, 'Available cards for drawing');
+    
     const hand = [];
     
     for (let i = 0; i < count && cards.length > 0; i++) {

@@ -53,7 +53,21 @@ app.use(httpLogger);
 
 // 静态文件
 if (clientDistExists) {
-  app.use(express.static(clientDistPath));
+  // 为静态资源设置缓存策略
+  app.use(express.static(clientDistPath, {
+    setHeaders: (res, path) => {
+      // HTML 文件不缓存，确保每次都获取最新版本
+      if (path.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+      } 
+      // CSS、JS 等带哈希的资源可以长期缓存
+      else if (path.match(/\.(css|js|jpg|jpeg|png|gif|webp|svg|woff|woff2|ttf|eot)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      }
+    }
+  }));
 } else {
   logger.warn('client/dist 未构建，建议运行 npm run client:build');
 }

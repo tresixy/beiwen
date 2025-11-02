@@ -183,6 +183,9 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                 highlightedTiles={highlightedTiles}
             />
             
+            {/* 主页装饰层 - 带alpha通道的边框装饰 */}
+            <div className="lobby-decoration-layer"></div>
+            
             <div className="lobby-ui">
                 {/* 左上角用户信息面板 */}
                 <div className="lobby-user-panel">

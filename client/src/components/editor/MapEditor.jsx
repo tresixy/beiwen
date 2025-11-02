@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import './MapEditor.css';
 
 const TERRAIN_TYPES = {
-    ocean: { name: '海洋', base: '#4a90b5', border: '#3a7090' },
-    grassland: { name: '草原', base: '#b5c99a', border: '#96a87a' },
-    forest: { name: '森林', base: '#6b8e5a', border: '#556e46' },
-    mountain: { name: '山脉', base: '#8b7355', border: '#6b5335' },
-    desert: { name: '沙漠', base: '#d4b896', border: '#b49876' },
-    snow: { name: '雪地', base: '#e8f4f8', border: '#c8d4d8' },
+    ocean: { name: '海洋', base: '#2c5f8d', border: '#1d4565' },
+    grassland: { name: '草原', base: '#8db84e', border: '#6d9638' },
+    forest: { name: '森林', base: '#2d5a3d', border: '#1d4a2d' },
+    mountain: { name: '山脉', base: '#8b7d6b', border: '#6b5d4b' },
+    desert: { name: '沙漠', base: '#ddc078', border: '#bda058' },
+    snow: { name: '雪地', base: '#f0f8ff', border: '#d0e8f7' },
 };
 
 // 坐标转换：axial -> 等距投影

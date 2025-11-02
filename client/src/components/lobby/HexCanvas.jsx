@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-// 羊皮纸风格配色 - 手绘插画风
+// 更真实的地形配色
 const TERRAIN_TYPES = {
     region: {
         base: '#b5c99a',
@@ -9,40 +9,46 @@ const TERRAIN_TYPES = {
         border: '#7a8b6c',
     },
     grassland: { 
-        base: '#b5c99a', 
-        shadow: '#97a97c', 
-        highlight: '#cfe1b9',
-        border: '#8b7355'
+        base: '#8db84e', 
+        shadow: '#6d9638', 
+        highlight: '#aed06e',
+        border: '#5d7628'
     },
     forest: { 
-        base: '#87986a', 
-        shadow: '#6d7d52', 
-        highlight: '#a4b687',
-        border: '#7a6348'
+        base: '#2d5a3d', 
+        shadow: '#1d4a2d', 
+        highlight: '#3d6a4d',
+        border: '#0d3a1d'
     },
     mountain: { 
-        base: '#c4b5a0', 
-        shadow: '#a89985', 
-        highlight: '#d9cbb7',
-        border: '#8b6f47'
+        base: '#8b7d6b', 
+        shadow: '#6b5d4b', 
+        highlight: '#ab9d8b',
+        border: '#4b3d2b'
     },
     desert: { 
-        base: '#e8d8c0', 
-        shadow: '#d4c4ac', 
-        highlight: '#f4e8d8',
-        border: '#9b8878'
+        base: '#ddc078', 
+        shadow: '#bda058', 
+        highlight: '#f4d898',
+        border: '#9d8038'
     },
     water: { 
-        base: '#5a8ca8', 
-        shadow: '#4a7890', 
-        highlight: '#6aa0b8',
-        border: '#3a5868'
+        base: '#4a8cb8', 
+        shadow: '#3a7ca8', 
+        highlight: '#6a9cc8',
+        border: '#2a5c88'
     },
     ocean: {
-        base: '#2d4a5c',
-        shadow: '#1d3a4c',
-        highlight: '#3d5a6c',
-        border: '#1d2a3c'
+        base: '#2c5f8d',
+        shadow: '#1d4565',
+        highlight: '#3c6f9d',
+        border: '#0d354d'
+    },
+    snow: {
+        base: '#f0f8ff',
+        shadow: '#d0e8f7',
+        highlight: '#ffffff',
+        border: '#b0d8e7'
     }
 };
 

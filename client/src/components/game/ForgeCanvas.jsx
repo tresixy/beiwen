@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-
 import './ForgeCanvas.css';
+import { CardSvg } from './CardSvg.jsx';
+import { hasCardSvg } from '../../utils/cardSvgMap.js';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -393,17 +394,23 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
                 >
                     {furnaceCards[0] ? (
                         <div
-                            className={`dock-slot ${furnaceCards[0]?.rarity ? `rarity-${furnaceCards[0].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[0].id ? 'is-dragging' : ''}`}
+                            className={`dock-slot ${furnaceCards[0]?.rarity ? `rarity-${furnaceCards[0].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[0].id ? 'is-dragging' : ''} ${hasCardSvg(furnaceCards[0].name) ? 'has-svg' : ''}`}
                             draggable={!isForging}
                             onDragStart={(event) => handleFurnaceCardDragStart(event, furnaceCards[0].id)}
                             onDragEnd={(event) => handleFurnaceCardDragEnd(event, furnaceCards[0].id)}
                             style={{ width: '110px', height: '150px', margin: 0 }}
                         >
-                            <div className="dock-slot__header">
-                                <span className="dock-slot__name">{furnaceCards[0].name}</span>
-                                <span className={`dock-slot__rarity ${furnaceCards[0].rarity}`}>{furnaceCards[0].rarity}</span>
-                            </div>
-                            <div className="dock-slot__meta">{furnaceCards[0].type}</div>
+                            {hasCardSvg(furnaceCards[0].name) ? (
+                                <CardSvg card={furnaceCards[0]} className="dock-slot__svg" />
+                            ) : (
+                                <>
+                                    <div className="dock-slot__header">
+                                        <span className="dock-slot__name">{furnaceCards[0].name}</span>
+                                        <span className={`dock-slot__rarity ${furnaceCards[0].rarity}`}>{furnaceCards[0].rarity}</span>
+                                    </div>
+                                    <div className="dock-slot__meta">{furnaceCards[0].type}</div>
+                                </>
+                            )}
                         </div>
                     ) : (
                         <div className="forge-slot-empty" />
@@ -421,17 +428,23 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
                 >
                     {furnaceCards[1] ? (
                         <div
-                            className={`dock-slot ${furnaceCards[1]?.rarity ? `rarity-${furnaceCards[1].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[1].id ? 'is-dragging' : ''}`}
+                            className={`dock-slot ${furnaceCards[1]?.rarity ? `rarity-${furnaceCards[1].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[1].id ? 'is-dragging' : ''} ${hasCardSvg(furnaceCards[1].name) ? 'has-svg' : ''}`}
                             draggable={!isForging}
                             onDragStart={(event) => handleFurnaceCardDragStart(event, furnaceCards[1].id)}
                             onDragEnd={(event) => handleFurnaceCardDragEnd(event, furnaceCards[1].id)}
                             style={{ width: '110px', height: '150px', margin: 0 }}
                         >
-                            <div className="dock-slot__header">
-                                <span className="dock-slot__name">{furnaceCards[1].name}</span>
-                                <span className={`dock-slot__rarity ${furnaceCards[1].rarity}`}>{furnaceCards[1].rarity}</span>
-                            </div>
-                            <div className="dock-slot__meta">{furnaceCards[1].type}</div>
+                            {hasCardSvg(furnaceCards[1].name) ? (
+                                <CardSvg card={furnaceCards[1]} className="dock-slot__svg" />
+                            ) : (
+                                <>
+                                    <div className="dock-slot__header">
+                                        <span className="dock-slot__name">{furnaceCards[1].name}</span>
+                                        <span className={`dock-slot__rarity ${furnaceCards[1].rarity}`}>{furnaceCards[1].rarity}</span>
+                                    </div>
+                                    <div className="dock-slot__meta">{furnaceCards[1].type}</div>
+                                </>
+                            )}
                         </div>
                     ) : (
                         <div className="forge-slot-empty" />

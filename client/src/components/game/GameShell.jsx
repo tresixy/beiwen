@@ -15,6 +15,7 @@ import { ForgeCanvas } from './ForgeCanvas.jsx';
 import { CardBookPanel } from './CardBookPanel.jsx';
 import { EscMenu } from './EscMenu.jsx';
 import audioService from '../../services/audioService.js';
+import { VictoryModal } from './VictoryModal.jsx';
 
 const detectMobile = () => {
     if (typeof navigator === 'undefined') {
@@ -24,6 +25,8 @@ const detectMobile = () => {
 };
 
 export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
+    const [victoryModalData, setVictoryModalData] = useState(null);
+    
     const {
         loading,
         resources,
@@ -137,6 +140,17 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
 
         return () => window.clearInterval(interval);
     }, [loading]);
+    
+    // 提供全局函数用于显示胜利界面
+    useEffect(() => {
+        window.showVictoryModal = (data) => {
+            setVictoryModalData(data);
+        };
+        
+        return () => {
+            delete window.showVictoryModal;
+        };
+    }, []);
 
     useEffect(() => {
         pulseTimeoutsRef.current.forEach((timeout) => window.clearTimeout(timeout));
@@ -394,6 +408,14 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                     </div>
                 </div>
             )}
+            
+            <VictoryModal
+                show={!!victoryModalData}
+                eventName={victoryModalData?.eventName}
+                reward={victoryModalData?.reward}
+                cardsAdded={victoryModalData?.cardsAdded}
+                onClose={() => setVictoryModalData(null)}
+            />
         </div>
     );
 }

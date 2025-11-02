@@ -1,0 +1,158 @@
+.victory-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.victory-modal {
+    background: linear-gradient(135deg, #f9f3e8, #f4e8d8);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+    border: 4px solid var(--border-sketch);
+    animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.victory-image-container {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.victory-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.victory-content {
+    text-align: center;
+}
+
+.victory-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-ink);
+    margin-bottom: 16px;
+    font-family: 'Kaiti', 'STKaiti', serif;
+}
+
+.victory-event {
+    font-size: 1.2rem;
+    color: var(--text-gray);
+    margin-bottom: 12px;
+}
+
+.victory-reward {
+    font-size: 1.1rem;
+    color: #E63946;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.victory-cards {
+    margin: 20px 0;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 8px;
+    border: 2px solid rgba(139, 111, 71, 0.3);
+}
+
+.victory-cards-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-ink);
+    margin-bottom: 12px;
+}
+
+.victory-cards-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.victory-card-item {
+    background: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--text-ink);
+    border: 2px solid var(--border-sketch);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.victory-close-btn {
+    margin-top: 24px;
+    padding: 12px 32px;
+    background: linear-gradient(135deg, #E63946, #ff6b7a);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(230, 57, 70, 0.4);
+    transition: all 0.2s ease;
+}
+
+.victory-close-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(230, 57, 70, 0.5);
+}
+
+.victory-close-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 720px) {
+    .victory-modal {
+        padding: 24px;
+        max-width: 95%;
+    }
+    
+    .victory-title {
+        font-size: 1.5rem;
+    }
+    
+    .victory-event,
+    .victory-reward {
+        font-size: 1rem;
+    }
+}
+

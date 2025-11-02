@@ -36,7 +36,7 @@ router.get('/active', authMiddleware, async (req, res) => {
 router.post('/complete', authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
-    const { eventId, key, selectedHex } = req.body;
+    const { eventId, key, selectedHex, handCards = [] } = req.body;
 
     if (!eventId || !key) {
       return res.status(400).json({ error: '缺少eventId或key参数' });
@@ -61,7 +61,28 @@ router.post('/complete', authMiddleware, async (req, res) => {
     // 完成event（传入选中的地块坐标）
     const result = await eventService.completeEvent(userId, eventId, key, selectedHex);
 
-    logger.info({ userId, eventId, key, selectedHex, result }, 'Event completed');
+    // 将手牌中的卡牌加入背包（包括key卡和合成的卡牌）
+    let cardsAddedToInventory = [];
+    if (handCards && handCards.length > 0) {
+      try {
+        const inventoryService = await import('../services/inventoryService.js');
+        const inventoryResult = await inventoryService.addCardsToInventory(userId, handCards);
+        cardsAddedToInventory = inventoryResult.addedCards;
+        
+        if (inventoryResult.failedCards.length > 0) {
+          logger.warn({ 
+            userId, 
+            eventId, 
+            failedCards: inventoryResult.failedCards 
+          }, 'Some cards failed to add to inventory');
+        }
+      } catch (invErr) {
+        logger.error({ err: invErr, userId, eventId, handCards }, 'Failed to add cards to inventory');
+        // 不阻止事件完成，继续执行
+      }
+    }
+
+    logger.info({ userId, eventId, key, selectedHex, result, cardsAddedToInventory }, 'Event completed');
 
     res.json({
       success: true,
@@ -70,6 +91,7 @@ router.post('/complete', authMiddleware, async (req, res) => {
       newEra: result.newEra,
       nextEventId: result.nextEventId,
       tileMarkers: result.tileMarkers,
+      cardsAdded: cardsAddedToInventory,
       progress: {
         completed: result.completedCount,
         total: activeEvent.totalEvents,

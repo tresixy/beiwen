@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { CardSvg } from './CardSvg.jsx';
+import { hasCardSvg } from '../../utils/cardSvgMap.js';
 
 const MAX_SLOTS = 5;
 
@@ -60,21 +62,28 @@ export function CardDock({
         }
 
         const rarityClass = card.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
+        const hasSvg = hasCardSvg(card.name);
         
         return (
             <div
                 key={card.id}
-                className={`dock-slot ${rarityClass}`}
+                className={`dock-slot ${rarityClass} ${hasSvg ? 'has-svg' : ''}`}
                 draggable
                 onDragStart={(event) => handleDragStart(event, card)}
                 onDragEnd={(event) => handleDragEnd(event, card)}
                 data-card-id={card.id}
             >
-                <div className="dock-slot__header">
-                    <span className="dock-slot__name">{card.name}</span>
-                    <span className={`dock-slot__rarity ${card.rarity}`}>{card.rarity}</span>
-                </div>
-                <div className="dock-slot__meta">{card.type}</div>
+                {hasSvg ? (
+                    <CardSvg card={card} className="dock-slot__svg" />
+                ) : (
+                    <>
+                        <div className="dock-slot__header">
+                            <span className="dock-slot__name">{card.name}</span>
+                            <span className={`dock-slot__rarity ${card.rarity}`}>{card.rarity}</span>
+                        </div>
+                        <div className="dock-slot__meta">{card.type}</div>
+                    </>
+                )}
             </div>
         );
     };

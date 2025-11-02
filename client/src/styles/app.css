@@ -1134,6 +1134,68 @@ html:has(.lobby-shell) #app {
     color: var(--text-gray);
 }
 
+/* SVG卡牌样式 */
+.dock-slot.has-svg {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.dock-slot__svg {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dock-slot__svg svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* SVG卡牌的后备文本样式 */
+.card-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: linear-gradient(135deg, #f9f3e8, #f4e8d8);
+    border-radius: 8px;
+    border: 2px solid var(--border-sketch);
+}
+
+.card-fallback__name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-ink);
+    text-align: center;
+}
+
+.card-fallback__type {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+}
+
+.card-fallback__rarity {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.card-fallback__rarity.common { background: #999; color: #fff; }
+.card-fallback__rarity.uncommon { background: #7fb069; color: #fff; }
+.card-fallback__rarity.rare { background: #6fafe8; color: #fff; }
+.card-fallback__rarity.epic { background: #a878d4; color: #fff; }
+.card-fallback__rarity.legendary { background: #ff9447; color: #fff; }
+
 .card-dock__hint {
     font-size: 0.7rem;
     color: var(--text-gray);

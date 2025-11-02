@@ -839,10 +839,26 @@ export function useGameSimulation({ pushMessage, token }) {
             const selectedHexStr = localStorage.getItem('selectedHex');
             const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
             
-            const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex);
+            // 获取当前手牌中的所有卡牌名称（包括key卡和合成的卡牌）
+            const handCardNames = hand.map(card => card.name);
+            
+            const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, handCardNames);
             
             if (result.success) {
                 pushMessage?.(`🎉 成功完成【${activeEvent.name}】`, 'success');
+                
+                // 清空所有手牌（因为都已加入背包）
+                setHand([]);
+                setSelectedIds([]);
+                
+                // 显示胜利弹窗
+                if (window.showVictoryModal) {
+                    window.showVictoryModal({
+                        eventName: activeEvent.name,
+                        reward: result.reward,
+                        cardsAdded: result.cardsAdded || [],
+                    });
+                }
                 
                 // 更新时代
                 if (result.newEra) {
@@ -863,19 +879,22 @@ export function useGameSimulation({ pushMessage, token }) {
                     console.error('刷新激活事件失败:', err);
                     setActiveEvent(null);
                 }
-
-                // 从手牌中移除钥匙卡
-                const cardId = hand.find(c => c.name === cardName)?.id;
-                if (cardId) {
-                    setHand(prev => prev.filter(c => c.id !== cardId));
-                    setSelectedIds(prev => prev.filter(id => id !== cardId));
+                
+                // 刷新背包数据
+                try {
+                    const inventoryData = await gameStateApi.getInventory(token);
+                    if (inventoryData) {
+                        setInventory(inventoryData);
+                    }
+                } catch (err) {
+                    console.error('刷新背包失败:', err);
                 }
             }
         } catch (err) {
             console.error('完成事件失败:', err);
             pushMessage?.(err.message || '完成事件失败', 'error');
         }
-    }, [activeEvent, token, pushMessage, hand]);
+    }, [activeEvent, token, pushMessage, hand, setInventory]);
 
     // 保存手牌到服务器
     const saveHandToServer = useCallback(async () => {

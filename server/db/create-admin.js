@@ -6,7 +6,7 @@ import logger from '../utils/logger.js';
 async function createAdminAccount() {
   const adminEmail = 'aita@admin.com';
   const adminUsername = 'aita';
-  const adminPassword = 'aita';
+  const adminPassword = 'aitaita';
   
   try {
     // 检查管理员是否已存在
@@ -56,7 +56,7 @@ async function createAdminAccount() {
     logger.info({ adminId }, '默认管理员账户创建成功');
     console.log('✅ 管理员账户创建成功');
     console.log('   用户名: aita');
-    console.log('   密码: aita');
+    console.log('   密码: aitaita');
     console.log('   邮箱: aita@admin.com');
     
   } catch (err) {

@@ -25,7 +25,7 @@
 /* 合成区域 - 横向布局 */
 .forge-synthesis-area {
     position: absolute;
-    top: 20px;
+    top: 120px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;

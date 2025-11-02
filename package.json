@@ -9,6 +9,7 @@
     "dev": "nodemon server/index.js",
     "db:init": "psql $DATABASE_URL -f server/db/schema.sql",
     "admin:create": "node server/db/create-admin.js",
+    "admin:reset-password": "node server/db/reset-admin-password.js",
     "client:dev": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build",
     "client:dev:nolog": "npm --prefix client run dev:nolog",

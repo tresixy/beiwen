@@ -669,7 +669,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             // 菱形顶点（确保无缝连接）
             const tileW = size * 1.5;
             const tileH = size * 0.75;
-            const seamFix = 0.8;
+            const seamFix = 2.0; // 增大重叠值以消除黑色细线
             const basePoints = [
                 { x: px, y: py - tileH },      // 上
                 { x: px + tileW, y: py },      // 右
@@ -677,8 +677,8 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 { x: px - tileW, y: py },      // 左
             ];
             const points = basePoints.map((p) => ({
-                x: p.x + (p.x > px ? seamFix : p.x < px ? -seamFix : 0),
-                y: p.y + (p.y > py ? seamFix : p.y < py ? -seamFix : 0),
+                x: Math.round(p.x + (p.x > px ? seamFix : p.x < px ? -seamFix : 0)),
+                y: Math.round(p.y + (p.y > py ? seamFix : p.y < py ? -seamFix : 0)),
             }));
 
             // 绘制地块主体 - 更统一的色块

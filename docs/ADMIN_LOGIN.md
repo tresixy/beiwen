@@ -6,7 +6,7 @@
 
 ```
 用户名: aita
-密码: aita
+密码: aitaita
 邮箱: aita@admin.com
 ```
 
@@ -19,7 +19,7 @@
 1. 打开游戏网页
 2. 在登录界面输入：
    - **用户名/邮箱**: `aita@admin.com` 或 `aita`
-   - **密码**: `aita`
+   - **密码**: `aitaita`
 3. 点击 "登录" 按钮
 4. 登录成功后进入大厅
 5. 点击右上角 ⚙️ 设置图标
@@ -32,7 +32,7 @@
 ```bash
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"aita@admin.com","password":"aita"}'
+  -d '{"email":"aita@admin.com","password":"aitaita"}'
 ```
 
 **响应示例：**
@@ -76,7 +76,7 @@ node server/db/create-admin.js
 ```
 ✅ 管理员账户创建成功
    用户名: aita
-   密码: aita
+   密码: aitaita
    邮箱: aita@admin.com
 ```
 
@@ -312,7 +312,7 @@ npm run admin:create
 # 登录管理员
 ADMIN_LOGIN=$(curl -s -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"aita@admin.com","password":"aita"}')
+  -d '{"email":"aita@admin.com","password":"aitaita"}')
 
 echo "管理员登录响应:"
 echo $ADMIN_LOGIN
@@ -359,7 +359,7 @@ npm run admin:create
 npm start
 
 # 3. 访问游戏网页
-# 4. 使用 aita / aita 登录
+# 4. 使用 aita / aitaita 登录
 # 5. 点击设置查看管理员功能
 ```
 
@@ -367,7 +367,7 @@ npm start
 
 ```
 用户名: aita
-密码: aita
+密码: aitaita
 邮箱: aita@admin.com
 ```
 

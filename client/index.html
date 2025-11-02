@@ -46,6 +46,13 @@
                 2px 2px 4px rgba(0, 0, 0, 1);
         }
 
+        .loading-logo {
+            width: clamp(280px, 50vw, 420px);
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.8));
+        }
+
         .loading-title {
             font-size: clamp(1.6rem, 3vw, 2.2rem);
             font-weight: 700;
@@ -149,8 +156,7 @@
 <body>
         <div id="loading-screen">
         <div class="loading-panel">
-            <div class="loading-title">正在唤醒熔炉系统…</div>
-            <div class="loading-subtitle">同步资源与配方，请稍候</div>
+            <img src="/assets/UI/Logo.webp" alt="Oops, Civilization!" class="loading-logo" />
         </div>
         <div class="loading-progress">
             <div class="loading-progress__track">

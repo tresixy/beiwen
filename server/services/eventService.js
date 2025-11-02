@@ -85,12 +85,29 @@ export async function getEventState(userId) {
       };
     }
     
+    const eventSequence = row.event_sequence || [];
+    const completedEvents = row.completed_events || [];
+    let activeEventId = row.active_event_id;
+    
+    // 如果active_event_id为空，或者已完成事件数为0但active_event_id不是序列的第一个，设置为第一个
+    if (!activeEventId || (completedEvents.length === 0 && activeEventId !== eventSequence[0])) {
+      activeEventId = eventSequence.length > 0 ? eventSequence[0] : null;
+      
+      // 更新数据库
+      await pool.query(
+        `UPDATE user_game_state 
+         SET active_event_id = $2, updated_at = NOW()
+         WHERE user_id = $1`,
+        [userId, activeEventId]
+      );
+    }
+    
     return {
       era: row.era || '生存时代',
       unlockedKeys: row.unlocked_keys || [],
-      completedEvents: row.completed_events || [],
-      activeEventId: row.active_event_id,
-      eventSequence: row.event_sequence || [],
+      completedEvents: completedEvents,
+      activeEventId: activeEventId,
+      eventSequence: eventSequence,
     };
   } catch (err) {
     logger.error({ err, userId }, 'GetEventState error');

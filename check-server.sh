@@ -90,5 +90,5 @@ echo "  http://localhost (Nginx)"
 echo ""
 echo "管理员账户："
 echo "  用户名: aita"
-echo "  密码: aita"
+echo "  密码: aitaita"
 

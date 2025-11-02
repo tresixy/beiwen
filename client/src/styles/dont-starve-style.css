@@ -852,17 +852,24 @@ body {
 }
 
 .card-dock__draw {
-    width: 80px;
-    height: 80px;
-    background-image: url('/assets/UI/局内补牌.webp');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    padding: 0;
+    background: transparent;
     border: none;
-    color: transparent;
-    font-size: 0;
     cursor: pointer;
     transition: transform 0.2s ease, filter 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.card-dock__draw img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 80px;
+    max-height: 80px;
+    object-fit: contain;
 }
 
 .card-dock__draw:hover {

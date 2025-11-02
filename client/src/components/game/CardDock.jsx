@@ -84,7 +84,7 @@ export function CardDock({
             <div className="card-dock__header">
                 <span className="card-dock__title">手牌</span>
                 <button type="button" className="card-dock__draw" onClick={onDraw}>
-                    补牌
+                    <img src="/assets/UI/局内补牌.webp" alt="补牌" />
                 </button>
             </div>
             <div className="card-dock__rail">

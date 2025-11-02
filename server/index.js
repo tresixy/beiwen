@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import env from './config/env.js';
 import logger, { httpLogger } from './utils/logger.js';
+import { apiLoggerMiddleware } from './middleware/apiLogger.js';
 
 // 导入路由
 import authRoutes from './routes/auth.js';
@@ -27,6 +28,7 @@ import cardsDatabaseRoutes from './routes/cardsDatabase.js';
 import cardsDatabasePublicRoutes from './routes/cardsDatabasePublic.js';
 import tileMarkersRoutes from './routes/tileMarkers.js';
 import playerArchivesRoutes from './routes/playerArchives.js';
+import apiStatsRoutes from './routes/apiStats.js';
 
 const app = express();
 
@@ -50,6 +52,9 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 app.use(httpLogger);
+
+// API日志中间件（仅记录特定端点）
+app.use('/api/synthesize', apiLoggerMiddleware);
 
 // 静态文件
 if (clientDistExists) {
@@ -91,11 +96,24 @@ app.use('/api/cards-database', cardsDatabaseRoutes);
 app.use('/api/cards-database-public', cardsDatabasePublicRoutes);
 app.use('/api/tiles', tileMarkersRoutes);
 app.use('/api/player-archives', playerArchivesRoutes);
+app.use('/api-stats', apiStatsRoutes);
 
 // 健康检查
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
+
+// 卡牌数据库管理页面（优先处理，避免被其他路由拦截）
+if (clientDistExists) {
+  app.get(['/cardsdatabase', '/cardsdatabase/'], (req, res) => {
+    const htmlPath = path.join(clientDistPath, 'cardsdatabase.html');
+    if (fs.existsSync(htmlPath)) {
+      res.sendFile(htmlPath);
+    } else {
+      res.status(404).json({ error: 'Cards database page not found' });
+    }
+  });
+}
 
 if (clientDistExists) {
   app.get('*', (req, res, next) => {

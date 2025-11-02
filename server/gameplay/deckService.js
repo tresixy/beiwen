@@ -2,9 +2,19 @@ import pool from '../db/connection.js';
 import logger from '../utils/logger.js';
 
 // 抽牌（只抽取灵感卡，钥匙卡通过合成获得）
+// 只从当前时代的基础卡牌和玩家已解锁的合成卡牌中抽取
 export async function drawCards(userId, count = 3) {
   try {
-    // 获取已解锁的灵感卡（排除钥匙卡和奖励卡）
+    // 获取玩家当前时代
+    const eraResult = await pool.query(
+      'SELECT era FROM user_game_state WHERE user_id = $1',
+      [userId]
+    );
+    const currentEra = eraResult.rows.length > 0 ? eraResult.rows[0].era : '生存时代';
+    
+    // 获取可抽取的灵感卡：
+    // 1. 当前时代的基础卡牌（is_base_card = TRUE）
+    // 2. 玩家自己创建的合成卡牌（created_by_user_id = userId，且已解锁）
     const result = await pool.query(
       `SELECT c.id, c.name, c.type, c.rarity, c.attrs_json, c.era, c.card_type, dc.count
        FROM deck_cards dc
@@ -12,8 +22,15 @@ export async function drawCards(userId, count = 3) {
        WHERE dc.user_id = $1 
          AND dc.discovered = true 
          AND dc.count > 0
-         AND c.card_type = 'inspiration'`,
-      [userId]
+         AND c.card_type = 'inspiration'
+         AND (
+           -- 当前时代的基础卡牌
+           (c.is_base_card = TRUE AND c.era = $2)
+           OR
+           -- 玩家自己创建的合成卡牌（已解锁）
+           (c.created_by_user_id = $1 AND c.is_base_card = FALSE)
+         )`,
+      [userId, currentEra]
     );
     
     if (result.rows.length === 0) {

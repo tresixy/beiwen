@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 
 import { HexCanvas } from './HexCanvas.jsx';
 import { CardBookPanel } from '../game/CardBookPanel.jsx';
@@ -35,6 +35,8 @@ const FEATURE_CARDS = [
 ];
 
 export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase, onOpenPlayerArchives }) {
+    const containerRef = useRef(null);
+    const frameRef = useRef(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
     const [cardBookOpen, setCardBookOpen] = useState(false);
@@ -43,11 +45,12 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
     const [era, setEra] = useState('生存时代');
     const [markers, setMarkers] = useState([]);
     const [highlightedTiles, setHighlightedTiles] = useState([]);
+    const [frameSize, setFrameSize] = useState({ width: '100%', height: '100%' });
     const [canvasSize, setCanvasSize] = useState(() => {
         if (typeof window === 'undefined') {
             return { width: 1920, height: 1080 };
         }
-        return { width: window.innerWidth, height: window.innerHeight };
+        return { width: 1920, height: 1080 };
     });
 
     const isAdmin = useMemo(() => user?.role === 'admin', [user]);
@@ -97,16 +100,48 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
     }, [cardBookOpen]);
 
     useEffect(() => {
-        const calcSize = () => {
-            if (typeof window === 'undefined') {
-                return;
-            }
-            setCanvasSize({ width: window.innerWidth, height: window.innerHeight });
-        };
+        // 加载主页webp获取其尺寸
+        const img = new Image();
+        img.src = '/assets/UI/主页.webp';
+        img.onload = () => {
+            const calcSize = () => {
+                if (typeof window === 'undefined' || !containerRef.current) {
+                    return;
+                }
+                const container = containerRef.current;
+                const rect = container.getBoundingClientRect();
+                
+                // 计算主页webp的contain尺寸
+                const containerWidth = rect.width;
+                const containerHeight = rect.height;
+                const imgRatio = img.naturalWidth / img.naturalHeight;
+                const containerRatio = containerWidth / containerHeight;
+                
+                let frameWidth, frameHeight;
+                if (containerRatio > imgRatio) {
+                    // 容器更宽，以高度为准
+                    frameHeight = containerHeight;
+                    frameWidth = frameHeight * imgRatio;
+                } else {
+                    // 容器更高，以宽度为准
+                    frameWidth = containerWidth;
+                    frameHeight = frameWidth / imgRatio;
+                }
+                
+                setFrameSize({ width: frameWidth, height: frameHeight });
+                // canvas尺寸也设置为frame尺寸
+                setCanvasSize({ width: Math.ceil(frameWidth), height: Math.ceil(frameHeight) });
+            };
 
-        calcSize();
-        window.addEventListener('resize', calcSize);
-        return () => window.removeEventListener('resize', calcSize);
+            // 延迟计算，确保容器已渲染
+            const timer = setTimeout(calcSize, 100);
+            
+            window.addEventListener('resize', calcSize);
+            return () => {
+                clearTimeout(timer);
+                window.removeEventListener('resize', calcSize);
+            };
+        };
     }, []);
 
     // 加载游戏状态获取当前时代
@@ -174,32 +209,33 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
 
     return (
         <div className="lobby-shell">
-            <HexCanvas
-                key="main-hex-canvas"
-                width={canvasSize.width}
-                height={canvasSize.height}
-                onSelectHex={handleSelectHex}
-                markers={markers}
-                highlightedTiles={highlightedTiles}
-            />
-            
-            {/* 主页装饰层 - 带alpha通道的边框装饰 */}
-            <div className="lobby-decoration-layer"></div>
-            
-            <div className="lobby-ui">
+            <div className="lobby-content-container" ref={containerRef}>
+                {/* 内容框架 - 匹配主页webp的显示区域 */}
+                <div 
+                    className="lobby-content-frame" 
+                    ref={frameRef}
+                    style={{ width: frameSize.width, height: frameSize.height }}
+                >
+                    <HexCanvas
+                        key="main-hex-canvas"
+                        width={canvasSize.width}
+                        height={canvasSize.height}
+                        onSelectHex={handleSelectHex}
+                        markers={markers}
+                        highlightedTiles={highlightedTiles}
+                    />
+                    
+                    {/* 主页装饰层 - 带alpha通道的边框装饰 */}
+                    <div className="lobby-decoration-layer"></div>
+                </div>
+                
+                <div className="lobby-ui">
                 {/* 左上角用户信息面板 */}
                 <div className="lobby-user-panel">
-                    <div className="user-panel-avatar">
-                        {(user?.username ?? '旅')[0].toUpperCase()}
-                    </div>
-                    <div className="user-panel-info">
-                        <div className="user-panel-name">
-                            {user?.username ?? '旅者'}
-                        </div>
-                        <div className="user-panel-achievement">
-                            <span className="achievement-icon">⏳</span>
-                            <span className="achievement-label">{era}</span>
-                        </div>
+                    <div className="user-panel-content">
+                        <span className="user-panel-name">{user?.username ?? '旅者'}</span>
+                        <span className="achievement-icon">⏳</span>
+                        <span className="achievement-label">{era}</span>
                     </div>
                 </div>
 
@@ -213,40 +249,67 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                     </div>
                 )}
 
+                {/* 右上角设置按钮 */}
+                <div className="lobby-top-right">
+                    <button 
+                        className="sci-btn-circle settings-btn"
+                        onClick={() => setShowSettings(true)}
+                        title="设置"
+                    >
+                        <img 
+                            src="/assets/UI/设置.webp" 
+                            alt="设置"
+                            className="btn-icon-img"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.textContent = '⚙️';
+                            }}
+                        />
+                    </button>
+                </div>
+
                 {/* 左下角功能按钮 */}
                 <div className="lobby-bottom-left">
                     <button 
-                        className="sci-btn"
-                        onClick={onEnterGame}
+                        className="sci-btn-circle backpack-btn"
+                        onClick={handleOpenCardBook}
+                        title="背包"
                     >
-                        <span className="sci-btn-icon">🚀</span>
-                        <span className="sci-btn-text">启程探索</span>
+                        <img 
+                            src="/assets/UI/背包.webp" 
+                            alt="背包"
+                            className="btn-icon-img"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.textContent = '🎒';
+                            }}
+                        />
                     </button>
-                    <button className="sci-btn disabled">
+                    <button className="sci-btn disabled" style={{ display: 'none' }}>
                         <span className="sci-btn-icon">🏪</span>
                         <span className="sci-btn-text">交易市场</span>
                     </button>
-                    <button className="sci-btn disabled">
+                    <button className="sci-btn disabled" style={{ display: 'none' }}>
                         <span className="sci-btn-icon">📊</span>
                         <span className="sci-btn-text">排行榜</span>
                     </button>
                 </div>
 
-                {/* 右下角功能按钮 */}
+                {/* 右下角GO按钮 */}
                 <div className="lobby-bottom-right">
                     <button 
-                        className="sci-btn-circle"
-                        onClick={handleOpenCardBook}
-                        title="背包"
+                        className="lobby-go-btn"
+                        onClick={onEnterGame}
+                        title="启程探索"
                     >
-                        🎒
-                    </button>
-                    <button 
-                        className="sci-btn-circle"
-                        onClick={() => setShowSettings(true)}
-                        title="设置"
-                    >
-                        ⚙️
+                        <img 
+                            src="/assets/UI/go_button.webp" 
+                            alt="GO"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentElement.innerHTML = '<span style="color: #fff; font-size: 24px; font-weight: bold;">GO</span>';
+                            }}
+                        />
                     </button>
                 </div>
             </div>
@@ -305,6 +368,7 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 }

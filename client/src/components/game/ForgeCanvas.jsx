@@ -21,7 +21,7 @@ const isPointInsideElement = (element, clientX, clientY) => {
     );
 };
 
-export function ForgeCanvas({ cards = [], hand = [], positions = {}, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge }) {
+export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], onDrop, onRemove, onReposition, onSynthesize, onSelectForForge }) {
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
     const [furnaceCards, setFurnaceCards] = useState([]);
@@ -406,24 +406,7 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, onDrop, onR
                 onDragLeave={handleFurnaceDragLeave}
                 onDrop={handleFurnaceDrop}
             >
-                <div className="forge-furnace__icon">🔥</div>
-                <div className="forge-furnace__title">熔炉</div>
-                <div className="forge-furnace__status" aria-live="polite">{furnaceStatus}</div>
-                {furnaceCards.length > 0 && (
-                    <div className="forge-furnace__count">
-                        {furnaceCards.length} 张卡牌
-                    </div>
-                )}
-                {showProgress && (
-                    <div className="forge-furnace__progress" role="status" aria-live="polite">
-                        <div className="forge-furnace__progress-track">
-                            <div className="forge-furnace__progress-fill" style={{ width: `${progressDisplay}%` }} />
-                        </div>
-                        <div className="forge-furnace__progress-label">熔炼中 {progressDisplay}%</div>
-                    </div>
-                )}
-                
-                {/* 卡槽指引 */}
+                {/* 卡槽 */}
                 <div className="forge-furnace__slots">
                     {[0, 1].map((slotIndex) => {
                         const card = furnaceCards[slotIndex];
@@ -459,6 +442,22 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, onDrop, onR
                         );
                     })}
                 </div>
+                
+                {/* 火焰图标 */}
+                <div className="forge-furnace__icon">🔥</div>
+                
+                {/* 状态木牌 */}
+                <div className="forge-furnace__status-board">
+                    <div className="forge-furnace__status" aria-live="polite">{furnaceStatus}</div>
+                    {showProgress && (
+                        <div className="forge-furnace__progress" role="status" aria-live="polite">
+                            <div className="forge-furnace__progress-track">
+                                <div className="forge-furnace__progress-fill" style={{ width: `${progressDisplay}%` }} />
+                            </div>
+                            <div className="forge-furnace__progress-label">熔炼中 {progressDisplay}%</div>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {cards.length === 0 && (
@@ -493,6 +492,22 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, onDrop, onR
                     </div>
                 );
             })}
+
+            {ideaCards.length > 0 && (
+                <div className="forge-canvas__idea-ribbon">
+                    {ideaCards.map((idea) => {
+                        const rarityClass = idea?.rarity ? `rarity-${idea.rarity.toLowerCase()}` : '';
+                        return (
+                            <div key={idea.id} className={`forge-canvas__idea-card ${rarityClass}`}>
+                                <div className="forge-canvas__idea-name">{idea.name}</div>
+                                {idea.description ? (
+                                    <div className="forge-canvas__idea-desc">{idea.description}</div>
+                                ) : null}
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 }

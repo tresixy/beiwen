@@ -7,6 +7,7 @@ import { MessageStack } from './components/common/MessageStack.jsx';
 import { CardsDatabase } from './components/admin/CardsDatabase.jsx';
 import { PlayerArchivesPanel } from './components/admin/PlayerArchivesPanel.jsx';
 import { loginRequest } from './services/api.js';
+import { preloadUIAssets } from './utils/preloadImages.js';
 
 const STORAGE_KEYS = {
     token: 'inf-synth-token',
@@ -196,7 +197,13 @@ function App() {
     }, [activeView, authLoading, handleBackLobby, handleEnterCardsDatabase, handleEnterGame, handleLogin, handleLogout, handleOpenPlayerArchives, queueMessage, token, user]);
 
     useEffect(() => {
-        window.dispatchEvent(new Event('app-ready'));
+        // 预加载 UI 素材后再触发 app-ready
+        preloadUIAssets().then(() => {
+            window.dispatchEvent(new Event('app-ready'));
+        }).catch(() => {
+            // 即使预加载失败也要触发 app-ready
+            window.dispatchEvent(new Event('app-ready'));
+        });
     }, []);
 
     return (

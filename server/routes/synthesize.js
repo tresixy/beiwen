@@ -24,18 +24,35 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
       return res.status(400).json({ error: '至少需要2个输入项' });
     }
     
-    // 判断输入类型（名称数组或ID数组）
-    const isNameArray = typeof inputs[0] === 'string' && !inputs[0].match(/^\d+$/);
-    
-    // 获取输入物品（验证归属）
-    const inputItems = await synthService.getInputItems(inputs, isNameArray ? userId : null);
+    // 判断输入类型：
+    // 1. 对象数组（完整卡牌信息）-> 直接使用，避免重复查询
+    // 2. 字符串数组（卡牌名称）-> 需要查询数据库（兼容旧格式）
+    // 3. 数字数组（物品ID）-> 需要查询数据库（兼容旧格式）
+    let inputItems;
+    if (typeof inputs[0] === 'object' && inputs[0].name) {
+      // 前端传递了完整的卡牌信息，直接使用
+      inputItems = inputs.map(card => ({
+        id: card.id,
+        name: card.name,
+        tier: card.tier || 1,
+        attrs_json: card.attrs || {},
+      }));
+      logger.info({ userId, cardCount: inputs.length, cardNames: inputs.map(c => c.name) }, 'Using card data from client');
+    } else {
+      // 兼容旧格式：名称数组或ID数组
+      const isNameArray = typeof inputs[0] === 'string' && !inputs[0].match(/^\d+$/);
+      inputItems = await synthService.getInputItems(inputs, isNameArray ? userId : null);
+    }
     
     // 获取时代信息
     const eventState = await eventService.getEventState(userId);
     const currentEra = eventState.era || '生存时代';
 
-    // 生成配方哈希
-    const recipe_hash = synthService.generateRecipeHash(inputs, name || '未命名');
+    // 生成配方哈希（需要统一格式：字符串数组）
+    const inputNames = typeof inputs[0] === 'object' && inputs[0].name
+      ? inputs.map(card => card.name)
+      : inputs;
+    const recipe_hash = synthService.generateRecipeHash(inputNames, name || '未命名');
     
     let output;
     let aiUsed = false;
@@ -45,6 +62,7 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
     
     // 尝试AI合成
     if ((mode === 'ai' || mode === 'auto') && env.aiEnabled) {
+      logger.info({ userId, mode, aiEnabled: env.aiEnabled, hasApiKey: !!env.aiApiKey }, 'Attempting AI synthesis');
       try {
         const aiResult = await aiService.synthesizeByAI(inputItems, name, userId, currentEra);
         output = aiResult.output;
@@ -52,19 +70,32 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
         aiPromptUsed = aiResult.prompt;
         aiModelUsed = aiResult.model;
         aiUsed = true;
-        logger.info({ userId, mode: 'ai', preview, era: currentEra }, 'AI synthesis used');
+        logger.info({ userId, mode, preview, era: currentEra, outputName: output?.name }, 'AI synthesis succeeded');
       } catch (err) {
-        logger.warn({ err }, 'AI synthesis failed, falling back to rule');
-        if (mode === 'ai') {
-          throw err; // 如果明确要求AI则失败
-        }
+        logger.error({ err: err.message, stack: err.stack, userId, mode }, 'AI synthesis failed');
+        // AI合成失败，直接返回错误，不再降级到规则合成
+        return res.status(500).json({ 
+          error: '融合失败',
+          message: err.message || 'AI合成服务暂时不可用，请稍后重试'
+        });
+      }
+    } else {
+      logger.info({ userId, mode, aiEnabled: env.aiEnabled, hasApiKey: !!env.aiApiKey }, 'AI synthesis skipped');
+      // 如果AI未启用且不是rule模式，也返回错误
+      if (mode === 'ai' || mode === 'auto') {
+        return res.status(503).json({ 
+          error: '融合失败',
+          message: 'AI合成服务未启用'
+        });
       }
     }
     
-    // 降级到规则合成
+    // 如果没有输出，说明需要规则合成（但现在不再使用规则合成作为回退）
     if (!output) {
-      output = await synthService.synthesizeByRule(inputItems, name, currentEra);
-      logger.info({ userId, mode: 'rule', preview, era: currentEra }, 'Rule synthesis used');
+      return res.status(500).json({ 
+        error: '融合失败',
+        message: '无法生成合成结果'
+      });
     }
     
     // 检查时代限制
@@ -98,15 +129,16 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
     // 保存配方和物品（事务处理）
     const item = await synthService.saveRecipe(
       userId,
-      inputs,
+      inputNames, // 使用统一的名称数组格式
       output,
       recipe_hash,
       aiPromptUsed,
-      aiModelUsed || (aiUsed ? env.aiModel : null),
-      isNameArray // 是否需要消耗卡牌
+      aiModelUsed || (aiUsed ? env.aiModel : null)
     );
     
-    logger.info({ userId, inputs, itemId: item.id, cardsConsumed: isNameArray }, 'Synthesis completed');
+    // 判断是否需要消耗卡牌：如果inputs是字符串数组（卡牌名称），则需要消耗
+    const needConsumeCards = typeof inputs[0] === 'string' && !inputs[0].match(/^\d+$/);
+    logger.info({ userId, inputs: inputNames, itemId: item.id, cardsConsumed: needConsumeCards }, 'Synthesis completed');
     
     // 添加到背包
     let inventoryFull = false;
@@ -157,8 +189,8 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
       image,
       era: currentEra,
       inventoryFull,
-      cardsConsumed: isNameArray ? inputs : null, // 告知客户端哪些卡牌被消耗
-      needRefreshHand: isNameArray, // 提示客户端需要刷新手牌
+      cardsConsumed: needConsumeCards ? inputNames : null, // 告知客户端哪些卡牌被消耗
+      needRefreshHand: needConsumeCards, // 提示客户端需要刷新手牌
     };
 
     if (aiIdeas) {

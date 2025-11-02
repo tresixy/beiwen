@@ -67,6 +67,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         closeCardBook,
         cardBookOpen,
         cardBook,
+        aiIdeaCards,
         stagedPositions,
         selectCardsForForge,
         activeEvent,
@@ -240,9 +241,10 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         const cards = cardsToForge || selectedCards;
         console.log('handleSynthesize 被调用, cards:', cards.length, cards.map(c => c?.name));
         if (cards.length >= 2) {
-            const defaultName = cards.map(c => c.name).join('+');
-            console.log('开始合成:', defaultName);
-            submitForge(defaultName, cards);
+            // 使用简单占位符，让AI决定真正的名字
+            const placeholderName = '合成物';
+            console.log('开始合成:', cards.map(c => c.name).join(' + '));
+            submitForge(placeholderName, cards);
         } else {
             console.log('卡牌数量不足，需要至少2张，当前:', cards.length);
         }
@@ -302,6 +304,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                             cards={selectedCards}
                             hand={hand}
                             positions={stagedPositions}
+                            ideaCards={aiIdeaCards}
                             onSelectForForge={selectCardsForForge}
                             onDrop={handleCardDrop}
                             onRemove={handleCardRemove}

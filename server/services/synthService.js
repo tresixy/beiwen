@@ -82,20 +82,57 @@ export function generateRecipeHash(inputItemIds, name) {
 }
 
 // 获取输入物品
-export async function getInputItems(inputItemIds) {
+// 如果第二个参数userId不为null，则inputs是卡牌名称数组，需要从cards表查询
+// 否则inputs是物品ID数组，从items表查询
+export async function getInputItems(inputs, userId = null) {
   try {
-    const result = await pool.query(
-      'SELECT id, name, tier, attrs_json FROM items WHERE id = ANY($1)',
-      [inputItemIds]
-    );
-    
-    if (result.rows.length !== inputItemIds.length) {
-      throw new Error('Some input items not found');
+    if (userId !== null) {
+      // 输入是卡牌名称数组，从cards表查询
+      const result = await pool.query(
+        `SELECT c.id, c.name, 
+         COALESCE((c.attrs_json->>'tier')::INTEGER, 
+           CASE c.rarity 
+             WHEN 'common' THEN 1
+             WHEN 'uncommon' THEN 2
+             WHEN 'rare' THEN 3
+             WHEN 'epic' THEN 4
+             WHEN 'legendary' THEN 5
+             ELSE 1
+           END) as tier,
+         c.attrs_json
+         FROM cards c
+         WHERE c.name = ANY($1)`,
+        [inputs]
+      );
+      
+      if (result.rows.length !== inputs.length) {
+        const foundNames = result.rows.map(r => r.name);
+        const missing = inputs.filter(name => !foundNames.includes(name));
+        throw new Error(`Some cards not found: ${missing.join(', ')}`);
+      }
+      
+      // 转换为items格式
+      return result.rows.map(row => ({
+        id: row.id,
+        name: row.name,
+        tier: row.tier,
+        attrs_json: row.attrs_json || {},
+      }));
+    } else {
+      // 输入是物品ID数组，从items表查询
+      const result = await pool.query(
+        'SELECT id, name, tier, attrs_json FROM items WHERE id = ANY($1)',
+        [inputs]
+      );
+      
+      if (result.rows.length !== inputs.length) {
+        throw new Error('Some input items not found');
+      }
+      
+      return result.rows;
     }
-    
-    return result.rows;
   } catch (err) {
-    logger.error({ err, inputItemIds }, 'GetInputItems error');
+    logger.error({ err, inputs, userId }, 'GetInputItems error');
     throw err;
   }
 }

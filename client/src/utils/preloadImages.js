@@ -22,6 +22,16 @@ const KNOWN_2D_IMAGES = [
 ];
 
 /**
+ * UI 素材列表
+ */
+const UI_IMAGES = [
+    '/assets/UI/主页.webp',
+    '/assets/UI/go_button.webp',
+    '/assets/UI/局内.webp',
+    '/assets/UI/登录.webp',
+];
+
+/**
  * 预加载单个图片
  * @param {string} imageName - 图片名称（不含扩展名）
  * @returns {Promise<void>}
@@ -66,6 +76,20 @@ function preloadImage(imageName) {
 }
 
 /**
+ * 预加载单个完整路径图片
+ * @param {string} imagePath - 完整图片路径
+ * @returns {Promise<void>}
+ */
+function preloadImageByPath(imagePath) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = imagePath;
+    });
+}
+
+/**
  * 预加载所有2D图片
  * @returns {Promise<void>}
  */
@@ -84,6 +108,18 @@ export function preloadAll2DImages() {
 export function preload2DImages(imageNames) {
     const promises = imageNames.map(imageName => preloadImage(imageName));
     return Promise.allSettled(promises);
+}
+
+/**
+ * 预加载 UI 素材
+ * @returns {Promise<void>}
+ */
+export function preloadUIAssets() {
+    console.log('[Preload] 开始预加载UI素材...');
+    const promises = UI_IMAGES.map(imagePath => preloadImageByPath(imagePath));
+    return Promise.allSettled(promises).then(() => {
+        console.log('[Preload] UI素材预加载完成');
+    });
 }
 
 

@@ -107,7 +107,8 @@ export async function synthesizeByAI(inputItems, name, userId, currentEra = '生
     const primaryIdea = ideas[0];
     // 支持新格式(name)和旧格式(results)
     const ideaName = primaryIdea.name || primaryIdea.results;
-    const outputName = deriveNameFromIdea(ideaName, name, inputNames);
+    // 优先使用AI生成的名字，如果AI名字不可用才使用用户输入的名字
+    const outputName = deriveNameFromIdea(ideaName, null, inputNames) || name || '未知造物';
 
     const attrs = {
       description: ideaName,

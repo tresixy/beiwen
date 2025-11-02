@@ -334,7 +334,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
-    const [scale, setScale] = useState(0.65);
+    const [scale, setScale] = useState(0.45);
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [hoveredHex, setHoveredHex] = useState(null);
@@ -651,8 +651,8 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         const originX = width / 2 + offset.x;
         const originY = height / 3 + offset.y;
 
-        // 深海背景色
-        ctx.fillStyle = '#2d4a5c';
+        // 黑色背景
+        ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, width, height);
 
         hexMapRef.current.clear();
@@ -1017,7 +1017,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 wasDraggingRef.current = true;
                 const newX = e.clientX - dragStart.x;
                 const newY = e.clientY - dragStart.y;
-                const MAX_OFFSET = 2000; // 增加拖动范围以适应更大的地图
+                const MAX_OFFSET = 3500; // 增加拖动范围以适应UI布局
                 setOffset({
                     x: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newX)),
                     y: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newY)),

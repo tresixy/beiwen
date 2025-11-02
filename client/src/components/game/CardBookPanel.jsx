@@ -145,19 +145,24 @@ export function CardBookPanel({ open, cardBook, onClose }) {
                             </div>
                         ) : (
                             currentCards.map((card) => (
-                                <div key={`${card.name}-${card.type}-${card.rarity}`} className="book-card">
-                                    <div 
-                                        className="book-card-border"
-                                        style={{ borderColor: rarityColor[card.rarity] || rarityColor.common }}
-                                    >
+                                <div 
+                                    key={`${card.name}-${card.type}-${card.rarity}`} 
+                                    className="book-card"
+                                    style={{
+                                        backgroundColor: card.image_url ? 'transparent' : (rarityColor[card.rarity] || rarityColor.common)
+                                    }}
+                                >
+                                    {card.image_url && (
+                                        <img 
+                                            src={card.image_url} 
+                                            alt={card.name}
+                                            className="book-card-image"
+                                        />
+                                    )}
+                                    <div className="book-card-content">
                                         <div className="book-card-name">{card.name}</div>
                                         <div className="book-card-type">{card.type}</div>
-                                        <div 
-                                            className="book-card-rarity"
-                                            style={{ backgroundColor: rarityColor[card.rarity] || rarityColor.common }}
-                                        >
-                                            {card.rarity}
-                                        </div>
+                                        <div className="book-card-rarity">{card.rarity}</div>
                                         <div className="book-card-count">×{card.count}</div>
                                     </div>
                                 </div>

@@ -7,33 +7,13 @@ import * as tileMarkerService from './tileMarkerService.js';
 // 为玩家生成本局的events序列
 export async function generateEventSequence(userId) {
   try {
-    // 获取所有events
+    // 获取所有events，按event_number严格排序
     const eventsResult = await pool.query(
-      'SELECT * FROM events ORDER BY event_number'
+      'SELECT id FROM events ORDER BY event_number ASC'
     );
-    const allEvents = eventsResult.rows;
-
-    // 按时代分组
-    const eventsByEra = {};
-    allEvents.forEach(event => {
-      if (!eventsByEra[event.era]) {
-        eventsByEra[event.era] = [];
-      }
-      eventsByEra[event.era].push(event);
-    });
-
-    // 为每个时代随机选择一个event
-    const sequence = [];
-    const eras = ['生存时代', '城邦时代', '分野时代', '帝国时代', '理性时代', '信仰时代', '启蒙时代', '全球时代', '第二次分野时代', '星辰时代', '奇点时代'];
     
-    for (const era of eras) {
-      const eraEvents = eventsByEra[era] || [];
-      if (eraEvents.length > 0) {
-        // 随机选择一个event
-        const selected = eraEvents[Math.floor(Math.random() * eraEvents.length)];
-        sequence.push(selected.id);
-      }
-    }
+    // 按照排序顺序生成序列，玩家将依次触发所有困境
+    const sequence = eventsResult.rows.map(row => row.id);
 
     // 保存到数据库
     await pool.query(
@@ -44,7 +24,7 @@ export async function generateEventSequence(userId) {
       [userId, JSON.stringify(sequence)]
     );
 
-    logger.info({ userId, sequence }, 'Event sequence generated');
+    logger.info({ userId, sequenceLength: sequence.length }, 'Event sequence generated in order');
     return sequence;
   } catch (err) {
     logger.error({ err, userId }, 'GenerateEventSequence error');
@@ -185,7 +165,7 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
 
     // 获取下一个event
     const currentIndex = eventSequence.indexOf(eventId);
-    const nextEventId = currentIndex >= 0 && currentIndex < eventSequence.length - 1
+    let nextEventId = currentIndex >= 0 && currentIndex < eventSequence.length - 1
       ? eventSequence[currentIndex + 1]
       : null;
 
@@ -223,12 +203,8 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
           [JSON.stringify(newSequence), userId]
         );
         
-        // 设置下一个事件为新序列的第一个
-        const firstNewEventId = newSequence.length > 0 ? newSequence[0] : null;
-        await client.query(
-          'UPDATE user_game_state SET active_event_id = $1 WHERE user_id = $2',
-          [firstNewEventId, userId]
-        );
+        // 设置下一个事件为新序列的第一个（覆盖之前计算的nextEventId）
+        nextEventId = newSequence.length > 0 ? newSequence[0] : null;
       }
     } else if (nextEventId) {
       const nextEventResult = await client.query(
@@ -317,6 +293,15 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
       } catch (eraCardErr) {
         logger.error({ err: eraCardErr, userId, newEra }, 'Failed to unlock era cards');
       }
+    }
+
+    // 解决 events 后，解锁用户已合成的卡牌（使其可用于抽牌）
+    try {
+      const unlockedUserCards = await cardService.unlockUserGeneratedCards(userId);
+      logger.info({ userId, eventId, unlockedUserCards }, 'User generated cards unlocked after event');
+    } catch (userCardErr) {
+      logger.error({ err: userCardErr, userId, eventId }, 'Failed to unlock user generated cards');
+      // 不抛出错误，因为event已经完成
     }
 
     return {

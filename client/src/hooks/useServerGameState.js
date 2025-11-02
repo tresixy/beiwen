@@ -57,7 +57,8 @@ export function useServerGameState({ token, pushMessage }) {
                 setHand(state.hand);
             } else {
                 const drawn = await drawCardsApi(token, MAX_HAND_SIZE);
-                setHand(drawn.hand || createEmptyHand(MAX_HAND_SIZE));
+                const newCards = drawn?.hand ?? createEmptyHand(MAX_HAND_SIZE);
+                setHand(newCards.length > 0 ? newCards : createEmptyHand(MAX_HAND_SIZE));
             }
 
             pushMessage('游戏数据已加载', 'success');
@@ -181,7 +182,7 @@ export function useServerGameState({ token, pushMessage }) {
 
         try {
             const result = await drawCardsApi(token, count);
-            const newCards = result.hand || [];
+            const newCards = result?.hand ?? [];
 
             setHand((prevHand) => {
                 const updated = [...prevHand];

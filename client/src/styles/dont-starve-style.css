@@ -71,10 +71,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: 
-        repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px),
-        linear-gradient(135deg, rgba(61, 36, 24, 0.92), rgba(45, 24, 16, 0.95));
-    backdrop-filter: blur(4px);
+    background-image: url('/assets/UI/登录底板.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #2d1810;
     z-index: 1000;
 }
 
@@ -144,9 +145,25 @@ body {
     font-weight: bold;
 }
 
+.auth-field__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.auth-field__icon {
+    position: absolute;
+    left: 14px;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    pointer-events: none;
+    z-index: 1;
+}
+
 .auth-field input {
     width: 100%;
-    padding: 10px 14px;
+    padding: 10px 14px 10px 44px;
     border: 3px solid var(--border-sketch);
     border-radius: 10px 8px 9px 11px / 9px 11px 8px 10px;
     background: rgba(255, 255, 255, 0.7);
@@ -836,6 +853,7 @@ body {
     }
 }
 
+/* 已废弃：改用 forge-furnace__status-board
 .forge-furnace__title {
     font-size: 1.2rem;
     font-weight: bold;
@@ -846,6 +864,7 @@ body {
     letter-spacing: 0.16em;
     text-transform: uppercase;
 }
+*/
 
 .forge-furnace__count {
     font-size: 0.95rem;

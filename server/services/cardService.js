@@ -186,7 +186,7 @@ export async function getCardDetails(cardName) {
   }
 }
 
-// 创建或获取用户生成的卡牌
+// 创建或获取用户生成的卡牌（不立即添加到 deck_cards，需解决 events 后才解锁）
 export async function createOrGetUserCard(userId, cardData) {
   const client = await pool.connect();
   
@@ -203,9 +203,9 @@ export async function createOrGetUserCard(userId, cardData) {
       source_type = 'user_generated',
     } = cardData;
     
-    // 检查卡牌是否已存在
+    // 检查卡牌是否已存在（包括其他用户创建的）
     const existingCard = await client.query(
-      'SELECT id, is_base_card, source_type FROM cards WHERE name = $1',
+      'SELECT id, is_base_card, source_type, created_by_user_id FROM cards WHERE name = $1',
       [name]
     );
     
@@ -213,9 +213,27 @@ export async function createOrGetUserCard(userId, cardData) {
     let isNewCard = false;
     
     if (existingCard.rows.length > 0) {
-      // 卡牌已存在，直接使用
-      cardId = existingCard.rows[0].id;
-      logger.info({ cardId, name, userId }, 'Card already exists, reusing');
+      // 卡牌已存在，检查是否是当前用户创建的
+      const existing = existingCard.rows[0];
+      if (existing.created_by_user_id === userId) {
+        // 当前用户之前创建过，直接使用
+        cardId = existing.id;
+        logger.info({ cardId, name, userId }, 'User card already exists, reusing');
+      } else {
+        // 其他用户创建的，为当前用户创建新记录（每个玩家的合成卡牌是独立的）
+        const newCard = await client.query(
+          `INSERT INTO cards (
+            name, type, rarity, era, card_type, attrs_json,
+            is_base_card, created_by_user_id, source_type,
+            is_starter, is_decoy
+          ) VALUES ($1, $2, $3, $4, $5, $6, FALSE, $7, $8, FALSE, FALSE)
+          RETURNING id`,
+          [name, type, rarity, era, card_type, attrs_json, userId, source_type]
+        );
+        cardId = newCard.rows[0].id;
+        isNewCard = true;
+        logger.info({ cardId, name, userId, source_type }, 'New user card created (different user)');
+      }
     } else {
       // 创建新卡牌
       const newCard = await client.query(
@@ -233,14 +251,7 @@ export async function createOrGetUserCard(userId, cardData) {
       logger.info({ cardId, name, userId, source_type }, 'New user card created');
     }
     
-    // 添加到用户背包（如果还没有）
-    await client.query(
-      `INSERT INTO deck_cards (user_id, card_id, discovered, count, updated_at)
-       VALUES ($1, $2, TRUE, 1, NOW())
-       ON CONFLICT (user_id, card_id) 
-       DO UPDATE SET count = deck_cards.count + 1, discovered = TRUE, updated_at = NOW()`,
-      [userId, cardId]
-    );
+    // 注意：不立即添加到 deck_cards，需要解决 events 后才解锁用于抽牌
     
     await client.query('COMMIT');
     
@@ -255,6 +266,48 @@ export async function createOrGetUserCard(userId, cardData) {
     throw err;
   } finally {
     client.release();
+  }
+}
+
+// 解锁用户合成的卡牌（解决 events 后调用）
+export async function unlockUserGeneratedCards(userId) {
+  try {
+    // 获取用户创建的所有卡牌（还未解锁的）
+    const userCards = await pool.query(
+      `SELECT c.id, c.name 
+       FROM cards c
+       WHERE c.created_by_user_id = $1 
+         AND c.is_base_card = FALSE
+         AND c.card_type = 'inspiration'
+         AND NOT EXISTS (
+           SELECT 1 FROM deck_cards dc 
+           WHERE dc.user_id = $1 AND dc.card_id = c.id
+         )`,
+      [userId]
+    );
+    
+    if (userCards.rows.length === 0) {
+      return [];
+    }
+    
+    // 批量添加到 deck_cards
+    const unlocked = [];
+    for (const card of userCards.rows) {
+      await pool.query(
+        `INSERT INTO deck_cards (user_id, card_id, discovered, count, updated_at)
+         VALUES ($1, $2, TRUE, 1, NOW())
+         ON CONFLICT (user_id, card_id) 
+         DO UPDATE SET discovered = TRUE, count = deck_cards.count + 1, updated_at = NOW()`,
+        [userId, card.id]
+      );
+      unlocked.push(card.name);
+    }
+    
+    logger.info({ userId, unlocked, count: unlocked.length }, 'User generated cards unlocked after event');
+    return unlocked;
+  } catch (err) {
+    logger.error({ err, userId }, 'Failed to unlock user generated cards');
+    throw err;
   }
 }
 

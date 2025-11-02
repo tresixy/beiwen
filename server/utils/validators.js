@@ -12,7 +12,18 @@ export const loginSchema = z.object({
 });
 
 export const synthesizeSchema = z.object({
-  inputs: z.union([z.array(z.number()), z.array(z.string())]).refine(arr => arr.length >= 2, {
+  inputs: z.union([
+    z.array(z.number()), // 物品ID数组
+    z.array(z.string()), // 卡牌名称数组
+    z.array(z.object({ // 完整卡牌对象数组
+      id: z.union([z.string(), z.number()]),
+      name: z.string(),
+      type: z.string().optional(),
+      rarity: z.string().optional(),
+      tier: z.number().optional(),
+      attrs: z.record(z.any()).optional(),
+    }))
+  ]).refine(arr => arr.length >= 2, {
     message: '至少需要2个输入项',
   }),
   name: z.string().trim().min(1, '合成名称不能为空').max(100, '合成名称最多100个字符'),

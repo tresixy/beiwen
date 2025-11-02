@@ -253,8 +253,15 @@
             <a href="/" class="btn">返回首页</a>
         </div>
 
+        <div class="tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
+            <button class="tab-btn active" onclick="switchTab('cards')" style="background: none; border: none; color: #fff; padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s;">卡牌管理</button>
+            <button class="tab-btn" onclick="switchTab('api-stats')" style="background: none; border: none; color: rgba(255, 255, 255, 0.7); padding: 10px 20px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.3s;">API统计</button>
+        </div>
+
         <div id="error" class="error" style="display: none;"></div>
 
+        <!-- 卡牌管理标签页 -->
+        <div id="tab-cards" class="tab-content">
         <div class="stats" id="stats">
             <div class="stat-card">
                 <div class="stat-label">基础卡牌</div>
@@ -310,6 +317,82 @@
             </thead>
             <tbody id="cardsBody"></tbody>
         </table>
+        </div>
+
+        <!-- API统计标签页 -->
+        <div id="tab-api-stats" class="tab-content" style="display: none;">
+            <div class="controls" style="margin-bottom: 20px;">
+                <select id="statsEndpointFilter" onchange="loadApiStats()">
+                    <option value="">全部端点</option>
+                    <option value="/api/synthesize">/api/synthesize</option>
+                </select>
+                <select id="statsDaysFilter" onchange="loadApiStats()">
+                    <option value="1">最近1天</option>
+                    <option value="7" selected>最近7天</option>
+                    <option value="30">最近30天</option>
+                </select>
+                <button class="btn" onclick="loadApiStats()">刷新</button>
+            </div>
+
+            <div id="apiStatsLoading" class="loading">加载中...</div>
+
+            <div id="apiStatsContent" style="display: none;">
+                <h2 style="margin-bottom: 20px;">API调用统计</h2>
+                <table id="apiStatsTable" style="width: 100%; background: rgba(255, 255, 255, 0.05); border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
+                    <thead>
+                        <tr>
+                            <th>端点</th>
+                            <th>方法</th>
+                            <th>调用次数</th>
+                            <th>成功</th>
+                            <th>失败</th>
+                            <th>平均耗时(ms)</th>
+                            <th>最小耗时</th>
+                            <th>最大耗时</th>
+                            <th>最后调用</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="apiStatsBody"></tbody>
+                </table>
+
+                <h2 style="margin-bottom: 20px; margin-top: 40px;">详细调用记录</h2>
+                <div class="controls" style="margin-bottom: 20px;">
+                    <select id="logsEndpointFilter" onchange="loadApiLogs()">
+                        <option value="">全部端点</option>
+                        <option value="/api/synthesize">/api/synthesize</option>
+                    </select>
+                    <select id="logsMethodFilter" onchange="loadApiLogs()">
+                        <option value="">全部方法</option>
+                        <option value="POST">POST</option>
+                        <option value="GET">GET</option>
+                    </select>
+                    <button class="btn" onclick="loadApiLogs()">刷新</button>
+                </div>
+
+                <div id="apiLogsLoading" class="loading">加载中...</div>
+                <table id="apiLogsTable" style="width: 100%; background: rgba(255, 255, 255, 0.05); border-radius: 12px; overflow: hidden; margin-bottom: 20px; display: none;">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>端点</th>
+                            <th>方法</th>
+                            <th>用户ID</th>
+                            <th>状态码</th>
+                            <th>耗时(ms)</th>
+                            <th>请求</th>
+                            <th>响应</th>
+                        </tr>
+                    </thead>
+                    <tbody id="apiLogsBody"></tbody>
+                </table>
+                <div id="apiLogsPagination" style="display: none; text-align: center; margin-top: 20px;">
+                    <button class="btn" onclick="changeLogsPage(-1)" id="prevPageBtn">上一页</button>
+                    <span id="logsPageInfo" style="margin: 0 20px; color: #fff;">第 1 页</span>
+                    <button class="btn" onclick="changeLogsPage(1)" id="nextPageBtn">下一页</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- 创建/编辑模态框 -->
@@ -588,8 +671,181 @@
             }
         }
 
+        // 标签页切换
+        let currentTab = 'cards';
+        let currentLogsPage = 1;
+        let currentLogsTotalPages = 1;
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.style.color = 'rgba(255, 255, 255, 0.7)';
+                btn.style.borderBottomColor = 'transparent';
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => 
+                btn.textContent.includes(tab === 'cards' ? '卡牌管理' : 'API统计')
+            );
+            if (activeBtn) {
+                activeBtn.style.color = '#fff';
+                activeBtn.style.borderBottomColor = '#667eea';
+            }
+            
+            document.getElementById(`tab-${tab}`).style.display = 'block';
+            
+            if (tab === 'api-stats') {
+                loadApiStats();
+                loadApiLogs();
+            }
+        }
+
+        // 加载API统计
+        async function loadApiStats() {
+            const loading = document.getElementById('apiStatsLoading');
+            const content = document.getElementById('apiStatsContent');
+            const tbody = document.getElementById('apiStatsBody');
+            const errorDiv = document.getElementById('error');
+            
+            loading.style.display = 'block';
+            content.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            try {
+                const endpoint = document.getElementById('statsEndpointFilter').value;
+                const days = document.getElementById('statsDaysFilter').value;
+                
+                const params = new URLSearchParams({ days });
+                if (endpoint) params.append('endpoint', endpoint);
+
+                const response = await fetch(`/api-stats/stats?${params}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || '加载失败');
+                }
+
+                tbody.innerHTML = data.stats.map(stat => `
+                    <tr>
+                        <td>${stat.endpoint}</td>
+                        <td>${stat.method}</td>
+                        <td><strong>${stat.call_count}</strong></td>
+                        <td style="color: #4caf50;">${stat.success_count}</td>
+                        <td style="color: #f44336;">${stat.error_count}</td>
+                        <td>${stat.avg_duration_ms || 0}</td>
+                        <td>${stat.min_duration_ms || 0}</td>
+                        <td>${stat.max_duration_ms || 0}</td>
+                        <td>${new Date(stat.last_called).toLocaleString('zh-CN')}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="viewEndpointLogs('${stat.endpoint.replace(/'/g, "\\'")}', '${stat.method}')">查看详情</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            } catch (err) {
+                errorDiv.textContent = err.message;
+                errorDiv.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        }
+
+        // 加载API日志
+        async function loadApiLogs(page = 1) {
+            currentLogsPage = page;
+            const loading = document.getElementById('apiLogsLoading');
+            const table = document.getElementById('apiLogsTable');
+            const tbody = document.getElementById('apiLogsBody');
+            const pagination = document.getElementById('apiLogsPagination');
+            const errorDiv = document.getElementById('error');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            pagination.style.display = 'none';
+            errorDiv.style.display = 'none';
+
+            try {
+                const endpoint = document.getElementById('logsEndpointFilter').value;
+                const method = document.getElementById('logsMethodFilter').value;
+                
+                const params = new URLSearchParams({ page, limit: 20 });
+                if (endpoint) params.append('endpoint', endpoint);
+                if (method) params.append('method', method);
+
+                const response = await fetch(`/api-stats/logs?${params}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || '加载失败');
+                }
+
+                currentLogsTotalPages = data.pagination.pages;
+
+                tbody.innerHTML = data.logs.map(log => {
+                    const requestBody = log.request_body ? JSON.stringify(log.request_body, null, 2) : '-';
+                    const responseBody = log.response_body ? JSON.stringify(log.response_body, null, 2) : '-';
+                    const requestPreview = requestBody.length > 500 ? requestBody.substring(0, 500) + '...' : requestBody;
+                    const responsePreview = responseBody.length > 500 ? responseBody.substring(0, 500) + '...' : responseBody;
+                    const requestEscaped = requestPreview.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const responseEscaped = responsePreview.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    return `
+                        <tr>
+                            <td>${new Date(log.created_at).toLocaleString('zh-CN')}</td>
+                            <td>${log.endpoint}</td>
+                            <td>${log.method}</td>
+                            <td>${log.user_id || '-'}</td>
+                            <td style="color: ${log.status_code >= 400 ? '#f44336' : '#4caf50'};">${log.status_code}</td>
+                            <td>${log.duration_ms}</td>
+                            <td style="max-width: 300px; overflow: auto; font-size: 0.85rem;">
+                                <pre style="margin: 0; white-space: pre-wrap; word-break: break-all;">${requestEscaped}</pre>
+                            </td>
+                            <td style="max-width: 300px; overflow: auto; font-size: 0.85rem;">
+                                <pre style="margin: 0; white-space: pre-wrap; word-break: break-all;">${responseEscaped}</pre>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                document.getElementById('logsPageInfo').textContent = `第 ${page} / ${currentLogsTotalPages} 页`;
+                document.getElementById('prevPageBtn').disabled = page === 1;
+                document.getElementById('nextPageBtn').disabled = page >= currentLogsTotalPages;
+
+                loading.style.display = 'none';
+                table.style.display = 'table';
+                if (currentLogsTotalPages > 1) {
+                    pagination.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = err.message;
+                errorDiv.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        }
+
+        function changeLogsPage(delta) {
+            const newPage = currentLogsPage + delta;
+            if (newPage >= 1 && newPage <= currentLogsTotalPages) {
+                loadApiLogs(newPage);
+            }
+        }
+
+        function viewEndpointLogs(endpoint, method) {
+            document.getElementById('logsEndpointFilter').value = endpoint;
+            document.getElementById('logsMethodFilter').value = method;
+            loadApiLogs(1);
+            // 滚动到日志区域
+            document.getElementById('tab-api-stats').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         // 页面加载时自动加载数据
-        window.addEventListener('DOMContentLoaded', loadCards);
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentTab === 'cards') {
+                loadCards();
+            }
+        });
 
         // 点击模态框外部关闭
         document.getElementById('modal').addEventListener('click', function(e) {

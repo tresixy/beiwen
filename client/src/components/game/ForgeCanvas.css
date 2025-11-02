@@ -108,6 +108,66 @@
     }
 }
 
+.forge-canvas {
+    position: relative;
+}
+
+.forge-canvas__idea-ribbon {
+    position: absolute;
+    bottom: 4%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 18px;
+    background: rgba(10, 16, 28, 0.82);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+    max-width: 88%;
+    overflow-x: auto;
+}
+
+.forge-canvas__idea-card {
+    min-width: 180px;
+    max-width: 220px;
+    padding: 14px 18px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: linear-gradient(182deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: #F4F7FF;
+    text-align: left;
+}
+
+.forge-canvas__idea-card.rarity-epic {
+    border-color: rgba(132, 92, 255, 0.55);
+    box-shadow: 0 14px 34px rgba(86, 60, 190, 0.35);
+}
+
+.forge-canvas__idea-card.rarity-legendary {
+    border-color: rgba(255, 196, 86, 0.6);
+    box-shadow: 0 16px 36px rgba(225, 172, 68, 0.35);
+}
+
+.forge-canvas__idea-name {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+}
+
+.forge-canvas__idea-desc {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: rgba(247, 250, 255, 0.82);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    white-space: pre-wrap;
+}
+
 
 
 

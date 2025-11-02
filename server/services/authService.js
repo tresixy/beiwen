@@ -39,7 +39,7 @@ export async function register({ email, username, password }) {
       [user.id, JSON.stringify(initialProfessionState)]
     );
     
-    // 初始化生存时代的起始卡（人、石头）
+    // 初始化生存时代的起始卡（人、石头）- 数量为2
     const starterCards = await pool.query(
       `SELECT id, name FROM cards 
        WHERE is_starter = TRUE AND era = '生存时代' 
@@ -49,6 +49,23 @@ export async function register({ email, username, password }) {
     for (const card of starterCards.rows) {
       await pool.query(
         'INSERT INTO deck_cards (user_id, card_id, discovered, count) VALUES ($1, $2, true, 2) ON CONFLICT DO NOTHING',
+        [user.id, card.id]
+      );
+    }
+    
+    // 解锁生存时代的所有基础灵感卡（非起始卡，数量为1）
+    const eraCards = await pool.query(
+      `SELECT id, name FROM cards 
+       WHERE era = '生存时代' 
+       AND card_type = 'inspiration' 
+       AND is_starter = FALSE 
+       AND is_base_card = TRUE
+       ORDER BY id`
+    );
+    
+    for (const card of eraCards.rows) {
+      await pool.query(
+        'INSERT INTO deck_cards (user_id, card_id, discovered, count) VALUES ($1, $2, true, 1) ON CONFLICT DO NOTHING',
         [user.id, card.id]
       );
     }
@@ -125,7 +142,7 @@ export async function login({ email, password }) {
         [user.id, JSON.stringify(initialProfessionState)]
       );
       
-      // 初始化生存时代的起始卡（人、石头）
+      // 初始化生存时代的起始卡（人、石头）- 数量为2
       const starterCards = await pool.query(
         `SELECT id, name FROM cards 
          WHERE is_starter = TRUE AND era = '生存时代' 
@@ -135,6 +152,23 @@ export async function login({ email, password }) {
       for (const card of starterCards.rows) {
         await pool.query(
           'INSERT INTO deck_cards (user_id, card_id, discovered, count) VALUES ($1, $2, true, 2) ON CONFLICT DO NOTHING',
+          [user.id, card.id]
+        );
+      }
+      
+      // 解锁生存时代的所有基础灵感卡（非起始卡，数量为1）
+      const eraCards = await pool.query(
+        `SELECT id, name FROM cards 
+         WHERE era = '生存时代' 
+         AND card_type = 'inspiration' 
+         AND is_starter = FALSE 
+         AND is_base_card = TRUE
+         ORDER BY id`
+      );
+      
+      for (const card of eraCards.rows) {
+        await pool.query(
+          'INSERT INTO deck_cards (user_id, card_id, discovered, count) VALUES ($1, $2, true, 1) ON CONFLICT DO NOTHING',
           [user.id, card.id]
         );
       }

@@ -1,46 +1,131 @@
-const rarityColor = {
-    common: 'rgba(207, 210, 216, 0.9)',
-    uncommon: 'rgba(144, 238, 198, 0.9)',
-    rare: 'rgba(129, 200, 255, 0.9)',
-    epic: 'rgba(207, 170, 255, 0.9)',
-    legendary: 'rgba(255, 204, 128, 0.9)',
-};
+import { useState, useMemo } from 'react';
+import { CardSvg } from './CardSvg.jsx';
 
-export function InventoryPanel({ open, items = [], onClose }) {
+const CARDS_PER_PAGE = 6; // 2行3列
+
+export function InventoryPanel({ open, cardBook, onClose }) {
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageType, setPageType] = useState('items'); // 'items' 或 'keys'
+
+    // 区分钥匙卡和普通卡牌
+    const filteredCards = useMemo(() => {
+        const allCards = Array.isArray(cardBook?.cards) ? cardBook.cards : [];
+        if (pageType === 'keys') {
+            return allCards.filter(card => card.type === 'key' || card.card_type === 'key');
+        } else {
+            return allCards.filter(card => card.type !== 'key' && card.card_type !== 'key');
+        }
+    }, [cardBook, pageType]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredCards.length / CARDS_PER_PAGE));
+    const startIdx = currentPage * CARDS_PER_PAGE;
+    const endIdx = startIdx + CARDS_PER_PAGE;
+    const currentCards = filteredCards.slice(startIdx, endIdx);
+
     if (!open) {
         return null;
     }
 
+    const handlePrevPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handleSwitchToKeys = () => {
+        setPageType('keys');
+        setCurrentPage(0);
+    };
+
+    const handleSwitchToItems = () => {
+        setPageType('items');
+        setCurrentPage(0);
+    };
+
+    const backgroundClass = pageType === 'keys' ? 'inventory-page-keys' : 'inventory-page-items';
+
     return (
-        <div className="inventory-overlay">
-            <div className="inventory-panel glass-panel">
-                <div className="panel-header">
-                    <h3>背包</h3>
-                    <button type="button" onClick={onClose}>
-                        关闭
+        <div className="inventory-overlay" onClick={onClose}>
+            <div className="inventory-container" onClick={(e) => e.stopPropagation()}>
+                {/* 左侧切换按钮 */}
+                <div className="inventory-page-toggle">
+                    <button
+                        type="button"
+                        className={`inventory-toggle-btn inventory-toggle-up ${pageType === 'items' ? 'active' : ''}`}
+                        onClick={handleSwitchToItems}
+                        title="物品页"
+                    >
+                        <img 
+                            src="/assets/UI/左箭头.webp" 
+                            alt="物品页"
+                        />
+                    </button>
+                    <button
+                        type="button"
+                        className={`inventory-toggle-btn inventory-toggle-down ${pageType === 'keys' ? 'active' : ''}`}
+                        onClick={handleSwitchToKeys}
+                        title="钥匙页"
+                    >
+                        <img 
+                            src="/assets/UI/左箭头.webp" 
+                            alt="钥匙页"
+                        />
                     </button>
                 </div>
-                <div className="inventory-grid">
-                    {items.length === 0 ? (
-                        <div className="inventory-empty">你的背包还很轻盈，尝试去熔炉中创造些什么吧。</div>
-                    ) : (
-                        (Array.isArray(items) ? items : []).map((item) => (
-                            <div key={item.id} className="inventory-card">
-                                <div className="inventory-icon" aria-hidden>{item.icon || '📦'}</div>
-                                <div className="inventory-info">
-                                    <div className="inventory-name">{item.name}</div>
-                                    <div
-                                        className="inventory-rarity"
-                                        style={{ backgroundColor: rarityColor[item.rarity] || rarityColor.common }}
-                                    >
-                                        {item.rarity}
-                                    </div>
-                                    <div className="inventory-qty">数量：{item.quantity}</div>
-                                    <div className="inventory-desc">{item.description}</div>
-                                </div>
+
+                {/* 主背包页面 */}
+                <div className={`inventory-page ${backgroundClass}`}>
+                    {/* 关闭按钮 */}
+                    <button type="button" className="inventory-close-btn" onClick={onClose}>
+                        <img src="/assets/UI/退出.webp" alt="关闭" />
+                    </button>
+
+                    {/* 卡牌网格 - 2行3列 */}
+                    <div className="inventory-card-grid">
+                        {currentCards.length === 0 ? (
+                            <div className="inventory-empty-msg">
+                                {pageType === 'keys' ? '暂无钥匙卡' : '暂无收集的卡牌'}
                             </div>
-                        ))
-                    )}
+                        ) : (
+                            currentCards.map((card, idx) => (
+                                <div key={`${card.name}-${idx}`} className="inventory-card-slot">
+                                    <CardSvg 
+                                        card={card} 
+                                        className="inventory-card-svg"
+                                    />
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {/* 分页按钮 */}
+                    <div className="inventory-pagination">
+                        <button
+                            type="button"
+                            className="inventory-page-btn inventory-page-prev"
+                            onClick={handlePrevPage}
+                            disabled={currentPage === 0}
+                        >
+                            <img src="/assets/UI/左箭头.webp" alt="上一页" />
+                        </button>
+                        <span className="inventory-page-info">
+                            {currentPage + 1} / {totalPages}
+                        </span>
+                        <button
+                            type="button"
+                            className="inventory-page-btn inventory-page-next"
+                            onClick={handleNextPage}
+                            disabled={currentPage >= totalPages - 1}
+                        >
+                            <img src="/assets/UI/右箭头.webp" alt="下一页" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

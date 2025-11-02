@@ -1,136 +1,131 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-// 更真实的地形配色
+// 浅色地形配色
 const TERRAIN_TYPES = {
     region: {
-        base: '#b5c99a',
-        shadow: '#97a97c',
-        highlight: '#cfe1b9',
-        border: '#7a8b6c',
+        base: '#d4e5c4',
+        shadow: '#b5c99a',
+        highlight: '#e8f4d8',
+        border: '#97a97c',
     },
     grassland: { 
-        base: '#8db84e', 
-        shadow: '#6d9638', 
-        highlight: '#aed06e',
-        border: '#5d7628'
+        base: '#b8d480', 
+        shadow: '#9dba65', 
+        highlight: '#d0e8a0',
+        border: '#7d9a45'
     },
     forest: { 
-        base: '#2d5a3d', 
-        shadow: '#1d4a2d', 
-        highlight: '#3d6a4d',
-        border: '#0d3a1d'
+        base: '#5a8a6a', 
+        shadow: '#4a7a5a', 
+        highlight: '#6a9a7a',
+        border: '#3a6a4a'
     },
     mountain: { 
-        base: '#8b7d6b', 
-        shadow: '#6b5d4b', 
-        highlight: '#ab9d8b',
-        border: '#4b3d2b'
+        base: '#b8a898', 
+        shadow: '#9d8d7d', 
+        highlight: '#d3c3b3',
+        border: '#7d6d5d'
     },
     desert: { 
-        base: '#ddc078', 
-        shadow: '#bda058', 
-        highlight: '#f4d898',
-        border: '#9d8038'
+        base: '#f0dca8', 
+        shadow: '#ddc078', 
+        highlight: '#fff0c8',
+        border: '#c8a858'
     },
     water: { 
-        base: '#4a8cb8', 
-        shadow: '#3a7ca8', 
-        highlight: '#6a9cc8',
-        border: '#2a5c88'
+        base: '#7aaccc', 
+        shadow: '#5a8cb8', 
+        highlight: '#9accec',
+        border: '#4a7ca8'
     },
     ocean: {
-        base: '#2c5f8d',
-        shadow: '#1d4565',
-        highlight: '#3c6f9d',
-        border: '#0d354d'
+        base: '#5a8fb8',
+        shadow: '#4a7ca8',
+        highlight: '#7aafcc',
+        border: '#3a6a98'
     },
     snow: {
-        base: '#f0f8ff',
-        shadow: '#d0e8f7',
+        base: '#f8fcff',
+        shadow: '#e8f4ff',
         highlight: '#ffffff',
-        border: '#b0d8e7'
+        border: '#d8ecf7'
     }
 };
 
 const REGION_ROWS = [
-    // 右上角区域 - 东北三省
-    ['heilongjiang', '黑龙江', 'Black Dragon River', '黑龙之河', '东北', false, true, 'N'],
-    ['jilin', '吉林', 'Lucky Forest', '幸运森林', '东北', false, true, 'NW'],
-    ['liaoning', '辽宁', 'Distant Peace', '遥远和平', '东北', true, true, 'NE'],
+    // 东北地区（3个）- 右上角
+    ['heilongjiang', 'Black Dragon River', '黑龙之河', '东北', false, true, 'NE', 'forest'],
+    ['jilin', 'Lucky Forest', '幸运森林', '东北', false, true, 'NE', 'forest'],
+    ['liaoning', 'Distant Peace', '遥远和平', '东北', true, true, 'NE', 'grassland'],
     
-    // 中上区域 - 华北
-    ['beijing', '北京', 'North Capital', '北方之都', '华北', false, false, 'NE'],
-    ['tianjin', '天津', 'Heavenly Ford', '天国之渡', '华北', true, false, 'N'],
-    ['shanxi', '山西', "Mountain's Shadow", '山之影', '华北', false, false, 'N'],
-    ['hezhishouhu', '河之守护', "River's Guardian", '河之卫', '华北', true, false, 'NW'],
+    // 华北地区（4个）- 中北部
+    ['beijing', 'North Capital', '北方之都', '华北', false, false, 'N', 'grassland'],
+    ['tianjin', 'Heavenly Ford', '天国之渡', '华北', true, false, 'N', 'grassland'],
+    ['shanxi', "Mountain's Shadow", '山之影', '华北', false, false, 'NW', 'mountain'],
+    ['hezhishouhu', "River's Guardian", '河之卫', '华北', true, false, 'N', 'grassland'],
     
-    // 华东区域
-    ['shanghai', '上海', 'Up Sea', '海上明珠', '华东', true, false, 'E'],
-    ['shanzhidong', '山之东', "Mountain's Dawn", '山之晨', '华东', true, false, 'NE'],
-    ['jiangzhidongxi', '江之东西', 'The Great River', '长江腹地', '华东', true, false, 'E'],
-    ['anhui', '安徽', 'Safe Emblem', '安全徽章', '华东', false, false, 'E'],
-    ['zhejiang', '浙江', 'Crooked River', '弯曲河流', '华东', true, false, 'SE'],
-    ['taiwan', '台湾', 'Platform Bay', '高台湾地', '华东', true, false, 'S'],
+    // 华东区域（6个）- 东部和东南沿海
+    ['shanzhidong', "Mountain's Dawn", '山之晨', '华东', true, false, 'NE', 'mountain'],
+    ['jiangzhidongxi', 'The Great River', '长江腹地', '华东', true, false, 'E', 'grassland'],
+    ['shanghai', 'Up Sea', '海上明珠', '华东', true, false, 'E', 'grassland'],
+    ['zhejiang', 'Crooked River', '弯曲河流', '华东', true, false, 'SE', 'forest'],
+    ['fujian', 'Fortune Build', '财富建设', '华东', true, false, 'SE', 'forest'],
+    ['taiwan', 'Platform Bay', '高台湾地', '华东', true, false, 'SE', 'mountain'],
     
-    // 华中区域
-    ['hezhinnanbei', '河之南北', "River's Body", '黄河身躯', '华中', false, false, 'C'],
-    ['huzhinnanbei', '湖之南北', 'The Twin Lakes', '神秘湖泊', '华中', false, false, 'C'],
+    // 华中区域（2个）- 中心地带
+    ['hezhinnanbei', "River's Body", '黄河身躯', '华中', false, false, 'C', 'grassland'],
+    ['huzhinnanbei', 'The Twin Lakes', '神秘湖泊', '华中', false, false, 'C', 'grassland'],
     
-    // 西北区域
-    ['neimenggu', '内蒙古', 'Inner Mongolia', '蒙古腹地', '华北', false, true, 'NW'],
-    ['qinghai', '青海', 'Turquoise Sea', '绿松石海', '西北', false, false, 'NE'],
-    ['xinjiang', '新疆', 'New Frontier', '新边疆', '西北', false, true, 'W'],
-    ['ningxia', '宁夏', 'Quiet Summer', '宁静之夏', '西北', false, false, 'NW'],
-    ['gansu', '甘肃', 'Sweet Eradicate', '甜根除', '西北', false, true, 'W'],
-    ['shaanxi', '陕西', 'Narrow West', '狭窄西部', '西北', false, false, 'N'],
+    // 西北区域（4个）- 西北和西部
+    ['shaanxi', 'Narrow West', '狭窄西部', '西北', false, false, 'NW', 'mountain'],
+    ['ningxia', 'Quiet Summer', '宁静之夏', '西北', false, false, 'NW', 'desert'],
+    ['qinghai', 'Turquoise Sea', '绿松石海', '西北', false, false, 'W', 'snow'],
+    ['xinjiang', 'New Frontier', '新边疆', '西北', false, true, 'W', 'desert'],
     
-    // 西南区域
-    ['xizang', '西藏', 'Western Depository', '西部宝藏', '西南', false, true, 'W'],
-    ['yunnan', '云南', 'The South of Cloud', '云之南', '西南', false, true, 'SW'],
-    ['sichuan', '四川', 'Four Circuits of Rivers', '四河洼地', '西南', false, false, 'SW'],
-    ['chongqing', '重庆', 'Double Celebration', '双重庆典', '西南', false, false, 'SW'],
-    ['guizhou', '贵州', 'Precious Province', '珍贵大陆', '西南', false, false, 'SW'],
+    // 西南区域（5个）- 西南山地
+    ['xizang', 'Western Depository', '西部宝藏', '西南', false, true, 'W', 'snow'],
+    ['sichuan', 'Four Circuits of Rivers', '四河洼地', '西南', false, false, 'SW', 'mountain'],
+    ['chongqing', 'Double Celebration', '双重庆典', '西南', false, false, 'SW', 'mountain'],
+    ['guizhou', 'Precious Province', '珍贵大陆', '西南', false, false, 'SW', 'forest'],
+    ['yunnan', 'The South of Cloud', '云之南', '西南', false, true, 'SW', 'forest'],
     
-    // 华南区域
-    ['guangkuozhidi', '广阔之地', 'Wide Land', '岭南大地', '华南', true, true, 'S'],
-    ['fujian', '福建', 'Fortune Build', '财富建设', '华东', true, false, 'SE'],
-    ['hongkong', '香港', 'Fragrant Harbour', '芳香的港湾', '华南', true, false, 'SE'],
-    ['macau', '澳门', 'Bay Gate', '海湾之门', '华南', true, false, 'S'],
-    ['hainan', '海南', 'Sea South', '海之南', '华南', true, false, 'SE'],
+    // 华南区域（4个）- 南部沿海
+    ['guangkuozhidi', 'Wide Land', '岭南大地', '华南', true, true, 'S', 'grassland'],
+    ['hongkong', 'Fragrant Harbour', '芳香的港湾', '华南', true, false, 'S', 'grassland'],
+    ['macau', 'Bay Gate', '海湾之门', '华南', true, false, 'S', 'grassland'],
+    ['hainan', 'Sea South', '海之南', '华南', true, false, 'S', 'forest'],
 ];
 
-const REGION_DEFS = REGION_ROWS.map(([key, name, fantasyName, literalName, zone, coastal, border, direction]) => ({
+export const REGION_DEFS = REGION_ROWS.map(([key, fantasyName, literalName, zone, coastal, border, direction, terrain]) => ({
     key,
-    name,
     fantasyName,
     literalName,
     zone,
     coastal,
     border,
     direction,
+    terrain,
 }));
 
-const ZONE_COLORS = {
-    '西北': '#c3ccb0',
-    '西南': '#c2d6a4',
-    '华南': '#d1dfab',
-    '华东': '#d7e1b7',
-    '华中': '#cedbb1',
-    '华北': '#c3d2af',
-    '东北': '#bcd2b8',
-};
+// 地形配色现在直接从 TERRAIN_TYPES 获取，不再使用 ZONE_COLORS
 
 const DIRECTION_CENTERS = {
-    C: { q: 0, r: 0 },
-    N: { q: -2, r: -8 },
-    NE: { q: 9, r: -8 },
-    E: { q: 11, r: 1 },
-    SE: { q: 8, r: 8 },
-    S: { q: 0, r: 11 },
-    SW: { q: -6, r: 9 },
-    W: { q: -11, r: 0 },
-    NW: { q: -9, r: -5 },
+    C: { q: 0, r: 0 },         // 中心
+    N: { q: 0, r: -9 },         // 正北
+    NE: { q: 10, r: -7 },       // 东北
+    E: { q: 12, r: 0 },         // 正东
+    SE: { q: 10, r: 8 },        // 东南
+    S: { q: 0, r: 12 },         // 正南
+    SW: { q: -8, r: 10 },       // 西南
+    W: { q: -12, r: 0 },        // 正西
+    NW: { q: -9, r: -7 },       // 西北
 };
+
+// 区域标签位置微调（轴坐标偏移，单位：六边形格）
+// 例：将“河之卫”标签向右上(NE)平移3个单元 => { q:+3, r:-3 }
+const REGION_LABEL_OFFSETS = new Map([
+    ['hezhishouhu', { q: 3, r: -3 }],
+]);
 
 const HEX_DIRECTIONS = [
     { q: 1, r: 0 },
@@ -141,9 +136,9 @@ const HEX_DIRECTIONS = [
     { q: 0, r: 1 },
 ];
 
-const MAP_RADIUS = 36;
-const CLUSTER_SPACING = 5;
-const LAND_RADIUS = 42;
+const MAP_RADIUS = 38;
+const CLUSTER_SPACING = 4;
+const LAND_RADIUS = 44;
 
 function keyFromHex(hex) {
     return `${hex.q},${hex.r}`;
@@ -336,11 +331,11 @@ function isWithinLandShape(q, r) {
     return dist <= radius;
 }
 
-export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = [], highlightedTiles = [] }) {
+export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = [], highlightedTiles = [], onRegionMapReady, onRegionClick }) {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
-    const [scale, setScale] = useState(0.45);
+    const [scale, setScale] = useState(0.35);
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [hoveredHex, setHoveredHex] = useState(null);
@@ -348,6 +343,9 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
     const hexMapRef = useRef(new Map());
     const [breathePhase, setBreathePhase] = useState(0);
     const labelBgImgRef = useRef(null);
+    const maskImgRef = useRef(null);
+    const holeMaskCanvasRef = useRef(null);
+    const landmarkImagesRef = useRef(new Map());
 
     const terrainMap = useMemo(() => {
         const map = new Map();
@@ -588,16 +586,13 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
 
         const regionPalette = new Map();
         REGION_DEFS.forEach((region) => {
-            let baseColor = ZONE_COLORS[region.zone] ?? '#cbd9b2';
-            if (region.coastal) {
-                baseColor = shadeColor(baseColor, -0.05);
-            }
-            if (region.border) {
-                baseColor = shadeColor(baseColor, -0.05);
-            }
+            const terrainType = region.terrain || 'grassland';
+            const terrainColors = TERRAIN_TYPES[terrainType];
+            
             regionPalette.set(region.key, {
-                base: baseColor,
-                border: shadeColor(baseColor, -0.18),
+                terrain: terrainType,
+                base: terrainColors.base,
+                border: terrainColors.border,
             });
         });
 
@@ -607,7 +602,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             }
             const palette = regionPalette.get(regionKey);
             map.set(key, {
-                terrain: 'region',
+                terrain: palette?.terrain || 'grassland',
                 color: palette?.base,
                 border: palette?.border,
                 regionKey,
@@ -616,7 +611,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         });
 
         waterClaims.forEach((key) => {
-            map.set(key, { terrain: 'water' });
+            map.set(key, { terrain: 'ocean' });
         });
 
         // 计算每个区域的真实中心坐标（轴坐标）
@@ -636,8 +631,25 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             }
         });
 
-        return { map, regionAxialCenters };
+        // 构建区域->地块映射表
+        const regionToTiles = new Map();
+        claims.forEach((regionKey, key) => {
+            if (waterClaims.has(key)) return;
+            if (!regionToTiles.has(regionKey)) {
+                regionToTiles.set(regionKey, []);
+            }
+            const { q, r } = coordsFromKey(key);
+            regionToTiles.get(regionKey).push({ q, r });
+        });
+
+        return { map, regionAxialCenters, regionToTiles };
     }, []);
+
+    useEffect(() => {
+        if (onRegionMapReady && terrainMap.regionToTiles) {
+            onRegionMapReady(terrainMap.regionToTiles);
+        }
+    }, [terrainMap, onRegionMapReady]);
 
     const drawMap = useCallback(() => {
         const canvas = canvasRef.current;
@@ -658,8 +670,11 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         const originX = width / 2 + offset.x;
         const originY = height / 3 + offset.y;
 
-        // 黑色背景
-        ctx.fillStyle = '#000';
+        // 海色渐变背景，避免拖动出现黑边
+        const oceanGrad = ctx.createLinearGradient(0, 0, 0, height);
+        oceanGrad.addColorStop(0, '#0b2a3f');
+        oceanGrad.addColorStop(1, '#07324d');
+        ctx.fillStyle = oceanGrad;
         ctx.fillRect(0, 0, width, height);
 
         hexMapRef.current.clear();
@@ -675,29 +690,35 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             // 菱形顶点（确保无缝连接）
             const tileW = size * 1.5;
             const tileH = size * 0.75;
-            const seamFix = 4.0; // 增大重叠值以消除黑色细线
+            const seamOverlap = Math.max(4, size * 0.28); // 按比例扩展填充，避免缩放出现缝隙
             const basePoints = [
                 { x: px, y: py - tileH },      // 上
                 { x: px + tileW, y: py },      // 右
                 { x: px, y: py + tileH },      // 下
                 { x: px - tileW, y: py },      // 左
             ];
-            const points = basePoints.map((p) => ({
-                x: Math.round(p.x + (p.x > px ? seamFix : p.x < px ? -seamFix : 0)),
-                y: Math.round(p.y + (p.y > py ? seamFix : p.y < py ? -seamFix : 0)),
-            }));
+            const fillPoints = [
+                { x: px, y: py - tileH - seamOverlap },
+                { x: px + tileW + seamOverlap, y: py },
+                { x: px, y: py + tileH + seamOverlap },
+                { x: px - tileW - seamOverlap, y: py },
+            ];
 
             // 绘制地块主体 - 更统一的色块
             ctx.beginPath();
-            ctx.moveTo(points[0].x, points[0].y);
-            ctx.lineTo(points[1].x, points[1].y);
-            ctx.lineTo(points[2].x, points[2].y);
-            ctx.lineTo(points[3].x, points[3].y);
+            ctx.moveTo(fillPoints[0].x, fillPoints[0].y);
+            ctx.lineTo(fillPoints[1].x, fillPoints[1].y);
+            ctx.lineTo(fillPoints[2].x, fillPoints[2].y);
+            ctx.lineTo(fillPoints[3].x, fillPoints[3].y);
             ctx.closePath();
 
             // 填充纯色，确保格子间无缝
             ctx.fillStyle = fillColor;
+            ctx.lineJoin = 'round';
             ctx.fill();
+            ctx.lineWidth = Math.max(1, seamOverlap * 0.25);
+            ctx.strokeStyle = fillColor;
+            ctx.stroke();
 
             // 内部纹理标记（简单的点或线）
             ctx.globalAlpha = 0.15;
@@ -721,6 +742,42 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 ctx.lineTo(px + tileW * 0.1, py - tileH * 0.2);
                 ctx.lineTo(px + tileW * 0.3, py);
                 ctx.stroke();
+            } else if (terrainData.terrain === 'desert') {
+                // 沙漠：沙丘曲线
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(px - tileW * 0.3, py - 5);
+                ctx.quadraticCurveTo(px - tileW * 0.15, py - 10, px, py - 5);
+                ctx.quadraticCurveTo(px + tileW * 0.15, py, px + tileW * 0.3, py - 5);
+                ctx.stroke();
+            } else if (terrainData.terrain === 'snow') {
+                // 雪地：雪花标记
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 1;
+                for (let i = 0; i < 2; i++) {
+                    const cx = px + (i === 0 ? -tileW * 0.2 : tileW * 0.2);
+                    const cy = py;
+                    const r = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(cx, cy - r);
+                    ctx.lineTo(cx, cy + r);
+                    ctx.moveTo(cx - r, cy);
+                    ctx.lineTo(cx + r, cy);
+                    ctx.stroke();
+                }
+            } else if (terrainData.terrain === 'grassland') {
+                // 草原：小草标记
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 1;
+                for (let i = 0; i < 3; i++) {
+                    const gx = px + (i - 1) * tileW * 0.2;
+                    const gy = py + (i % 2 === 0 ? 2 : -2);
+                    ctx.beginPath();
+                    ctx.moveTo(gx, gy + 3);
+                    ctx.lineTo(gx, gy - 3);
+                    ctx.stroke();
+                }
             } else if (terrainData.terrain === 'water' || terrainData.terrain === 'ocean') {
                 // 水域/海域：波浪线
                 ctx.strokeStyle = borderColor;
@@ -804,8 +861,14 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
 
         // 文明风格 - 按Y坐标排序绘制
         const hexesToDraw = [];
-        for (let r = -rows; r < rows; r++) {
-            for (let q = -cols; q < cols; q++) {
+        // 基于当前偏移计算屏幕中心所对应的轴坐标，确保大拖动时仍填满视口
+        const centerAxial = isometricToAxial(-offset.x, -offset.y, size);
+        const qMin = Math.floor(centerAxial.q) - cols;
+        const qMax = Math.floor(centerAxial.q) + cols;
+        const rMin = Math.floor(centerAxial.r) - rows;
+        const rMax = Math.floor(centerAxial.r) + rows;
+        for (let r = rMin; r <= rMax; r += 1) {
+            for (let q = qMin; q <= qMax; q += 1) {
                 const { x, y } = axialToIsometric(q, r, size);
                 const px = originX + x;
                 const py = originY + y;
@@ -860,11 +923,14 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 }
                 ctx.closePath();
                 
-                // 呼吸效果：alpha从0.3到0.8之间变化
-                const alpha = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(breathePhase));
-                ctx.strokeStyle = `rgba(255, 215, 0, ${alpha})`;
-                ctx.lineWidth = 4 * scale;
+                // 呼吸效果：alpha从0.5到1.0之间变化，更亮
+                const alpha = 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(breathePhase));
+                ctx.strokeStyle = `rgba(255, 223, 50, ${alpha})`;
+                ctx.lineWidth = 5 * scale;
+                ctx.shadowColor = 'rgba(255, 223, 50, 0.6)';
+                ctx.shadowBlur = 15 * scale;
                 ctx.stroke();
+                ctx.shadowBlur = 0;
                 
                 // 内发光效果
                 ctx.shadowColor = `rgba(255, 215, 0, ${alpha * 0.5})`;
@@ -905,63 +971,173 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         }
 
         // 绘制区域名称标签 - 使用预计算的区域中心
-        const fontSize = Math.max(48, Math.min(96, 64 * scale));
-        ctx.font = `bold ${fontSize}px var(--font-game)`;
+        // 放大字体，减小行距
+        const fontSize = Math.max(24, Math.min(240, 160 * scale));
+        const lineHeight = fontSize * 0.6; // 更贴近：缩小中英文的行距
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
-        ctx.shadowBlur = 12 * scale;
 
         regionAxialCenters.forEach((axialCenter, regionKey) => {
             const regionDef = REGION_DEFS.find(r => r.key === regionKey);
             if (regionDef) {
                 // 将轴坐标转换为屏幕坐标
-                const { x, y } = axialToIsometric(axialCenter.q, axialCenter.r, size);
+                const off = REGION_LABEL_OFFSETS.get(regionKey) || { q: 0, r: 0 };
+                const { x, y } = axialToIsometric(axialCenter.q + off.q, axialCenter.r + off.r, size);
                 const centerX = originX + x;
                 const centerY = originY + y;
                 
                 // 只绘制在视野内的标签
                 if (centerX >= -100 && centerX <= width + 100 && centerY >= -100 && centerY <= height + 100) {
-                    // 组合显示：英文直译 + 英文魔幻翻译
-                    const labelText = `${regionDef.literalName} ${regionDef.fantasyName}`;
+                    // 中文使用直译名；英文使用直译英文
+                    const chineseName = regionDef.literalName;
+                    const englishName = regionDef.fantasyName;
                     
-                    // 绘制地名底板图片
-                    if (labelBgImgRef.current) {
+                    // 测量文字宽度以确定底板大小
+                    ctx.font = `bold ${fontSize}px var(--font-game)`;
+                    const textMetricsCN = ctx.measureText(chineseName);
+                    const maxTextWidthCN = textMetricsCN.width;
+                    const englishFontSize = fontSize * 0.7;
+                    ctx.font = `bold ${englishFontSize}px var(--font-game)`;
+                    const textMetricsEN = ctx.measureText(englishName);
+                    const maxTextWidth = Math.max(maxTextWidthCN, textMetricsEN.width);
+                    
+                    // 计算文本块上下边界（基于 middle baseline 估算）
+                    const cnY = centerY - lineHeight / 2;
+                    const enY = centerY + lineHeight / 2;
+                    const blockTop = cnY - fontSize * 0.5;
+                    const blockBottom = enY + englishFontSize * 0.5;
+                    const textBlockHeight = blockBottom - blockTop;
+                    
+                    // 获取landmark插画
+                    const landmarkImg = landmarkImagesRef.current.get(regionDef.literalName);
+                    let landmarkHeight = 0;
+                    
+                    // 绘制landmark插画（在名字板上方）- 更大尺寸
+                    if (landmarkImg) {
                         ctx.save();
-                        // 使用图片原始比例
-                        const imgWidth = labelBgImgRef.current.width;
-                        const imgHeight = labelBgImgRef.current.height;
-                        const imgAspectRatio = imgWidth / imgHeight;
+                        const landmarkAspectRatio = landmarkImg.width / landmarkImg.height;
+                        const landmarkWidth = 500 * scale; // 增大插画尺寸
+                        landmarkHeight = landmarkWidth / landmarkAspectRatio;
                         
-                        // 测量文字宽度以确定底板缩放
-                        const textMetrics = ctx.measureText(labelText);
-                        const textWidth = textMetrics.width;
-                        const padding = 80 * scale;
-                        const targetWidth = Math.max(textWidth + padding, imgWidth * scale * 0.3);
-                        
-                        // 根据原始宽高比计算高度
-                        const bgWidth = targetWidth;
-                        const bgHeight = bgWidth / imgAspectRatio;
-                        
-                        // 绘制底板
                         ctx.drawImage(
-                            labelBgImgRef.current,
-                            centerX - bgWidth / 2,
-                            centerY - bgHeight / 2,
-                            bgWidth,
-                            bgHeight
+                            landmarkImg,
+                            centerX - landmarkWidth / 2,
+                            (blockTop - 15 * scale) - landmarkHeight, // 减小间距
+                            landmarkWidth,
+                            landmarkHeight
                         );
                         ctx.restore();
                     }
                     
-                    // 主文字（深色）
-                    ctx.fillStyle = '#2a1810';
-                    ctx.fillText(labelText, centerX, centerY);
+                    // 绘制地名底板图片：根据文本动态计算（允许纵向拉伸，保证文字总在底板内）
+                    if (labelBgImgRef.current) {
+                        ctx.save();
+                        const padX = 180 * scale;
+                        const padY = 14 * scale; // 更小的上下内边距以贴近文本
+                        const bgWidth = Math.max(maxTextWidth + padX * 2, labelBgImgRef.current.width * scale * 0.25);
+                        const bgHeight = Math.max(textBlockHeight + padY * 2, labelBgImgRef.current.height * scale * 0.20);
+                        const bgX = centerX - bgWidth / 2;
+                        const bgY = blockTop - padY;
+                        ctx.drawImage(labelBgImgRef.current, bgX, bgY, bgWidth, bgHeight);
+                        ctx.restore();
+                    }
+                    
+                    // 绘制中文名称（上方）
+                    ctx.save();
+                    ctx.font = `bold ${fontSize}px var(--font-game)`;
+                    ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
+                    ctx.shadowBlur = 15 * scale;
+                    ctx.fillStyle = '#1a0f0a'; // 更深的颜色
+                    ctx.fillText(chineseName, centerX, cnY);
+                    
+                    // 绘制英文名称（下方，稍小）
+                    ctx.font = `bold ${englishFontSize}px var(--font-game)`;
+                    ctx.fillStyle = '#4a3520'; // 更清晰的对比色
+                    ctx.shadowBlur = 10 * scale;
+                    ctx.fillText(englishName, centerX, enY);
+                    ctx.restore();
                 }
             }
         });
 
         ctx.shadowBlur = 0;
+
+        // 在四周海域标注方位名称：北海/南海/西海/东海
+        (function drawSeaNames() {
+            const seaFont = Math.max(28, Math.min(64, 54 * scale));
+            const margin = 32;
+            const sideMargin = 52;
+            ctx.save();
+            ctx.fillStyle = 'rgba(240, 248, 255, 0.85)';
+            ctx.strokeStyle = 'rgba(13, 34, 48, 0.85)';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+            ctx.shadowBlur = 6;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = `bold ${seaFont}px var(--font-game)`;
+
+            // 北海（上）
+            ctx.strokeText('北海', width / 2, margin);
+            ctx.fillText('北海', width / 2, margin);
+
+            // 南海（下）
+            ctx.strokeText('南海', width / 2, height - margin);
+            ctx.fillText('南海', width / 2, height - margin);
+
+            // 西海（左）
+            ctx.strokeText('西海', sideMargin, height / 2);
+            ctx.fillText('西海', sideMargin, height / 2);
+
+            // 东海（右）
+            ctx.strokeText('东海', width - sideMargin, height / 2);
+            ctx.fillText('东海', width - sideMargin, height / 2);
+
+            ctx.restore();
+        })();
+
+        // 在地图之上叠加黑色遮罩，仅在 UI 透明处挖孔，确保非透明处全部为黑色
+        if (maskImgRef.current) {
+            // 确保“透明区域”掩膜可用（白色=挖孔处，来自 UI 透明区域）
+            if (!holeMaskCanvasRef.current || holeMaskCanvasRef.current.width !== width || holeMaskCanvasRef.current.height !== height) {
+                const holeCanvas = document.createElement('canvas');
+                holeCanvas.width = width;
+                holeCanvas.height = height;
+                const hctx = holeCanvas.getContext('2d');
+                if (hctx) {
+                    // 先铺满白色
+                    hctx.fillStyle = '#fff';
+                    hctx.fillRect(0, 0, width, height);
+                    // destination-out 去掉 UI 不透明处 => 保留 UI 透明处为白色
+                    hctx.globalCompositeOperation = 'destination-out';
+                    hctx.imageSmoothingEnabled = true;
+                    hctx.drawImage(maskImgRef.current, 0, 0, width, height);
+                    hctx.globalCompositeOperation = 'source-over';
+                }
+                holeMaskCanvasRef.current = holeCanvas;
+            }
+
+            const overlayCanvas = document.createElement('canvas');
+            overlayCanvas.width = width;
+            overlayCanvas.height = height;
+            const octx = overlayCanvas.getContext('2d');
+            if (octx) {
+                // 覆盖整层为黑色
+                octx.fillStyle = '#000';
+                octx.fillRect(0, 0, width, height);
+
+                // 使用“透明区域掩膜”做 destination-out，仅在 UI 透明处挖孔
+                octx.globalCompositeOperation = 'destination-out';
+                octx.imageSmoothingEnabled = false; // 掩膜保持硬边，避免1px 漏光
+                octx.drawImage(holeMaskCanvasRef.current, 0, 0);
+
+                // 将结果叠加到主画布上（在上层）
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.drawImage(overlayCanvas, 0, 0);
+                ctx.restore();
+            }
+        }
     }, [width, height, offset, scale, terrainMap, hoveredHex, selectedHex, markers, highlightedTiles, breathePhase]);
 
     useEffect(() => {
@@ -976,6 +1152,49 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             labelBgImgRef.current = img;
             drawMap(); // 图片加载完成后重新绘制
         };
+    }, [drawMap]);
+
+    // 加载主页图作为遮罩（用于挖孔）
+    useEffect(() => {
+        const img = new Image();
+        img.src = '/assets/UI/主页.webp';
+        img.onload = () => {
+            maskImgRef.current = img;
+            drawMap();
+        };
+    }, [drawMap]);
+
+    // 预加载landmark插画
+    useEffect(() => {
+        const landmarkNames = [
+            '黑龙之河', '幸运森林', '遥远和平',
+            '北方之都', '天国之渡', '山之影', '河之卫',
+            '山之晨', '长江腹地', '海上明珠', '弯曲河流', '财富建设', '高台湾地',
+            '黄河身躯', '神秘湖泊',
+            '狭窄西部', '宁静之夏', '绿松石海',
+            '西部宝藏', '双重庆典',
+            '岭南大地', '芳香的港湾', '海湾之门', '海之南'
+        ];
+        
+        let loadedCount = 0;
+        landmarkNames.forEach(name => {
+            const img = new Image();
+            img.src = `/assets/landmark/${name}.webp`;
+            img.onload = () => {
+                landmarkImagesRef.current.set(name, img);
+                loadedCount++;
+                if (loadedCount === landmarkNames.length) {
+                    drawMap();
+                }
+            };
+            img.onerror = () => {
+                console.warn(`Failed to load landmark: ${name}`);
+                loadedCount++;
+                if (loadedCount === landmarkNames.length) {
+                    drawMap();
+                }
+            };
+        });
     }, [drawMap]);
 
     // 呼吸动画
@@ -1083,7 +1302,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         const delta = -e.deltaY * 0.001;
         setScale(prev => {
             const newScale = prev + delta;
-            return Math.max(0.2, Math.min(1.5, newScale));
+            return Math.max(0.05, Math.min(1, newScale));
         });
     }, []);
 
@@ -1109,14 +1328,79 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         const originX = width / 2 + offset.x;
         const originY = height / 3 + offset.y;
         const baseSize = 112;
-        const hex = isometricToAxial(canvasX - originX, canvasY - originY, baseSize * scale);
+        
+        // 检查是否点击了区域标签（包括landmark插画区域）
+        const { regionAxialCenters } = terrainMap;
+        let clickedRegion = null;
+        const fontSize = Math.max(24, Math.min(240, 160 * scale));
+        const lineHeight = fontSize * 0.6;
+        
+        regionAxialCenters.forEach((axialCenter, regionKey) => {
+            const regionDef = REGION_DEFS.find(r => r.key === regionKey);
+            if (!regionDef) return;
+            
+            const off = REGION_LABEL_OFFSETS.get(regionKey) || { q: 0, r: 0 };
+            const { x, y } = axialToIsometric(axialCenter.q + off.q, axialCenter.r + off.r, baseSize * scale);
+            const centerX = originX + x;
+            const centerY = originY + y;
+            
+            // 与绘制一致的文本与底板几何
+            const englishFontSize = fontSize * 0.7;
+            const cnY = centerY - lineHeight / 2;
+            const enY = centerY + lineHeight / 2;
+            const blockTop = cnY - fontSize * 0.5;
+            const blockBottom = enY + englishFontSize * 0.5;
+            const textBlockHeight = blockBottom - blockTop;
+            const padX = 180 * scale;
+            const padY = 14 * scale;
 
+            // 文本宽度测量
+            ctx.font = `bold ${fontSize}px var(--font-game)`;
+            const wCN = ctx.measureText(regionDef.literalName).width;
+            ctx.font = `bold ${englishFontSize}px var(--font-game)`;
+            const wEN = ctx.measureText(regionDef.fantasyName).width;
+            const maxTextWidth = Math.max(wCN, wEN);
+            const areaWidth = Math.max(maxTextWidth + padX * 2, 200 * scale);
+            const baseboardTop = blockTop - padY;
+            const baseboardHeight = textBlockHeight + padY * 2;
+
+            // 扩展点击区域到包含上方插图
+            const landmarkImg = landmarkImagesRef.current.get(regionDef.literalName);
+            let clickAreaTop = baseboardTop;
+            let clickAreaHeight = baseboardHeight;
+            if (landmarkImg) {
+                const ar = landmarkImg.width / landmarkImg.height;
+                const landmarkWidth = 500 * scale;
+                const landmarkHeight = landmarkWidth / ar;
+                const topWithLandmark = baseboardTop - (landmarkHeight + 15 * scale);
+                clickAreaTop = Math.min(clickAreaTop, topWithLandmark);
+                clickAreaHeight = (baseboardTop + baseboardHeight) - clickAreaTop;
+            }
+            
+            // 检查点击是否在区域内（矩形检测）
+            const clickAreaWidth = areaWidth;
+            if (canvasX >= centerX - clickAreaWidth / 2 && 
+                canvasX <= centerX + clickAreaWidth / 2 &&
+                canvasY >= clickAreaTop && 
+                canvasY <= clickAreaTop + clickAreaHeight) {
+                clickedRegion = regionKey;
+            }
+        });
+        
+        // 如果点击了区域标签，触发区域高亮
+        if (clickedRegion && onRegionClick) {
+            onRegionClick(clickedRegion);
+            return;
+        }
+        
+        // 否则选中地块
+        const hex = isometricToAxial(canvasX - originX, canvasY - originY, baseSize * scale);
         const key = `${hex.q},${hex.r}`;
         if (terrainMap.map.has(key)) {
             setSelectedHex(hex);
             onSelectHex?.(hex);
         }
-    }, [width, height, offset, scale, onSelectHex, terrainMap]);
+    }, [width, height, offset, scale, onSelectHex, terrainMap, onRegionClick]);
 
     return (
         <div ref={containerRef} className="lobby-hex-container">

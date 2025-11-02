@@ -25,13 +25,14 @@
 /* 合成区域 - 横向布局 */
 .forge-synthesis-area {
     position: absolute;
-    top: 180px;
+    top: 240px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) scale(1.18);
+    transform-origin: top center;
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 15px 25px;
+    gap: 28px;
+    padding: 20px 32px;
     background: rgba(18, 8, 4, 0.75);
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);

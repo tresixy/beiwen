@@ -658,6 +658,49 @@ export function useGameSimulation({ pushMessage, token }) {
         pushMessage?.('已刷新新的一批职业灵感。', 'info');
     }, [pushMessage]);
 
+    // 管理员工具：为当前事件生成所需的钥匙卡
+    const spawnKeyCard = useCallback(() => {
+        if (!activeEvent) {
+            pushMessage?.('当前没有激活的事件', 'warning');
+            return;
+        }
+
+        const requiredKeyRaw = `${activeEvent.required_key || ''}`.trim();
+        if (!requiredKeyRaw) {
+            pushMessage?.('当前事件未指定钥匙', 'warning');
+            return;
+        }
+
+        // 若存在多选钥匙，以“或”分隔，取第一个
+        const requiredKeyName = requiredKeyRaw.split('或')[0].trim();
+        if (!requiredKeyName) {
+            pushMessage?.('无法解析事件钥匙', 'warning');
+            return;
+        }
+
+        const newKeyCard = {
+            id: `key-${Date.now()}`,
+            name: requiredKeyName,
+            type: '钥匙',
+            rarity: 'epic',
+        };
+
+        setHand((previousHand) => {
+            const safeHand = Array.isArray(previousHand) ? previousHand : [];
+            if (safeHand.length < MAX_HAND_SIZE) {
+                return [...safeHand, newKeyCard];
+            }
+            // 手牌已满，替换第一张以确保测试顺畅
+            const [, ...rest] = safeHand;
+            return [...rest, newKeyCard];
+        });
+
+        // 放入图鉴
+        updateCardBook((previous) => addCardToBook(previous, newKeyCard));
+
+        pushMessage?.(`已生成钥匙卡：「${requiredKeyName}」`, 'success');
+    }, [activeEvent, pushMessage, updateCardBook]);
+
     const toggleCarryOver = useCallback(async (carryOver) => {
         const localToken = token || localStorage.getItem('token');
         
@@ -1031,6 +1074,7 @@ export function useGameSimulation({ pushMessage, token }) {
         activeEvent,
         era,
         completeEvent,
+        spawnKeyCard,
         saveHandToServer,
         clearHandFromServer,
         restartGame,

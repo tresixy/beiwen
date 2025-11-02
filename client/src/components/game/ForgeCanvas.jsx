@@ -22,7 +22,7 @@ const isPointInsideElement = (element, clientX, clientY) => {
     );
 };
 
-export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], onDrop, onRemove, onReposition, onSynthesize, onSelectForForge }) {
+export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge }) {
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
     const [furnaceCards, setFurnaceCards] = useState([]);
@@ -101,6 +101,11 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
         }
         return undefined;
     }, [isForging, furnaceProgress]);
+
+    // 外部同步：根据上层的 forgeLoading 控制锻造状态
+    useEffect(() => {
+        setIsForging(Boolean(forgeLoading));
+    }, [forgeLoading]);
 
     const handleDragOver = (event) => {
         event.preventDefault();
@@ -244,21 +249,11 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
             // 先更新选中的卡牌
             const cardIds = furnaceCards.slice(0, MAX_FURNACE_CARDS).map((c) => c.id);
             onSelectForForge?.(cardIds);
-            setIsForging(true);
             
             // 延迟触发合成，确保状态已更新
             setTimeout(() => {
                 console.log('>>> 调用 onSynthesize，熔炉卡牌:', furnaceCards.map(c => c.name));
                 onSynthesize?.(furnaceCards);
-                
-                // 清空熔炉
-                setTimeout(() => {
-                    console.log('>>> 清空熔炉');
-                    setFurnaceProgress(100);
-                    setFurnaceCards([]);
-                    onSelectForForge?.([]);
-                    setIsForging(false);
-                }, 1000);
             }, 800);
         }
     }, [furnaceCards, isForging, onSynthesize, onSelectForForge]);
@@ -486,11 +481,12 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
                 }
                 
                 const rarityClass = card.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
+                const hasSvg = hasCardSvg(card.name);
                 
                 return (
                     <div
                         key={card.id}
-                        className={`forge-canvas__card ${rarityClass}`}
+                        className={`forge-canvas__card ${rarityClass} ${hasSvg ? 'has-svg' : ''}`}
                         style={{
                             left: `${position.x}%`,
                             top: `${position.y}%`,
@@ -499,27 +495,19 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
                         onDragStart={(event) => handleStageDragStart(event, card.id)}
                         onDragEnd={(event) => handleStageDragEnd(event, card.id)}
                     >
-                        <div className="forge-canvas__name">{card.name}</div>
-                        <div className="forge-canvas__type">{card.type}</div>
+                        {hasSvg ? (
+                            <CardSvg card={card} className="forge-canvas__svg" />
+                        ) : (
+                            <>
+                                <div className="forge-canvas__name">{card.name}</div>
+                                <div className="forge-canvas__type">{card.type}</div>
+                            </>
+                        )}
                     </div>
                 );
             })}
 
-            {ideaCards.length > 0 && (
-                <div className="forge-canvas__idea-ribbon">
-                    {ideaCards.map((idea) => {
-                        const rarityClass = idea?.rarity ? `rarity-${idea.rarity.toLowerCase()}` : '';
-                        return (
-                            <div key={idea.id} className={`forge-canvas__idea-card ${rarityClass}`}>
-                                <div className="forge-canvas__idea-name">{idea.name}</div>
-                                {idea.description ? (
-                                    <div className="forge-canvas__idea-desc">{idea.description}</div>
-                                ) : null}
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+            
         </div>
     );
 }

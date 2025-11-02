@@ -76,6 +76,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         activeEvent,
         era,
         completeEvent,
+        spawnKeyCard,
         saveHandToServer,
         clearHandFromServer,
         fillHandToMax,
@@ -299,6 +300,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                     era={era}
                     onCompleteEvent={completeEvent}
                     onShowGuide={() => setGuideOpen(true)}
+                    onSpawnKeyCard={spawnKeyCard}
                 />
 
                 <EscMenu
@@ -319,11 +321,22 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                             hand={hand}
                             positions={stagedPositions}
                             ideaCards={aiIdeaCards}
+                            forgeLoading={forgeLoading}
                             onSelectForForge={selectCardsForForge}
                             onDrop={handleCardDrop}
                             onRemove={handleCardRemove}
                             onReposition={handleCardReposition}
                             onSynthesize={handleSynthesize}
+                        />
+                        <img
+                            className="ui-strip ui-strip--top"
+                            src="/assets/UI/局内上条.webp"
+                            alt="顶部装饰条"
+                        />
+                        <img
+                            className="ui-strip ui-strip--bottom"
+                            src="/assets/UI/局内下条.webp"
+                            alt="底部装饰条"
                         />
                     </div>
                 </div>
@@ -368,7 +381,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                 onBackLobby={onBackLobby}
             />
 
-            <InventoryPanel open={inventoryOpen} items={inventory} onClose={closeInventory} />
+            <InventoryPanel open={inventoryOpen} cardBook={cardBook} onClose={closeInventory} />
             <CardBookPanel open={cardBookOpen} cardBook={cardBook} onClose={closeCardBook} />
             {showJoystick ? <Joystick /> : null}
             

@@ -69,7 +69,7 @@ export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, onResta
                         className="esc-menu-close"
                         onClick={onClose}
                     >
-                        ×
+                        <img src="/assets/UI/退出.webp" alt="关闭" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     </button>
                 </div>
 
@@ -98,11 +98,11 @@ export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, onResta
 
                         <button 
                             type="button" 
-                            className="esc-menu-btn esc-menu-btn-img"
+                            className="esc-menu-btn"
                             onClick={handleBackToLobbyClick}
-                            title="返回主页"
+                            title="退出到菜单"
                         >
-                            <img src="/assets/UI/退出.webp" alt="返回主页" />
+                            退出到菜单
                         </button>
                     </div>
                 ) : showSaveDialog ? (

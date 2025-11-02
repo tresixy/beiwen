@@ -15,6 +15,7 @@ export function HUD({
     era,
     onCompleteEvent,
     onShowGuide,
+    onSpawnKeyCard,
 }) {
     const [isDragOver, setIsDragOver] = useState(false);
 
@@ -41,8 +42,10 @@ export function HUD({
         console.log('🎯 卡牌拖到事件上:', cardName, cardId);
         
         if (cardName && activeEvent) {
-            // 检查卡牌名称是否匹配事件所需的钥匙
-            if (activeEvent.required_key === cardName) {
+            // 检查卡牌名称是否匹配事件所需的钥匙（支持“或”多选）
+            const requiredRaw = `${activeEvent.required_key || ''}`;
+            const requiredList = requiredRaw.split('或').map((k) => k.trim()).filter(Boolean);
+            if (requiredList.includes(cardName)) {
                 onCompleteEvent?.(cardName);
             } else {
                 console.log('❌ 钥匙不匹配，需要:', activeEvent.required_key, '得到:', cardName);
@@ -58,7 +61,7 @@ export function HUD({
                         <span className="icon" aria-label={key}>
                             {icon}
                         </span>
-                        <span className="value">{resources[key]}</span>
+                        <span className="value">{resources[key] ?? 9}</span>
                     </div>
                 ))}
             </div>
@@ -80,13 +83,22 @@ export function HUD({
                         </div>
                         <div className="event-desc">{activeEvent.description}</div>
                         <div className="event-key-hint">需要：【{activeEvent.required_key}】</div>
+                        {user && user.role === 'admin' && user.username === 'aita' && activeEvent.required_key ? (
+                            <button 
+                                type="button" 
+                                onClick={onSpawnKeyCard}
+                                title="生成当前事件钥匙卡"
+                                style={{ marginTop: '6px' }}
+                            >
+                                出现key card
+                            </button>
+                        ) : null}
                     </>
                 ) : (
                     <div className="event-name">回合 {turn}</div>
                 )}
             </div>
             <div className="hud-user">
-                <span>{user?.username ?? '旅者'}</span>
                 <span className="era-badge">{era}</span>
             </div>
             <button 

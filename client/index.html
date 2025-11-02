@@ -39,7 +39,10 @@
             text-align: center;
             color: #fff;
             font-family: 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
-            position: relative;
+            position: absolute;
+            left: 50%;
+            top: 40vh; /* 将面板中心放在视口高度的 40%（偏高） */
+            transform: translate(-50%, -50%);
             text-shadow:
                 0 2px 8px rgba(0, 0, 0, 0.9),
                 0 0 20px rgba(0, 0, 0, 0.7),
@@ -47,8 +50,8 @@
         }
 
         .loading-logo {
-            width: clamp(420px, 75vw, 630px);
-            height: auto;
+            height: 36vh;
+            width: auto;
             object-fit: contain;
             filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.8));
         }
@@ -90,7 +93,7 @@
 
         .loading-progress__track {
             width: 100%;
-            max-width: 520px;
+            max-width: 1560px;
             height: 40px;
             position: relative;
             background-image: url('/assets/UI/loading进度条空条.webp');

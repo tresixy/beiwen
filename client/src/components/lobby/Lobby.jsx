@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 
-import { HexCanvas } from './HexCanvas.jsx';
+import { HexCanvas, REGION_DEFS } from './HexCanvas.jsx';
 import { CardBookPanel } from '../game/CardBookPanel.jsx';
+import { InventoryPanel } from '../game/InventoryPanel.jsx';
 import { loadCardBook, persistCardBook } from '../../data/cardBook.js';
 import { getGameState } from '../../services/gameStateApi.js';
 import { getUserMarkers, getUserHighlights } from '../../api/tilesApi.js';
@@ -40,11 +41,24 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [showSettings, setShowSettings] = useState(false);
     const [cardBookOpen, setCardBookOpen] = useState(false);
+    const [inventoryOpen, setInventoryOpen] = useState(false);
     const [cardBook, setCardBook] = useState(() => loadCardBook());
     const [volume, setVolume] = useState(70);
     const [era, setEra] = useState('生存时代');
+    const USER_ICONS = useMemo(() => ['01.webp', '02.webp', '03.webp', '04.webp', '05.webp'], []);
+    const [userIcon, setUserIcon] = useState(() => {
+        if (typeof window === 'undefined') return '01.webp';
+        const saved = localStorage.getItem('userIcon');
+        if (saved) return saved;
+        const random = ['01.webp', '02.webp', '03.webp', '04.webp', '05.webp'][Math.floor(Math.random() * 5)];
+        try { localStorage.setItem('userIcon', random); } catch {}
+        return random;
+    });
+    const [iconPickerOpen, setIconPickerOpen] = useState(false);
     const [markers, setMarkers] = useState([]);
     const [highlightedTiles, setHighlightedTiles] = useState([]);
+    const [regionToTiles, setRegionToTiles] = useState(null);
+    const [selectedRegion, setSelectedRegion] = useState(null);
     const [frameSize, setFrameSize] = useState({ width: '100%', height: '100%' });
     const [canvasSize, setCanvasSize] = useState(() => {
         if (typeof window === 'undefined') {
@@ -83,6 +97,18 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
         localStorage.setItem('selectedHex', JSON.stringify(hex));
     }, []);
 
+    const toggleIconPicker = useCallback(() => {
+        setIconPickerOpen((open) => !open);
+    }, []);
+
+    const chooseIcon = useCallback((icon) => {
+        setUserIcon(icon);
+        if (typeof window !== 'undefined') {
+            try { localStorage.setItem('userIcon', icon); } catch {}
+        }
+        setIconPickerOpen(false);
+    }, []);
+
     const handleOpenCardBook = useCallback(() => {
         setCardBook(loadCardBook());
         setCardBookOpen(true);
@@ -91,6 +117,34 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
     const handleCloseCardBook = useCallback(() => {
         setCardBookOpen(false);
     }, []);
+
+    const handleOpenInventory = useCallback(() => {
+        setCardBook(loadCardBook());
+        setInventoryOpen(true);
+    }, []);
+
+    const handleCloseInventory = useCallback(() => {
+        setInventoryOpen(false);
+    }, []);
+
+    const handleRegionMapReady = useCallback((regionMap) => {
+        setRegionToTiles(regionMap);
+    }, []);
+
+    const handleRegionClick = useCallback((regionKey) => {
+        if (!regionToTiles) return;
+        
+        if (selectedRegion === regionKey) {
+            // 取消选中
+            setSelectedRegion(null);
+            setHighlightedTiles([]);
+        } else {
+            // 选中新区域
+            setSelectedRegion(regionKey);
+            const tiles = regionToTiles.get(regionKey) || [];
+            setHighlightedTiles(tiles);
+        }
+    }, [regionToTiles, selectedRegion]);
 
     useEffect(() => {
         if (!cardBookOpen) {
@@ -223,6 +277,8 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                         onSelectHex={handleSelectHex}
                         markers={markers}
                         highlightedTiles={highlightedTiles}
+                        onRegionMapReady={handleRegionMapReady}
+                        onRegionClick={handleRegionClick}
                     />
                     
                     {/* 主页装饰层 - 带alpha通道的边框装饰 */}
@@ -230,12 +286,49 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                 </div>
                 
                 <div className="lobby-ui">
-                {/* 左上角用户信息面板 */}
+                {/* 左上角用户信息面板，左为头像，右为用户名/时代 */}
                 <div className="lobby-user-panel">
                     <div className="user-panel-content">
-                        <span className="user-panel-name">{user?.username ?? '旅者'}</span>
-                        <span className="achievement-icon">⏳</span>
-                        <span className="achievement-label">{era}</span>
+                        <button 
+                            type="button"
+                            className="user-avatar-box"
+                            onClick={toggleIconPicker}
+                            title="点击更换头像"
+                        >
+                            <img 
+                                className="user-avatar-img"
+                                src={`/assets/usericon/${userIcon}`}
+                                alt="头像"
+                                onError={(e) => { e.target.style.display = 'none'; e.currentTarget.textContent = '🙂'; }}
+                            />
+                        </button>
+                        <div className="user-panel-text">
+                            <span className="user-panel-name">
+                                {user 
+                                    ? `${user.username.slice(0, 5)}${user.email.split('@')[0].slice(0, 5)}`
+                                    : '旅者'
+                                }
+                            </span>
+                            <div className="era-line">
+                                <span className="achievement-icon">⏳</span>
+                                <span className="achievement-label">{era}</span>
+                            </div>
+                        </div>
+                        {iconPickerOpen && (
+                            <div className="avatar-picker">
+                                {USER_ICONS.map((icon) => (
+                                    <button 
+                                        key={icon}
+                                        type="button"
+                                        className={`avatar-option${userIcon === icon ? ' active' : ''}`}
+                                        onClick={() => chooseIcon(icon)}
+                                        title={`选择 ${icon}`}
+                                    >
+                                        <img src={`/assets/usericon/${icon}`} alt={icon} />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -268,11 +361,29 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                     </button>
                 </div>
 
+                {/* 左侧区域列表 */}
+                <div className="lobby-region-list">
+                    <div className="region-list-header">Region Index</div>
+                    <div className="region-list-content">
+                        {REGION_DEFS.map((region) => (
+                            <button
+                                key={region.key}
+                                className={`region-item ${selectedRegion === region.key ? 'active' : ''}`}
+                                onClick={() => handleRegionClick(region.key)}
+                                title={region.literalName}
+                            >
+                                <span className="region-name">{region.fantasyName}</span>
+                                <span className="region-terrain">{region.terrain === 'grassland' ? 'Grassland' : region.terrain === 'forest' ? 'Forest' : region.terrain === 'mountain' ? 'Mountain' : region.terrain === 'desert' ? 'Desert' : region.terrain === 'snow' ? 'Snow' : 'Ocean'}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 {/* 左下角功能按钮 */}
                 <div className="lobby-bottom-left">
                     <button 
                         className="sci-btn-circle backpack-btn"
-                        onClick={handleOpenCardBook}
+                        onClick={handleOpenInventory}
                         title="背包"
                     >
                         <img 
@@ -315,6 +426,7 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
             </div>
 
             <CardBookPanel open={cardBookOpen} cardBook={cardBook} onClose={handleCloseCardBook} />
+            <InventoryPanel open={inventoryOpen} cardBook={cardBook} onClose={handleCloseInventory} />
 
             {showSettings && (
                 <div className="lobby-settings-overlay" onClick={() => setShowSettings(false)}>

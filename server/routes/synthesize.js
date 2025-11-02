@@ -136,6 +136,15 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
       aiModelUsed || (aiUsed ? env.aiModel : null)
     );
     
+    // 记录本次合成日志（按顺序写入）
+    await synthService.logSynthesisEvent(userId, inputNames, item, recipe_hash, {
+      era: currentEra,
+      mode,
+      aiUsed,
+      aiModel: aiModelUsed || (aiUsed ? env.aiModel : null),
+      prompt: aiPromptUsed,
+    });
+    
     // 判断是否需要消耗卡牌：如果inputs是字符串数组（卡牌名称），则需要消耗
     const needConsumeCards = typeof inputs[0] === 'string' && !inputs[0].match(/^\d+$/);
     logger.info({ userId, inputs: inputNames, itemId: item.id, cardsConsumed: needConsumeCards }, 'Synthesis completed');

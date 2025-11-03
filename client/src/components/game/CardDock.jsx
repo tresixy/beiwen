@@ -52,6 +52,14 @@ export function CardDock({
         const synthesisArea = document.querySelector('.forge-synthesis-area');
         
         if (synthesisArea && (synthesisArea.contains(hovered) || synthesisArea === hovered)) {
+            // 检查结果区是否还有卡牌
+            const resultArea = document.querySelector('.forge-result-area');
+            const hasResultCard = resultArea?.querySelector('.forge-result-card');
+            if (hasResultCard) {
+                console.log('🚫 结果区还有卡牌，无法拖入');
+                return;
+            }
+            
             console.log('✅ 手牌拖放到合成区域成功，调用 onDropToFurnace');
             // 直接调用回调函数，将卡牌添加到合成区域
             onDropToFurnace?.(normalizedId);

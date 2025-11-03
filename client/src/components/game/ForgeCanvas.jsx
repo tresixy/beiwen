@@ -257,6 +257,15 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
             return false;
         }
 
+        // 检查结果区是否还有卡牌
+        const resultArea = containerRef.current?.querySelector('.forge-result-area');
+        const hasResultCard = resultArea?.querySelector('.forge-result-card');
+        if (hasResultCard) {
+            console.log('🚫 结果区还有卡牌，请先取走再合成');
+            pushMessage?.('请先取走结果区的卡牌', 'warning');
+            return false;
+        }
+
         console.log('卡牌进入熔炉, ID:', normalizedId, 'hand 数组长度:', hand.length, 'cards 数组长度:', cards.length);
         
         // 从手牌或画布卡牌中查找
@@ -312,7 +321,7 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         });
         resetDragState();
         return true;
-    }, [hand, cards, isForging, furnaceCards, onSelectForForge, resetDragState]);
+    }, [hand, cards, isForging, furnaceCards, onSelectForForge, resetDragState, pushMessage]);
 
     // 暴露方法给父组件
     useImperativeHandle(ref, () => ({

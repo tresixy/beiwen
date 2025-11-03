@@ -121,6 +121,10 @@ function App() {
     const handleBackLobby = useCallback(() => {
         setActiveView('lobby');
         window.history.pushState({}, '', '/');
+        // 触发刷新地块标记的事件
+        setTimeout(() => {
+            window.dispatchEvent(new Event('refreshTileMarkers'));
+        }, 100);
     }, []);
 
     const handleEnterCardsDatabase = useCallback(() => {

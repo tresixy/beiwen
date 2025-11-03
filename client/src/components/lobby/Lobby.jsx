@@ -220,8 +220,8 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
             });
     }, [token]);
 
-    // 加载地块标志和高亮
-    useEffect(() => {
+    // 加载地块标志和高亮的函数
+    const loadTileData = useCallback(() => {
         if (!token) return;
         
         console.log('🗺️ 主页加载地块标记和高亮...');
@@ -240,6 +240,22 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                 console.error('❌ 加载地块数据失败:', err);
             });
     }, [token]);
+
+    // 初始加载地块标志和高亮
+    useEffect(() => {
+        loadTileData();
+    }, [loadTileData]);
+
+    // 监听自定义事件以重新加载地块数据（从游戏返回时触发）
+    useEffect(() => {
+        const handleRefreshTiles = () => {
+            console.log('🔄 收到刷新地块标记的事件');
+            loadTileData();
+        };
+        
+        window.addEventListener('refreshTileMarkers', handleRefreshTiles);
+        return () => window.removeEventListener('refreshTileMarkers', handleRefreshTiles);
+    }, [loadTileData]);
 
     // 从服务器同步卡册
     useEffect(() => {

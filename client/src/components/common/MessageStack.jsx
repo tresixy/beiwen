@@ -3,15 +3,19 @@ import { useEffect } from 'react';
 const TONE_STYLE = {
     info: {
         borderColor: 'rgba(78, 205, 196, 0.35)',
-        color: '#e0f7ff',
+        color: '#000000',
     },
     success: {
         borderColor: 'rgba(110, 205, 120, 0.45)',
-        color: '#e6ffe9',
+        color: '#000000',
     },
     error: {
         borderColor: 'rgba(255, 128, 128, 0.45)',
-        color: '#ffe7e7',
+        color: '#000000',
+    },
+    warning: {
+        borderColor: 'rgba(255, 193, 7, 0.45)',
+        color: '#000000',
     },
 };
 
@@ -21,24 +25,7 @@ function MessageItem({ message, onDismiss }) {
         return () => window.clearTimeout(timer);
     }, [message.id, onDismiss]);
 
-    let toneStyle = TONE_STYLE[message.tone] ?? TONE_STYLE.info;
-    
-    // 如果是"手牌已满，无需抽牌"的消息，使用白底黑色样式
-    if (message.content === '手牌已满，无需抽牌。') {
-        toneStyle = {
-            backgroundColor: '#ffffff',
-            color: '#000000',
-            borderColor: 'rgba(0, 0, 0, 0.3)',
-        };
-    }
-    
-    // 如果是合成成功的消息，使用黑色字体
-    if (message.content?.startsWith('✨ 合成成功：')) {
-        toneStyle = {
-            ...toneStyle,
-            color: '#000000',
-        };
-    }
+    const toneStyle = TONE_STYLE[message.tone] ?? TONE_STYLE.info;
 
     return (
         <div className="message" style={toneStyle}>

@@ -88,7 +88,7 @@ node server/db/run-migration-synthesis-count.js
 
 ### 2. 测试密码重置
 
-1. 登录管理员账号 (aita@admin.com / admin123)
+1. 登录管理员账号 (aita@admin.com / aitaita)
 2. 进入玩家档案管理页面
 3. 选择一个测试用户
 4. 点击"重置密码"

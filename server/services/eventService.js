@@ -178,8 +178,22 @@ export async function getActiveEvent(userId) {
       return null;
     }
 
+    const event = result.rows[0];
+    
+    // 解锁该 event 所属时代的灵感卡（如果还没解锁）
+    if (event.era) {
+      try {
+        const unlockedEraCards = await cardService.unlockEraCards(userId, event.era);
+        if (unlockedEraCards.length > 0) {
+          logger.info({ userId, eventEra: event.era, unlockedEraCards }, 'Auto-unlocked era cards for active event');
+        }
+      } catch (eraCardErr) {
+        logger.error({ err: eraCardErr, userId, eventEra: event.era }, 'Failed to auto-unlock era cards');
+      }
+    }
+
     return {
-      ...result.rows[0],
+      ...event,
       progress: state.completedEvents.length,
       totalEvents: state.eventSequence.length,
     };

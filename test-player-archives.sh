@@ -23,7 +23,7 @@ echo ""
 echo "   正在登录管理员账号..."
 LOGIN_RESPONSE=$(curl -s -X POST http://localhost/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"aita@admin.com","password":"admin123"}')
+  -d '{"email":"aita@admin.com","password":"aitaita"}')
 
 TOKEN=$(echo $LOGIN_RESPONSE | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
 
@@ -56,11 +56,12 @@ echo "测试完成"
 echo "================================"
 echo ""
 echo "📖 访问方式："
-echo "   1. 使用管理员账号登录 (aita@admin.com)"
+echo "   1. 使用管理员账号登录 (aita@admin.com / aitaita)"
 echo "   2. 点击右下角 ⚙️ 设置按钮"
 echo "   3. 点击 📁 玩家存档管理"
 echo ""
 echo "🌐 直接访问："
 echo "   http://localhost/playerarchives/"
+echo "   http://43.161.234.121/playerarchives/"
 echo ""
 

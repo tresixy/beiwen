@@ -16,6 +16,7 @@ export function CardDock({
     onShowCardBook,
     onBackLobby,
     onDropToFurnace,
+    onClaimCard,
 }) {
     const slots = useMemo(() => {
         // 只显示未被放到画布上的卡牌
@@ -58,6 +59,22 @@ export function CardDock({
         }
     };
 
+    const handleDragOver = (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    };
+
+    const handleDrop = (event) => {
+        event.preventDefault();
+        const source = event.dataTransfer.getData('source');
+        if (source === 'pending') {
+            const cardId = event.dataTransfer.getData('text/plain');
+            const cardName = event.dataTransfer.getData('card-name');
+            console.log('✅ 从待领取区域拖到手牌区:', cardName, 'ID:', cardId);
+            onClaimCard?.(cardId);
+        }
+    };
+
     const renderCard = (card, index) => {
         if (!card) {
             return (
@@ -96,7 +113,13 @@ export function CardDock({
     };
 
     return (
-        <div className="card-dock" role="region" aria-label="手牌区">
+        <div 
+            className="card-dock" 
+            role="region" 
+            aria-label="手牌区"
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+        >
             <div className="card-dock__header">
                 <span className="card-dock__title">手牌</span>
                 <button type="button" className="card-dock__draw" onClick={onDraw}>

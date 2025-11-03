@@ -31,6 +31,14 @@ function MessageItem({ message, onDismiss }) {
             borderColor: 'rgba(0, 0, 0, 0.3)',
         };
     }
+    
+    // 如果是合成成功的消息，使用黑色字体
+    if (message.content?.startsWith('✨ 合成成功：')) {
+        toneStyle = {
+            ...toneStyle,
+            color: '#000000',
+        };
+    }
 
     return (
         <div className="message" style={toneStyle}>

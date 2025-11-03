@@ -23,7 +23,7 @@ const isPointInsideElement = (element, clientX, clientY) => {
     );
 };
 
-export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, forgeResultCard = null, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard, onClearForgeResult }, ref) {
+export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, forgeResultCard = null, onDrop, onRemove, onReturnCardToHand, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard, onClearForgeResult }, ref) {
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
     const [furnaceCards, setFurnaceCards] = useState([]);
@@ -408,7 +408,7 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         }
 
         if (cardDock && hovered && cardDock.contains(hovered)) {
-            onRemove?.(normalizedId);
+            onReturnCardToHand?.(card);
             return;
         }
 
@@ -444,9 +444,11 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         setFurnaceCards([]);
         onSelectForForge?.([]);
 
-        // 检查是否拖到手牌堆（返回手牌）
+        // 检查是否拖到手牌堆（添加到手牌）
         if (cardDock && hovered && cardDock.contains(hovered)) {
-            // 卡牌已经在手牌中，不需要额外操作
+            if (forgeResultCard) {
+                onReturnCardToHand?.(forgeResultCard);
+            }
             return;
         }
 

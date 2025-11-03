@@ -12,7 +12,7 @@
 
 1. 使用管理员账号登录
    - 邮箱: `aita@admin.com`
-   - 密码: `admin123`
+   - 密码: `aitaita`
 
 2. 进入游戏大厅
 
@@ -324,5 +324,5 @@ PGPASSWORD=postgres psql -h localhost -U postgres -d minigame \
 
 **管理员账号**: 
 - 邮箱: `aita@admin.com`
-- 密码: `admin123`
+- 密码: `aitaita`
 

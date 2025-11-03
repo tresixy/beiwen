@@ -37,6 +37,7 @@ export function useGameSimulation({ pushMessage, token }) {
     const [turn, setTurn] = useState(1);
     // 使用空手牌初始化，等待从服务器加载
     const [hand, setHand] = useState([]);
+    const [pendingCards, setPendingCards] = useState([]); // 待领取的卡牌
     const [cardBook, setCardBook] = useState(() => {
         const loaded = loadCardBook();
         if (loaded && Array.isArray(loaded.cards)) {
@@ -158,6 +159,7 @@ export function useGameSimulation({ pushMessage, token }) {
             const drawn = await gameStateApi.drawCards(token, slots);
             const newCards = drawn?.hand ?? [];
             if (newCards.length > 0) {
+                // 直接将卡牌添加到手牌
                 setHand((prev) => [...prev, ...newCards]);
                 updateCardBook((prevBook) => newCards.reduce((book, card) => addCardToBook(book, card), prevBook));
                 pushMessage?.(`抽取了 ${newCards.length} 张卡牌。`, 'info');
@@ -167,6 +169,27 @@ export function useGameSimulation({ pushMessage, token }) {
             pushMessage?.(`抽牌失败: ${err.message}`, 'error');
         }
     }, [hand, selectedIds, pushMessage, updateCardBook, token]);
+
+    // 从待领取区域移动卡牌到手牌区
+    const claimCardToHand = useCallback((cardId) => {
+        const card = pendingCards.find(c => c.id === cardId);
+        if (!card) {
+            return;
+        }
+        
+        // 检查手牌是否已满
+        const availableHandCards = hand.filter(c => !selectedIds.includes(c.id));
+        if (availableHandCards.length >= MAX_HAND_SIZE) {
+            pushMessage?.('手牌已满，无法添加更多卡牌', 'warning');
+            return;
+        }
+        
+        // 从待领取区域移除
+        setPendingCards((prev) => prev.filter(c => c.id !== cardId));
+        // 添加到手牌区
+        setHand((prev) => [...prev, card]);
+        console.log('✅ 卡牌已添加到手牌:', card.name);
+    }, [pendingCards, hand, selectedIds, pushMessage]);
 
     const stageCard = useCallback((cardId, position) => {
         console.log('🎯 stageCard 被调用, cardId:', cardId, 'position:', position);
@@ -226,6 +249,15 @@ export function useGameSimulation({ pushMessage, token }) {
             const { [cardId]: _removed, ...rest } = prev;
             return rest;
         });
+    }, []);
+
+    const removeCardFromHand = useCallback((cardId) => {
+        const normalizedId = `${cardId ?? ''}`.trim();
+        setHand((prev) => prev.filter((card) => `${card.id ?? ''}`.trim() !== normalizedId));
+    }, []);
+
+    const addCardToHand = useCallback((card) => {
+        setHand((prev) => [...prev, card]);
     }, []);
 
     const openForgePanel = useCallback(() => {
@@ -427,8 +459,8 @@ export function useGameSimulation({ pushMessage, token }) {
                             }
                         }
                         
-                        // 更新手牌（包含新合成的卡牌）
-                        setHand([...remainingHand, resultCard]);
+                        // 更新手牌（不再将合成卡牌自动添加到手牌）
+                        setHand(remainingHand);
                         
                         // 设置合成结果卡牌到结果区域显示
                         setForgeResultCard(resultCard);
@@ -531,8 +563,8 @@ export function useGameSimulation({ pushMessage, token }) {
                         // 如果没有消耗卡牌，直接从手牌中移除并显示合成结果
                         const forgedCardIds = cards.map(c => c.id);
                         const remainingHand = hand.filter((card) => !forgedCardIds.includes(card.id));
-                        // 更新手牌（包含新合成的卡牌）
-                        setHand([...remainingHand, resultCard]);
+                        // 更新手牌（不再将合成卡牌自动添加到手牌）
+                        setHand(remainingHand);
                         
                         // 只清除实际被合成的卡牌，不清除画布上其他卡牌
                         setSelectedIds(prev => prev.filter(id => !forgedCardIds.includes(id)));
@@ -1022,12 +1054,12 @@ export function useGameSimulation({ pushMessage, token }) {
                         updateCardBook((prev) => meaningfulCards.reduce((book, card) => addCardToBook(book, card), prev));
                     }
                 } else {
-                    // 手牌为空，从服务器抽取初始手牌
+                    // 手牌为空，从服务器抽取初始手牌到待领取区域
                     try {
                         const drawn = await gameStateApi.drawCards(token, MAX_HAND_SIZE);
                         const newCards = drawn?.hand ?? [];
                         if (newCards.length > 0) {
-                            setHand(newCards);
+                            setPendingCards(newCards);
                             const meaningfulCards = newCards.filter((card) => card && card.type !== 'empty');
                             if (meaningfulCards.length > 0) {
                                 updateCardBook((prev) => meaningfulCards.reduce((book, card) => addCardToBook(book, card), prev));
@@ -1241,6 +1273,7 @@ export function useGameSimulation({ pushMessage, token }) {
             
             // 清空所有状态
             setHand([]);
+            setPendingCards([]);
             setSelectedIds([]);
             setStagedPositions({});
             setTurn(1);
@@ -1262,10 +1295,10 @@ export function useGameSimulation({ pushMessage, token }) {
                 await gameStateApi.saveHand(token, []);
                 console.log('✅ 服务器手牌已清空');
                 
-                // 重新抽牌
+                // 重新抽牌到待领取区域
                 const drawn = await gameStateApi.drawCards(token, MAX_HAND_SIZE);
                 const newCards = drawn?.hand ?? [];
-                setHand(newCards);
+                setPendingCards(newCards);
                 console.log(`✅ 已抽取 ${newCards.length} 张新手牌`);
                 
                 pushMessage?.('🔄 游戏已重新开始！', 'success');
@@ -1283,6 +1316,8 @@ export function useGameSimulation({ pushMessage, token }) {
         resources,
         turn,
         hand,
+        pendingCards,
+        claimCardToHand,
         selectedIds,
         selectedCards,
         clearSelection,
@@ -1291,6 +1326,8 @@ export function useGameSimulation({ pushMessage, token }) {
         stageCard,
         updateStagedPosition,
         unstageCard,
+        removeCardFromHand,
+        addCardToHand,
         forgePanelOpen,
         aiDialogueOpen,
         forgeName,

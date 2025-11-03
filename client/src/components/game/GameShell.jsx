@@ -16,6 +16,7 @@ import { CardBookPanel } from './CardBookPanel.jsx';
 import { EscMenu } from './EscMenu.jsx';
 import audioService from '../../services/audioService.js';
 import { VictoryModal } from './VictoryModal.jsx';
+import { PendingCardsArea } from './PendingCardsArea.jsx';
 
 const detectMobile = () => {
     if (typeof navigator === 'undefined') {
@@ -32,12 +33,16 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         resources,
         turn,
         hand,
+        pendingCards,
+        claimCardToHand,
         selectedIds,
         selectedCards,
         drawCards,
         stageCard,
         updateStagedPosition,
         unstageCard,
+        removeCardFromHand,
+        addCardToHand,
         forgePanelOpen,
         aiDialogueOpen,
         forgeName,
@@ -266,8 +271,10 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     const handleCardToFurnace = useCallback((cardId) => {
         if (forgeCanvasRef.current?.addCardToFurnace) {
             forgeCanvasRef.current.addCardToFurnace(cardId);
+            // 从手牌中移除该卡牌
+            removeCardFromHand(cardId);
         }
-    }, []);
+    }, [removeCardFromHand]);
 
     const handleSaveAndExit = useCallback(async (shouldSave) => {
         setEscMenuOpen(false);
@@ -295,6 +302,10 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     const handleCardRemove = useCallback((cardId) => {
         unstageCard(cardId);
     }, [unstageCard]);
+
+    const handleReturnCardToHand = useCallback((card) => {
+        addCardToHand(card);
+    }, [addCardToHand]);
 
     const handleCardReposition = useCallback((cardId, position) => {
         updateStagedPosition(cardId, position);
@@ -376,6 +387,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                             onSelectForForge={selectCardsForForge}
                             onDrop={handleCardDrop}
                             onRemove={handleCardRemove}
+                            onReturnCardToHand={handleReturnCardToHand}
                             onReposition={handleCardReposition}
                             onSynthesize={handleSynthesize}
                             onSpawnKeyCard={spawnKeyCard}
@@ -422,6 +434,8 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                 </aside>
             </div>
 
+            <PendingCardsArea cards={pendingCards} />
+            
             <CardDock 
                 cards={hand} 
                 stagedIds={selectedIds} 
@@ -433,6 +447,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                 onShowCardBook={showCardBook}
                 onBackLobby={onBackLobby}
                 onDropToFurnace={handleCardToFurnace}
+                onClaimCard={claimCardToHand}
             />
 
             <InventoryPanel open={inventoryOpen} cardBook={cardBook} onClose={closeInventory} />
@@ -442,78 +457,60 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
             {guideOpen && (
                 <div className="guide-overlay" onClick={() => setGuideOpen(false)}>
                     <div className="guide-panel" onClick={(e) => e.stopPropagation()}>
-                        <h2>🎮 游玩指南</h2>
+                        <h2>《Oops, Civilization!》创世新手指南</h2>
                         <div className="guide-content">
                             <section>
-                                <h3>🎯 游戏目标</h3>
-                                <p>• 解决每个时代的挑战事件（Events）</p>
-                                <p>• 通过合成卡牌推动文明发展</p>
-                                <p>• 从生存时代逐步进化到启蒙时代及以后</p>
+                                <h3>👋 嘿，新来的！</h3>
+                                <p>对，就是你。别看了，你已经被选中（或者说，抓来凑数）负责一个文明的烂摊子了。</p>
+                                <p>你的工作目标听起来很高大上：<strong>推动文明发展</strong>。</p>
+                                <p>但相信我，过程基本就是一连串的 <strong>"Oops!"</strong></p>
                             </section>
                             
                             <section>
-                                <h3>🃏 卡牌系统</h3>
-                                <p><span style={{color: '#ddd'}}>⚪ 灵感卡（白色）</span> - 基础材料，通过抽牌获得</p>
-                                <p><span style={{color: '#ff6b6b'}}>🔴 钥匙卡（红色）</span> - 合成灵感卡获得，用于解决Events</p>
-                                <p><span style={{color: '#4ecdc4'}}>🔵 生成卡（蓝色）</span> - AI创意合成的自定义卡牌</p>
+                                <h3>📋 你的KPI：解决"又双叒叕"出现的麻烦</h3>
+                                <p>别被"文明"这个词骗了。你的日常工作更像是客服。</p>
+                                <p>屏幕中间那张大卡片就是最新的客诉——<strong>【困境】</strong>。</p>
+                                <p>仔细看看上面的抱怨，那是你的文明在告诉你："大佬，又出事了，快管管！"</p>
                             </section>
                             
                             <section>
-                                <h3>⚗️ 合成玩法</h3>
-                                <p>• 点击"抽牌"获取灵感卡到手牌区</p>
-                                <p>• 选择2张或更多手牌，点击"合成"</p>
-                                <p>• <strong>固定配方</strong>：例如"木头+石头=火"</p>
-                                <p>• <strong>AI创意</strong>：输入名称让AI合成新物品</p>
-                                <p>• 合成成功后卡牌加入卡册供后续使用</p>
+                                <h3>🔧 创世三步走（"我寻思"工作法）</h3>
+                                <p><strong>第一步："我寻思这俩能凑一块儿..."</strong></p>
+                                <p>• 手里的小卡牌叫<span style={{color: '#ddd'}}>【灵感卡】</span>，是你随手抓来的原始材料</p>
+                                <p>• 比如【人】、【水】、【石头】什么的，别想太多，就当是手边的垃圾分类</p>
+                                
+                                <p><strong>第二步："走你！"</strong></p>
+                                <p>• 把你觉得能行的两张卡牌，一股脑儿扔进屏幕下方的<strong>"思想熔炉"</strong></p>
+                                <p>• 它更像个搅拌机，希望能把你的奇葩想法变成能用的东西</p>
+                                <p>• <strong>A + B = ？？？</strong> 结果总是充满惊喜（吓）</p>
+                                
+                                <p><strong>第三步："成了！" / "废了..."</strong></p>
+                                <p>• <strong>运气好</strong>，你会合成出金光闪闪的<span style={{color: '#ff6b6b'}}>【钥匙卡】</span>！</p>
+                                <p>• 比如【火】或者【农业】，这就是解决麻烦的万能钥匙！赶紧把它甩到【困境】卡上！</p>
+                                <p>• <strong>运气不好</strong>，你会合成出一堆没用的中间产物，甚至是黑漆漆的<span style={{color: '#666'}}>【负面卡】</span></p>
+                                <p>• 比如【战争】、【污染】……恭喜你，成功创造了新的麻烦！这就是 <strong>"Oops!"</strong> 的精髓所在</p>
                             </section>
                             
                             <section>
-                                <h3>🌟 Events挑战</h3>
-                                <p>• 每局游戏从当前时代随机选择挑战</p>
-                                <p>• 将对应的<strong>钥匙卡</strong>拖到顶部Events区域</p>
-                                <p>• 例：【寒冷】需要【火】卡，【饥饿】需要【农业】卡</p>
-                                <p>• 完成所有时代Events后升级到下一时代</p>
+                                <h3>🎴 你的工具箱里都有啥？</h3>
+                                <p><span style={{color: '#ddd'}}>⚪ 灵感卡</span> - 免费的、原始的、没啥大用的素材。是你一切"作死"的开始</p>
+                                <p>⚙️ <strong>中间产物卡</strong> - 你脑洞大开后的产物，有好有坏。大部分时候，它们是你通往成功的垫脚石……或者是绊脚石</p>
+                                <p><span style={{color: '#666'}}>💀 负面卡</span> - <strong>"Oops!"时刻的实体化</strong>。当你把【人】和【冲突】合成了【战争】时，别慌。这不代表失败，只代表你的文明走上了一条比较"野"的路子</p>
+                                <p><span style={{color: '#ff6b6b'}}>🔑 钥匙卡</span> - 你的"免死金牌"和"绩效证明"。它们是真正能解决问题的发明。合成出来就赶紧用掉，不然指不定你的文明又会出什么幺蛾子</p>
                             </section>
                             
                             <section>
-                                <h3>🎯 资源管理</h3>
-                                <p>🍖 <strong>食粮</strong> - 用于维持人口生存和军队补给</p>
-                                <p>⚙️ <strong>生产</strong> - 用于建造建筑和生产工业品</p>
-                                <p>🔬 <strong>研究</strong> - 用于解锁科技和推动文明进步</p>
-                                <p>• 每回合自动产出资源（基础+建筑加成）</p>
+                                <h3>💡 创世小贴士</h3>
+                                <p>✅ <strong>大胆搞砸！</strong> 别怕犯错，反正犯错才是常态。合成失败卡牌会弹回来，合成出负面卡……就当是给你的文明增加点挑战</p>
+                                <p>✅ <strong>直面你的"Oops!"</strong> 当你合成出【内卷】、【网络喷子】或者【过度包装】时，接受它。这就是你亲手创造的文明，哭着也要带下去</p>
+                                <p>✅ <strong>文明的十字路口</strong>：在未来，你会遇到重大的<strong>"分野时代"</strong>。你的文明是该抬头仰望星空，开启<strong>"星辰时代"</strong>？还是向内探索心灵，进入<strong>"奇点时代"</strong>？这个"Oops"会决定你最终的结局！</p>
+                                <p>✅ <strong>欣赏你的杰作（和烂摊子）</strong>：别忘了时不时看看背景里的世界沙盘。那里记录了你所有的丰功伟绩和……嗯，和那些有趣的意外</p>
                             </section>
                             
-                            <section>
-                                <h3>🔄 回合流程</h3>
-                                <p><strong>1. 抽牌阶段</strong> - 点击"抽牌"补充灵感卡</p>
-                                <p><strong>2. 合成阶段</strong> - 选择卡牌进行合成</p>
-                                <p><strong>3. 解决Events</strong> - 拖动钥匙卡解决挑战</p>
-                                <p><strong>4. 结束回合</strong> - 资源结算，触发事件</p>
-                            </section>
-                            
-                            <section>
-                                <h3>👤 职业系统</h3>
-                                <p>• 每3回合选择一个职业（三选一）</p>
-                                <p>• 职业提供特殊加成和能力</p>
-                                <p>• 例：光谱演算师增加研究产出</p>
-                                <p>• 可选择下一局是否沿用职业</p>
-                            </section>
-                            
-                            <section>
-                                <h3>📜 契约系统</h3>
-                                <p>• 每10回合出现一次社会契约</p>
-                                <p>• 选择不同路线影响资源发展</p>
-                                <p>• 例：集体主义、技术革新、资源分配</p>
-                                <p>• 根据当前策略做出抉择</p>
-                            </section>
-                            
-                            <section>
-                                <h3>💡 进阶技巧</h3>
-                                <p>• 优先合成当前时代的钥匙卡</p>
-                                <p>• 查看卡册了解已解锁的卡牌</p>
-                                <p>• 合理规划资源用于抽牌和合成</p>
-                                <p>• 利用AI创意合成探索新组合</p>
-                                <p>• 关注时代限制，不同时代可合成不同等级</p>
+                            <section style={{textAlign: 'center', fontStyle: 'italic', marginTop: '20px', color: '#8b6f47'}}>
+                                <p><strong>好了，新手指南结束！</strong></p>
+                                <p>现在，去吧！去创造，去发现，去犯一些史诗级的错误！</p>
+                                <p>祝你的文明……好运！🎲</p>
                             </section>
                         </div>
                         <button className="guide-close-btn" onClick={() => setGuideOpen(false)}>

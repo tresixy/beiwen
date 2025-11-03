@@ -34,6 +34,7 @@ router.get('/list', authMiddleware, adminMiddleware, async (req, res) => {
         u.email,
         u.role,
         u.created_at,
+        u.synthesis_count,
         ugs.era,
         ugs.completed_events,
         ugs.active_event_id,
@@ -63,6 +64,7 @@ router.get('/list', authMiddleware, adminMiddleware, async (req, res) => {
       email: row.email,
       role: row.role,
       createdAt: row.created_at,
+      synthesisCount: parseInt(row.synthesis_count) || 0,
       era: row.era || '生存时代',
       completedEvents: row.completed_events || [],
       activeEventId: row.active_event_id,
@@ -94,7 +96,7 @@ router.get('/:userId/detail', authMiddleware, adminMiddleware, async (req, res) 
     
     // 基本信息
     const userResult = await pool.query(
-      `SELECT id, username, email, role, created_at FROM users WHERE id = $1`,
+      `SELECT id, username, email, role, synthesis_count, created_at FROM users WHERE id = $1`,
       [userId]
     );
     
@@ -152,6 +154,7 @@ router.get('/:userId/detail', authMiddleware, adminMiddleware, async (req, res) 
         username: user.username,
         email: user.email,
         role: user.role,
+        synthesisCount: user.synthesis_count || 0,
         createdAt: user.created_at,
       },
       gameState: {
@@ -167,6 +170,7 @@ router.get('/:userId/detail', authMiddleware, adminMiddleware, async (req, res) 
       highlights: highlightsResult.rows,
       recentLogs: logsResult.rows,
       statistics: {
+        synthesisCount: user.synthesis_count || 0,
         totalCards: cardsResult.rows.length,
         totalMarkers: markersResult.rows.length,
         totalHighlights: highlightsResult.rows.length,
@@ -300,6 +304,55 @@ router.post('/batch-delete', authMiddleware, adminMiddleware, async (req, res) =
   }
 });
 
+// 重置玩家密码
+router.post('/:userId/reset-password', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const { newPassword } = req.body;
+    const adminId = req.userId;
+    
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ error: '新密码长度至少为6位' });
+    }
+    
+    // 检查用户是否存在
+    const userCheck = await pool.query(
+      'SELECT username, role FROM users WHERE id = $1',
+      [userId]
+    );
+    
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const targetUser = userCheck.rows[0];
+    
+    // 哈希新密码
+    const bcrypt = await import('bcryptjs');
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    // 更新密码
+    await pool.query(
+      'UPDATE users SET password_hash = $1 WHERE id = $2',
+      [hashedPassword, userId]
+    );
+    
+    logger.info({ 
+      userId, 
+      username: targetUser.username,
+      resetBy: adminId 
+    }, 'Password reset by admin');
+    
+    res.json({ 
+      success: true, 
+      message: `已重置玩家 ${targetUser.username} 的密码` 
+    });
+  } catch (err) {
+    logger.error({ err, userId: req.params.userId }, 'Reset password error');
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 重置玩家游戏进度（保留账号，清空游戏数据）
 router.post('/:userId/reset', authMiddleware, adminMiddleware, async (req, res) => {
   const client = await pool.connect();
@@ -341,6 +394,9 @@ router.post('/:userId/reset', authMiddleware, adminMiddleware, async (req, res) 
     
     // 清空资源
     await client.query('DELETE FROM resources WHERE user_id = $1', [userId]);
+    
+    // 重置合成次数
+    await client.query('UPDATE users SET synthesis_count = 0 WHERE id = $1', [userId]);
     
     await client.query('COMMIT');
     

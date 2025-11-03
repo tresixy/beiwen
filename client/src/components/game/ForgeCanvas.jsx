@@ -23,7 +23,7 @@ const isPointInsideElement = (element, clientX, clientY) => {
     );
 };
 
-export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard }, ref) {
+export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, forgeResultCard = null, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard, onClearForgeResult }, ref) {
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
     const [furnaceCards, setFurnaceCards] = useState([]);
@@ -108,6 +108,14 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
     useEffect(() => {
         setIsForging(Boolean(forgeLoading));
     }, [forgeLoading]);
+
+    // 合成完成后清空熔炉
+    useEffect(() => {
+        if (forgeResultCard && furnaceCards.length > 0) {
+            setFurnaceCards([]);
+            onSelectForForge?.([]);
+        }
+    }, [forgeResultCard, onSelectForForge]);
 
     // 作弊码：检测键盘输入 "aitaarthur" + Enter
     useEffect(() => {
@@ -411,6 +419,45 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         }
     };
 
+    const handleResultCardDragStart = (event, cardId) => {
+        const normalizedId = `${cardId ?? ''}`.trim();
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', normalizedId);
+        setIsDragging(true);
+        setDraggingCardId(normalizedId);
+        
+        // 播放卡牌拖动音效
+        audioService.playClick();
+    };
+
+    const handleResultCardDragEnd = (event, cardId) => {
+        resetDragState();
+
+        const hovered = document.elementFromPoint(event.clientX, event.clientY);
+        const normalizedId = `${cardId ?? ''}`.trim();
+        const cardDock = document.querySelector('.card-dock__rail');
+        
+        // 清除结果卡牌显示
+        onClearForgeResult?.();
+        
+        // 清空熔炉卡槽
+        setFurnaceCards([]);
+        onSelectForForge?.([]);
+
+        // 检查是否拖到手牌堆（返回手牌）
+        if (cardDock && hovered && cardDock.contains(hovered)) {
+            // 卡牌已经在手牌中，不需要额外操作
+            return;
+        }
+
+        // 检查是否拖到画布（放到画布上）
+        if (containerRef.current?.contains(hovered)) {
+            const position = extractPosition(event);
+            onDrop?.(normalizedId, position);
+            return;
+        }
+    };
+
     const canvasClassName = [
         'forge-canvas',
         isDragging ? 'forge-canvas--dragging' : '',
@@ -520,12 +567,33 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
 
                 {/* 结果显示区域 */}
                 <div className="forge-result-area">
-                    {showProgress && (
+                    {showProgress && !forgeResultCard && (
                         <div className="forge-progress" role="status" aria-live="polite">
                             <div className="forge-progress-track">
                                 <div className="forge-progress-fill" style={{ width: `${progressDisplay}%` }} />
                             </div>
                             <div className="forge-progress-label">合成中 {progressDisplay}%</div>
+                        </div>
+                    )}
+                    {forgeResultCard && (
+                        <div
+                            className={`dock-slot forge-result-card ${forgeResultCard?.rarity ? `rarity-${forgeResultCard.rarity.toLowerCase()}` : ''} ${draggingCardId === forgeResultCard.id ? 'is-dragging' : ''} ${hasCardSvg(forgeResultCard.name) ? 'has-svg' : ''}`}
+                            draggable={true}
+                            onDragStart={(event) => handleResultCardDragStart(event, forgeResultCard.id)}
+                            onDragEnd={(event) => handleResultCardDragEnd(event, forgeResultCard.id)}
+                            style={{ width: '110px', height: '150px', margin: 0 }}
+                        >
+                            {hasCardSvg(forgeResultCard.name) ? (
+                                <CardSvg card={forgeResultCard} className="dock-slot__svg" />
+                            ) : (
+                                <>
+                                    <div className="dock-slot__header">
+                                        <span className="dock-slot__name">{forgeResultCard.name}</span>
+                                        <span className={`dock-slot__rarity ${forgeResultCard.rarity}`}>{forgeResultCard.rarity}</span>
+                                    </div>
+                                    <div className="dock-slot__meta">{forgeResultCard.type}</div>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>

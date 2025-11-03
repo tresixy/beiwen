@@ -145,6 +145,9 @@ router.post('/', authMiddleware, validateRequest(synthesizeSchema), async (req, 
       prompt: aiPromptUsed,
     });
     
+    // 增加用户合成次数
+    await synthService.incrementSynthesisCount(userId);
+    
     // 判断是否需要消耗卡牌：如果inputs是字符串数组（卡牌名称），则需要消耗
     const needConsumeCards = typeof inputs[0] === 'string' && !inputs[0].match(/^\d+$/);
     logger.info({ userId, inputs: inputNames, itemId: item.id, cardsConsumed: needConsumeCards }, 'Synthesis completed');

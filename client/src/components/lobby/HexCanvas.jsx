@@ -1246,6 +1246,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
 
     const wasDraggingRef = useRef(false);
     const mouseDownPosRef = useRef({ x: 0, y: 0 });
+    const rafIdRef = useRef(null); // requestAnimationFrame ID
     const DRAG_THRESHOLD = 5; // 移动超过5像素才算拖拽
 
     const handleMouseDown = useCallback((e) => {
@@ -1279,10 +1280,19 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 wasDraggingRef.current = true;
                 const newX = e.clientX - dragStart.x;
                 const newY = e.clientY - dragStart.y;
-                const MAX_OFFSET = 3500; // 增加拖动范围以适应UI布局
-                setOffset({
-                    x: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newX)),
-                    y: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newY)),
+                const MAX_OFFSET = 3500;
+                
+                // 使用 requestAnimationFrame 节流更新，避免频繁渲染
+                if (rafIdRef.current) {
+                    cancelAnimationFrame(rafIdRef.current);
+                }
+                
+                rafIdRef.current = requestAnimationFrame(() => {
+                    setOffset({
+                        x: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newX)),
+                        y: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newY)),
+                    });
+                    rafIdRef.current = null;
                 });
             }
         } else {
@@ -1296,14 +1306,28 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
 
     const handleMouseUp = useCallback(() => {
         setIsDragging(false);
+        // 清理未完成的动画帧
+        if (rafIdRef.current) {
+            cancelAnimationFrame(rafIdRef.current);
+            rafIdRef.current = null;
+        }
     }, []);
 
     const handleWheel = useCallback((e) => {
         e.preventDefault();
-        const delta = -e.deltaY * 0.0003;
-        setScale(prev => {
-            const newScale = prev + delta;
-            return Math.max(0.1, Math.min(0.8, newScale));
+        const delta = -e.deltaY * 0.0005; // 增加缩放灵敏度
+        
+        // 使用 requestAnimationFrame 节流缩放
+        if (rafIdRef.current) {
+            cancelAnimationFrame(rafIdRef.current);
+        }
+        
+        rafIdRef.current = requestAnimationFrame(() => {
+            setScale(prev => {
+                const newScale = prev + delta;
+                return Math.max(0.1, Math.min(0.8, newScale));
+            });
+            rafIdRef.current = null;
         });
     }, []);
 

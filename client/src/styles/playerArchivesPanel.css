@@ -169,6 +169,15 @@
     background: #dc2626;
 }
 
+.info-btn {
+    background: #3b82f6;
+    color: white;
+}
+
+.info-btn:hover:not(:disabled) {
+    background: #2563eb;
+}
+
 .warning-btn {
     background: #f59e0b;
     color: white;

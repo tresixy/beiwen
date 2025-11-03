@@ -1,10 +1,11 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { preloadAll2DImages } from '../../utils/preloadImages';
 
 export function AuthScreen({ onLogin, loading }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const audioRef = useRef(null);
 
     const handleEmailChange = useCallback((event) => {
         setEmail(event.target.value);
@@ -69,15 +70,33 @@ export function AuthScreen({ onLogin, loading }) {
         }
     }, [email, password, onLogin, validateForm]);
 
-    // 组件挂载时预加载所有2D图片
+    // 组件挂载时预加载所有2D图片和播放BGM
     useEffect(() => {
         preloadAll2DImages().catch(err => {
             console.warn('[Preload] 2D图片预加载失败:', err);
         });
+
+        // 播放登录界面BGM
+        if (audioRef.current) {
+            audioRef.current.volume = 0.7;
+            audioRef.current.loop = true;
+            audioRef.current.play().catch(err => {
+                console.warn('[BGM] 登录界面音乐播放失败:', err);
+            });
+        }
+
+        // 组件卸载时停止BGM
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+        };
     }, []);
 
     return (
         <div className="auth-screen">
+            <audio ref={audioRef} src="/assets/music/bgm/登录界面.mp3" />
             <div className="auth-card">
                 <img src="/assets/UI/Logo.webp" alt="Oops, Civilization!" className="auth-logo" />
                 <form className="auth-form" onSubmit={handleSubmit}>

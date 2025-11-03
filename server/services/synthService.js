@@ -171,3 +171,17 @@ export async function logSynthesisEvent(userId, inputNames, outputItem, recipeHa
   }
 }
 
+// 增加用户合成次数
+export async function incrementSynthesisCount(userId) {
+  try {
+    await pool.query(
+      'UPDATE users SET synthesis_count = synthesis_count + 1 WHERE id = $1',
+      [userId]
+    );
+    logger.info({ userId }, 'Synthesis count incremented');
+  } catch (err) {
+    // 计数失败不应阻断合成流程
+    logger.error({ err, userId }, 'Failed to increment synthesis count');
+  }
+}
+

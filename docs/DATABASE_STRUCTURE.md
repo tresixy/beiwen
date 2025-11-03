@@ -11,6 +11,7 @@ CREATE TABLE users (
     password_hash TEXT NOT NULL,
     role VARCHAR(20) DEFAULT 'user',
     profession_json JSONB DEFAULT '{}',
+    synthesis_count INTEGER DEFAULT 0,
     current_era VARCHAR(50) DEFAULT '生存时代',
     completed_events JSONB DEFAULT '[]',
     active_event_id INTEGER DEFAULT NULL,
@@ -21,6 +22,7 @@ CREATE TABLE users (
 
 **存储内容:**
 - ✅ 用户账号信息（email, username, password）
+- ✅ 累计合成次数（synthesis_count）
 - ✅ 当前时代（current_era）- 生存时代 → 城邦时代 → ...
 - ✅ 已完成的events ID列表（completed_events）
 - ✅ 当前激活的event ID（active_event_id）

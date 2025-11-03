@@ -48,6 +48,8 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         closeForgePanel,
         closeAiDialogue,
         submitForge,
+        forgeResultCard,
+        clearForgeResult,
         overlayState,
         professionState,
         professionPanelOpen,
@@ -370,12 +372,14 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                             positions={stagedPositions}
                             ideaCards={aiIdeaCards}
                             forgeLoading={forgeLoading}
+                            forgeResultCard={forgeResultCard}
                             onSelectForForge={selectCardsForForge}
                             onDrop={handleCardDrop}
                             onRemove={handleCardRemove}
                             onReposition={handleCardReposition}
                             onSynthesize={handleSynthesize}
                             onSpawnKeyCard={spawnKeyCard}
+                            onClearForgeResult={clearForgeResult}
                         />
                         <img
                             className="ui-strip ui-strip--top"
@@ -441,28 +445,75 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                         <h2>🎮 游玩指南</h2>
                         <div className="guide-content">
                             <section>
-                                <h3>📋 基础玩法</h3>
-                                <p>• 从手牌区拖动卡牌到地图上</p>
-                                <p>• 将卡牌重叠在一起开始合成</p>
-                                <p>• 合成成功后获得新卡牌和资源</p>
+                                <h3>🎯 游戏目标</h3>
+                                <p>• 解决每个时代的挑战事件（Events）</p>
+                                <p>• 通过合成卡牌推动文明发展</p>
+                                <p>• 从生存时代逐步进化到启蒙时代及以后</p>
                             </section>
+                            
                             <section>
                                 <h3>🃏 卡牌系统</h3>
-                                <p>• 每回合可以抽取新卡牌</p>
-                                <p>• 卡牌有不同的稀有度和类型</p>
-                                <p>• 收集更多卡牌解锁新的合成配方</p>
+                                <p><span style={{color: '#ddd'}}>⚪ 灵感卡（白色）</span> - 基础材料，通过抽牌获得</p>
+                                <p><span style={{color: '#ff6b6b'}}>🔴 钥匙卡（红色）</span> - 合成灵感卡获得，用于解决Events</p>
+                                <p><span style={{color: '#4ecdc4'}}>🔵 生成卡（蓝色）</span> - AI创意合成的自定义卡牌</p>
                             </section>
+                            
+                            <section>
+                                <h3>⚗️ 合成玩法</h3>
+                                <p>• 点击"抽牌"获取灵感卡到手牌区</p>
+                                <p>• 选择2张或更多手牌，点击"合成"</p>
+                                <p>• <strong>固定配方</strong>：例如"木头+石头=火"</p>
+                                <p>• <strong>AI创意</strong>：输入名称让AI合成新物品</p>
+                                <p>• 合成成功后卡牌加入卡册供后续使用</p>
+                            </section>
+                            
+                            <section>
+                                <h3>🌟 Events挑战</h3>
+                                <p>• 每局游戏从当前时代随机选择挑战</p>
+                                <p>• 将对应的<strong>钥匙卡</strong>拖到顶部Events区域</p>
+                                <p>• 例：【寒冷】需要【火】卡，【饥饿】需要【农业】卡</p>
+                                <p>• 完成所有时代Events后升级到下一时代</p>
+                            </section>
+                            
                             <section>
                                 <h3>🎯 资源管理</h3>
-                                <p>🍖 <strong>食粮</strong> - 用于抽卡和基础操作</p>
-                                <p>⚙️ <strong>生产</strong> - 用于高级合成</p>
-                                <p>🔬 <strong>研究</strong> - 用于解锁新内容</p>
+                                <p>🍖 <strong>食粮</strong> - 用于维持人口生存和军队补给</p>
+                                <p>⚙️ <strong>生产</strong> - 用于建造建筑和生产工业品</p>
+                                <p>🔬 <strong>研究</strong> - 用于解锁科技和推动文明进步</p>
+                                <p>• 每回合自动产出资源（基础+建筑加成）</p>
                             </section>
+                            
+                            <section>
+                                <h3>🔄 回合流程</h3>
+                                <p><strong>1. 抽牌阶段</strong> - 点击"抽牌"补充灵感卡</p>
+                                <p><strong>2. 合成阶段</strong> - 选择卡牌进行合成</p>
+                                <p><strong>3. 解决Events</strong> - 拖动钥匙卡解决挑战</p>
+                                <p><strong>4. 结束回合</strong> - 资源结算，触发事件</p>
+                            </section>
+                            
+                            <section>
+                                <h3>👤 职业系统</h3>
+                                <p>• 每3回合选择一个职业（三选一）</p>
+                                <p>• 职业提供特殊加成和能力</p>
+                                <p>• 例：光谱演算师增加研究产出</p>
+                                <p>• 可选择下一局是否沿用职业</p>
+                            </section>
+                            
+                            <section>
+                                <h3>📜 契约系统</h3>
+                                <p>• 每10回合出现一次社会契约</p>
+                                <p>• 选择不同路线影响资源发展</p>
+                                <p>• 例：集体主义、技术革新、资源分配</p>
+                                <p>• 根据当前策略做出抉择</p>
+                            </section>
+                            
                             <section>
                                 <h3>💡 进阶技巧</h3>
-                                <p>• 合理安排卡牌位置，可同时放置多张</p>
-                                <p>• 优先合成稀有度高的组合</p>
-                                <p>• 关注契约任务获得额外奖励</p>
+                                <p>• 优先合成当前时代的钥匙卡</p>
+                                <p>• 查看卡册了解已解锁的卡牌</p>
+                                <p>• 合理规划资源用于抽牌和合成</p>
+                                <p>• 利用AI创意合成探索新组合</p>
+                                <p>• 关注时代限制，不同时代可合成不同等级</p>
                             </section>
                         </div>
                         <button className="guide-close-btn" onClick={() => setGuideOpen(false)}>

@@ -134,7 +134,10 @@ export function useGameSimulation({ pushMessage, token }) {
     }, [pushMessage, updateCardBook, token]);
 
     const drawCards = useCallback(async (count = 1) => {
-        if (hand.length >= MAX_HAND_SIZE) {
+        // 计算实际手牌区的卡牌数量（不包括已放到画布上的）
+        const availableHandCards = hand.filter(card => !selectedIds.includes(card.id));
+        
+        if (availableHandCards.length >= MAX_HAND_SIZE) {
             pushMessage?.('手牌已满，无需抽牌。', 'info');
             return;
         }
@@ -145,7 +148,7 @@ export function useGameSimulation({ pushMessage, token }) {
             return;
         }
         
-        const slots = Math.min(count, MAX_HAND_SIZE - hand.length);
+        const slots = Math.min(count, MAX_HAND_SIZE - availableHandCards.length);
         if (slots <= 0) {
             return;
         }
@@ -163,7 +166,7 @@ export function useGameSimulation({ pushMessage, token }) {
             console.error('从服务器抽牌失败:', err);
             pushMessage?.(`抽牌失败: ${err.message}`, 'error');
         }
-    }, [hand, pushMessage, updateCardBook, token]);
+    }, [hand, selectedIds, pushMessage, updateCardBook, token]);
 
     const stageCard = useCallback((cardId, position) => {
         console.log('🎯 stageCard 被调用, cardId:', cardId, 'position:', position);
@@ -265,6 +268,8 @@ export function useGameSimulation({ pushMessage, token }) {
         stopForgeTimers();
     }, [pushMessage, stopForgeTimers]);
 
+    const [forgeResultCard, setForgeResultCard] = useState(null);
+
     const finishForge = useCallback(async (resultCard, forgedCardIds = null) => {
         // 如果没有传入实际合成的卡牌ID，使用selectedIds
         const actualForgedIds = forgedCardIds || [...selectedIds];
@@ -283,18 +288,12 @@ export function useGameSimulation({ pushMessage, token }) {
             return newPos;
         });
         
-        // 从手牌中移除被消耗的卡牌，并添加新卡牌
+        // 从手牌中移除被消耗的卡牌
         const remaining = hand.filter((card) => !actualForgedIds.includes(card.id));
         setHand([...remaining, resultCard]);
         
-        // 将新卡牌放到画布中间
-        setStagedPositions((prev) => ({
-            ...prev,
-            [resultCard.id]: { x: 50, y: 50 },
-        }));
-        
-        // 选中新卡牌并显示在画布上
-        setSelectedIds([resultCard.id]);
+        // 设置合成结果卡牌到结果区域显示
+        setForgeResultCard(resultCard);
         
         setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
         updateCardBook((prev) => addCardToBook(prev, resultCard));
@@ -306,6 +305,10 @@ export function useGameSimulation({ pushMessage, token }) {
         // 显示合成详情
         pushMessage?.(`✨ 合成成功：${forgedCardNames} → 「${resultCard.name}」`, 'success');
     }, [hand, selectedIds, updateCardBook, pushMessage, token, serverSyncEnabled]);
+
+    const clearForgeResult = useCallback(() => {
+        setForgeResultCard(null);
+    }, []);
 
     const scheduleLocalForge = useCallback(() => {
         forgeTimeoutRef.current = window.setTimeout(() => {
@@ -427,14 +430,11 @@ export function useGameSimulation({ pushMessage, token }) {
                         // 更新手牌（包含新合成的卡牌）
                         setHand([...remainingHand, resultCard]);
                         
-                        // 将新卡牌放到画布中间
-                        setStagedPositions((prev) => ({
-                            ...prev,
-                            [resultCard.id]: { x: 50, y: 50 },
-                        }));
+                        // 设置合成结果卡牌到结果区域显示
+                        setForgeResultCard(resultCard);
                         
-                        // 选中新卡牌并显示在画布上
-                        setSelectedIds([resultCard.id]);
+                        // 清除熔炉选中状态
+                        setSelectedIds([]);
                         
                         // 更新库存和卡牌图鉴
                         setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
@@ -542,14 +542,8 @@ export function useGameSimulation({ pushMessage, token }) {
                             return newPos;
                         });
                         
-                        // 将新卡牌放到画布中间
-                        setStagedPositions((prev) => ({
-                            ...prev,
-                            [resultCard.id]: { x: 50, y: 50 },
-                        }));
-                        
-                        // 选中新卡牌并显示在画布上
-                        setSelectedIds([resultCard.id]);
+                        // 设置合成结果卡牌到结果区域显示
+                        setForgeResultCard(resultCard);
                         
                         // 更新库存和卡牌图鉴
                         setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
@@ -858,12 +852,21 @@ export function useGameSimulation({ pushMessage, token }) {
             rarity: 'epic',
         };
 
+        // 计算实际手牌区的卡牌数量（不包括已放到画布上的）
+        const availableHandCards = hand.filter(card => !selectedIds.includes(card.id));
+        
         setHand((previousHand) => {
             const safeHand = Array.isArray(previousHand) ? previousHand : [];
-            if (safeHand.length < MAX_HAND_SIZE) {
+            
+            // 如果手牌区有空位，直接添加
+            if (availableHandCards.length < MAX_HAND_SIZE) {
                 return [...safeHand, newKeyCard];
             }
-            // 手牌已满，替换第一张以确保测试顺畅
+            // 手牌区已满，但总手牌未满，直接添加（允许画布上的卡牌超过限制）
+            if (safeHand.length < MAX_HAND_SIZE + 5) {
+                return [...safeHand, newKeyCard];
+            }
+            // 总手牌也满了，替换第一张以确保测试顺畅
             const [, ...rest] = safeHand;
             return [...rest, newKeyCard];
         });
@@ -942,7 +945,7 @@ export function useGameSimulation({ pushMessage, token }) {
                 }, 800);
             }
         }
-    }, [activeEvent, pushMessage, updateCardBook, token, era, hand]);
+    }, [activeEvent, pushMessage, updateCardBook, token, era, hand, selectedIds]);
 
     const toggleCarryOver = useCallback(async (carryOver) => {
         const localToken = token || localStorage.getItem('token');
@@ -1211,9 +1214,13 @@ export function useGameSimulation({ pushMessage, token }) {
 
     // 自动补牌到5张
     const fillHandToMax = useCallback(async () => {
-        if (!token || hand.length >= MAX_HAND_SIZE) return;
+        if (!token) return;
         
-        const needed = MAX_HAND_SIZE - hand.length;
+        // 计算实际手牌区的卡牌数量（不包括已放到画布上的）
+        const availableHandCards = hand.filter(card => !selectedIds.includes(card.id));
+        if (availableHandCards.length >= MAX_HAND_SIZE) return;
+        
+        const needed = MAX_HAND_SIZE - availableHandCards.length;
         try {
             const drawn = await gameStateApi.drawCards(token, needed);
             const newCards = drawn?.hand ?? [];
@@ -1225,7 +1232,7 @@ export function useGameSimulation({ pushMessage, token }) {
         } catch (err) {
             console.error('❌ 自动补牌失败:', err);
         }
-    }, [token, hand, updateCardBook]);
+    }, [token, hand, selectedIds, updateCardBook]);
 
     // 重新开始游戏
     const restartGame = useCallback(async () => {
@@ -1294,6 +1301,8 @@ export function useGameSimulation({ pushMessage, token }) {
         closeForgePanel,
         closeAiDialogue,
         submitForge,
+        forgeResultCard,
+        clearForgeResult,
         overlayState,
         professionState,
         professionPanelOpen,

@@ -1285,6 +1285,79 @@ html:has(.lobby-shell) #app {
     text-transform: uppercase;
 }
 
+/* 响应式布局 - 根据屏幕高度调整手牌区域 */
+@media (max-height: 900px) {
+    .game-stage {
+        padding-bottom: clamp(140px, 18vh, 200px);
+    }
+}
+
+@media (max-height: 800px) {
+    .game-stage {
+        padding-bottom: clamp(120px, 16vh, 180px);
+    }
+    
+    .card-dock {
+        bottom: clamp(8px, 2vh, 16px);
+        padding: 12px 16px;
+        gap: 8px;
+    }
+    
+    .card-dock__rail {
+        gap: 10px;
+    }
+    
+    .dock-slot {
+        padding: 10px 8px;
+    }
+    
+    .card-dock__draw img {
+        max-width: 60px;
+        max-height: 60px;
+    }
+}
+
+@media (max-height: 700px) {
+    .game-stage {
+        padding-bottom: clamp(100px, 14vh, 150px);
+    }
+    
+    .card-dock {
+        bottom: 8px;
+        padding: 10px 14px;
+        gap: 6px;
+    }
+    
+    .dock-slot {
+        padding: 8px 6px;
+    }
+    
+    .card-dock__hint {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-height: 600px) {
+    .game-stage {
+        padding-bottom: clamp(90px, 12vh, 130px);
+    }
+    
+    .card-dock {
+        bottom: 6px;
+        padding: 8px 12px;
+        gap: 4px;
+    }
+    
+    .dock-slot {
+        padding: 6px 5px;
+    }
+    
+    .card-dock__draw img {
+        max-width: 50px;
+        max-height: 50px;
+    }
+}
+
 @media (max-width: 1100px) {
     .card-dock {
         width: 94%;
@@ -1305,6 +1378,23 @@ html:has(.lobby-shell) #app {
 
     .dock-slot {
         padding: 14px;
+    }
+}
+
+/* 小屏幕且低分辨率 */
+@media (max-width: 720px) and (max-height: 700px) {
+    .card-dock {
+        bottom: 6px;
+        padding: 8px 12px;
+        gap: 6px;
+    }
+    
+    .card-dock__rail {
+        gap: 8px;
+    }
+    
+    .dock-slot {
+        padding: 8px;
     }
 }
 
@@ -2717,8 +2807,14 @@ html:has(.lobby-shell) #app {
 
 .lobby-func-icons {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     align-items: center;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border: 3px solid #8b6f47;
+    background: rgba(249, 243, 232, 0.9);
+    box-shadow: 0 4px 12px rgba(42, 24, 16, 0.4);
+    transform: translateY(60px);
 }
 
 .btn-icon-img {

@@ -164,6 +164,44 @@ export function PlayerArchivesPanel({ token, onClose, onBack }) {
         }
     };
 
+    const resetPassword = async (userId) => {
+        const player = players.find(p => p.id === userId);
+        const newPassword = prompt(`为玩家 ${player?.username} 设置新密码（至少6位）:`);
+        
+        if (!newPassword) {
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            alert('密码长度至少为6位');
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${API_BASE}/player-archives/${userId}/reset-password`,
+                {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ newPassword }),
+                }
+            );
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || '重置密码失败');
+            }
+            
+            const data = await response.json();
+            alert(data.message);
+        } catch (err) {
+            alert(`重置密码失败: ${err.message}`);
+        }
+    };
+
     const toggleSelect = (userId) => {
         const newSet = new Set(selectedIds);
         if (newSet.has(userId)) {
@@ -258,8 +296,8 @@ export function PlayerArchivesPanel({ token, onClose, onBack }) {
                                             </div>
                                             <div className="player-stats">
                                                 <span>时代: {player.era}</span>
+                                                <span>合成: {player.synthesisCount || 0}</span>
                                                 <span>卡牌: {player.totalCards}</span>
-                                                <span>标志: {player.totalMarkers}</span>
                                             </div>
                                             <div className="player-date">
                                                 注册: {new Date(player.createdAt).toLocaleDateString()}
@@ -295,6 +333,9 @@ export function PlayerArchivesPanel({ token, onClose, onBack }) {
                         </h3>
 
                         <div className="detail-actions">
+                            <button onClick={() => resetPassword(playerDetail.user.id)} className="info-btn">
+                                重置密码
+                            </button>
                             <button onClick={() => resetPlayer(playerDetail.user.id)} className="warning-btn">
                                 重置进度
                             </button>
@@ -311,6 +352,7 @@ export function PlayerArchivesPanel({ token, onClose, onBack }) {
                                     <div><strong>邮箱:</strong> {playerDetail.user.email}</div>
                                     <div><strong>角色:</strong> {playerDetail.user.role}</div>
                                     <div><strong>注册时间:</strong> {new Date(playerDetail.user.createdAt).toLocaleString()}</div>
+                                    <div><strong>合成次数:</strong> {playerDetail.user.synthesisCount || 0}</div>
                                 </div>
                             </section>
 
@@ -328,6 +370,7 @@ export function PlayerArchivesPanel({ token, onClose, onBack }) {
                             <section>
                                 <h4>统计数据</h4>
                                 <div className="info-grid">
+                                    <div><strong>合成次数:</strong> {playerDetail.statistics.synthesisCount || 0}</div>
                                     <div><strong>总卡牌:</strong> {playerDetail.statistics.totalCards}</div>
                                     <div><strong>灵感卡:</strong> {playerDetail.statistics.cardsByType.inspiration}</div>
                                     <div><strong>钥匙卡:</strong> {playerDetail.statistics.cardsByType.key}</div>

@@ -8,11 +8,14 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     role VARCHAR(20) DEFAULT 'user',
     profession_json JSONB DEFAULT '{}',
+    synthesis_count INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS profession_json JSONB DEFAULT '{}';
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS synthesis_count INTEGER DEFAULT 0;
 
 -- 物品表
 CREATE TABLE IF NOT EXISTS items (

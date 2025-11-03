@@ -477,6 +477,9 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                 eventName={victoryModalData?.eventName}
                 reward={victoryModalData?.reward}
                 cardsAdded={victoryModalData?.cardsAdded}
+                cardName={victoryModalData?.cardName}
+                isFullVictory={victoryModalData?.isFullVictory}
+                onBackToLobby={victoryModalData?.onBackToLobby}
                 onClose={() => setVictoryModalData(null)}
             />
         </div>

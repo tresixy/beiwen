@@ -96,23 +96,31 @@ export async function register({ email, username, password }) {
 }
 
 export async function login({ email, password }) {
+  // 清理输入：去除前后空格
+  const cleanEmail = email.trim();
+  const cleanPassword = password.trim();
+  
+  logger.info({ email: cleanEmail, passwordLength: cleanPassword.length }, '[Login] 登录请求');
+  
   try {
     // 检查邮箱是否已存在
     const result = await pool.query(
       'SELECT id, email, username, password_hash FROM users WHERE email = $1',
-      [email]
+      [cleanEmail]
     );
+    
+    logger.info({ email: cleanEmail, found: result.rows.length > 0 }, '[Login] 用户查询结果');
     
     let user;
     
     if (result.rows.length === 0) {
       // 首次出现的邮箱，使用提供的密码注册新账号
-      const username = email.split('@')[0] + '_' + Math.random().toString(36).substring(2, 8);
-      const passwordHash = await argon2.hash(password);
+      const username = cleanEmail.split('@')[0] + '_' + Math.random().toString(36).substring(2, 8);
+      const passwordHash = await argon2.hash(cleanPassword);
       
       const insertResult = await pool.query(
         'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING id, email, username, created_at',
-        [email, username, passwordHash]
+        [cleanEmail, username, passwordHash]
       );
       
       user = insertResult.rows[0];
@@ -181,12 +189,25 @@ export async function login({ email, password }) {
         [user.id]
       );
       
-      logger.info({ userId: user.id, email }, 'User registered with email and password');
+      logger.info({ userId: user.id, email: cleanEmail }, 'User registered with email and password');
     } else {
       // 用户存在，验证密码
       const dbUser = result.rows[0];
       
-      const passwordMatch = await argon2.verify(dbUser.password_hash, password);
+      logger.info({ 
+        userId: dbUser.id, 
+        email: dbUser.email,
+        passwordLength: cleanPassword.length,
+        hashPreview: dbUser.password_hash.substring(0, 30)
+      }, '[Login] 验证密码');
+      
+      const passwordMatch = await argon2.verify(dbUser.password_hash, cleanPassword);
+      
+      logger.info({ 
+        userId: dbUser.id, 
+        passwordMatch 
+      }, '[Login] 密码验证结果');
+      
       if (!passwordMatch) {
         throw new Error('密码错误，请联系管理员重置密码');
       }
@@ -212,7 +233,7 @@ export async function login({ email, password }) {
       token,
     };
   } catch (err) {
-    logger.error({ err, email }, 'Login error');
+    logger.error({ err, email: cleanEmail }, 'Login error');
     throw err;
   }
 }

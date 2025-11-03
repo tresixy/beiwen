@@ -224,16 +224,20 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
     useEffect(() => {
         if (!token) return;
         
+        console.log('🗺️ 主页加载地块标记和高亮...');
         Promise.all([
             getUserMarkers(token),
             getUserHighlights(token),
         ])
             .then(([markersData, highlightsData]) => {
+                console.log('✅ 地块标记加载完成:', markersData.markers?.length || 0, '个标记');
+                console.log('✅ 高亮地块加载完成:', highlightsData.highlights?.length || 0, '个地块');
+                console.log('高亮地块详情:', highlightsData.highlights);
                 setMarkers(markersData.markers || []);
                 setHighlightedTiles(highlightsData.highlights || []);
             })
             .catch((err) => {
-                console.warn('Failed to load tile markers:', err);
+                console.error('❌ 加载地块数据失败:', err);
             });
     }, [token]);
 

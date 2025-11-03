@@ -501,7 +501,19 @@ export function useGameSimulation({ pushMessage, token }) {
                                                 try {
                                                     const selectedHexStr = localStorage.getItem('selectedHex');
                                                     const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
-                                                    await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
+                                                    console.log('🎯 调用 completeEvent:', {
+                                                        eventId: activeEvent.id,
+                                                        eventName: activeEvent.name,
+                                                        cardName,
+                                                        selectedHex,
+                                                        handCards: hand.map(c => c.name),
+                                                        isExactMatch
+                                                    });
+                                                    const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
+                                                    console.log('✅ completeEvent 返回结果:', result);
+                                                    
+                                                    // 等待500ms确保数据库已保存
+                                                    await new Promise(resolve => setTimeout(resolve, 500));
                                                     
                                                     // 返回主页
                                                     window.location.href = '/';
@@ -604,7 +616,19 @@ export function useGameSimulation({ pushMessage, token }) {
                                                 try {
                                                     const selectedHexStr = localStorage.getItem('selectedHex');
                                                     const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
-                                                    await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
+                                                    console.log('🎯 调用 completeEvent:', {
+                                                        eventId: activeEvent.id,
+                                                        eventName: activeEvent.name,
+                                                        cardName,
+                                                        selectedHex,
+                                                        handCards: hand.map(c => c.name),
+                                                        isExactMatch
+                                                    });
+                                                    const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
+                                                    console.log('✅ completeEvent 返回结果:', result);
+                                                    
+                                                    // 等待500ms确保数据库已保存
+                                                    await new Promise(resolve => setTimeout(resolve, 500));
                                                     
                                                     // 返回主页
                                                     window.location.href = '/';
@@ -781,8 +805,36 @@ export function useGameSimulation({ pushMessage, token }) {
 
     // 管理员工具：为当前事件生成所需的钥匙卡
     const spawnKeyCard = useCallback(() => {
+        console.log('🔍 作弊码调试信息:', {
+            activeEvent,
+            token: !!token,
+            era,
+            hand: hand.length
+        });
+        
         if (!activeEvent) {
-            pushMessage?.('当前没有激活的事件', 'warning');
+            pushMessage?.('当前没有激活的事件，请稍后再试或联系管理员', 'warning');
+            console.warn('❌ activeEvent 为空，可能原因：1) 游戏状态未加载完成 2) 所有事件已完成 3) 未初始化游戏');
+            
+            // 尝试重新获取激活事件
+            if (token) {
+                console.log('🔄 尝试重新获取激活事件...');
+                eventsApi.getActiveEvent(token)
+                    .then((eventData) => {
+                        if (eventData.event) {
+                            console.log('✅ 成功获取激活事件:', eventData.event);
+                            // 这里无法直接调用 setActiveEvent，因为它在 callback 外部
+                            pushMessage?.(`已找到激活事件：${eventData.event.name}，请再次使用作弊码`, 'info');
+                        } else {
+                            console.log('❌ 没有激活的事件');
+                            pushMessage?.('当前没有激活的事件', 'error');
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('❌ 获取激活事件失败:', err);
+                        pushMessage?.('获取事件失败: ' + err.message, 'error');
+                    });
+            }
             return;
         }
 
@@ -847,12 +899,14 @@ export function useGameSimulation({ pushMessage, token }) {
                 }
             }
             
-            // 触发胜利结算
-            if (isExactMatch || isPartialMatch) {
-                console.log('🎉 作弊码触发胜利条件！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
-                setTimeout(() => {
-                    if (window.showVictoryModal) {
-                        window.showVictoryModal({
+                            // 触发胜利结算
+                            if (isExactMatch || isPartialMatch) {
+                                console.log('🎉 作弊码触发胜利条件！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
+                                setTimeout(() => {
+                                    console.log('🎯 检查 window.showVictoryModal:', window.showVictoryModal);
+                                    if (window.showVictoryModal) {
+                                        console.log('✅ 调用 window.showVictoryModal');
+                                        window.showVictoryModal({
                             eventName: activeEvent.name,
                             cardName: cardName,
                             isFullVictory: isExactMatch,
@@ -862,7 +916,19 @@ export function useGameSimulation({ pushMessage, token }) {
                                     const localToken = token || localStorage.getItem('token');
                                     const selectedHexStr = localStorage.getItem('selectedHex');
                                     const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
-                                    await eventsApi.completeEvent(localToken, activeEvent.id, cardName, selectedHex, [cardName], isExactMatch);
+                                    console.log('🎯 作弊码调用 completeEvent:', {
+                                        eventId: activeEvent.id,
+                                        eventName: activeEvent.name,
+                                        cardName,
+                                        selectedHex,
+                                        handCards: [cardName],
+                                        isExactMatch
+                                    });
+                                    const result = await eventsApi.completeEvent(localToken, activeEvent.id, cardName, selectedHex, [cardName], isExactMatch);
+                                    console.log('✅ completeEvent 返回结果:', result);
+                                    
+                                    // 等待500ms确保数据库已保存
+                                    await new Promise(resolve => setTimeout(resolve, 500));
                                     
                                     // 返回主页
                                     window.location.href = '/';
@@ -876,7 +942,7 @@ export function useGameSimulation({ pushMessage, token }) {
                 }, 800);
             }
         }
-    }, [activeEvent, pushMessage, updateCardBook, token]);
+    }, [activeEvent, pushMessage, updateCardBook, token, era, hand]);
 
     const toggleCarryOver = useCallback(async (carryOver) => {
         const localToken = token || localStorage.getItem('token');

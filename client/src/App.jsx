@@ -78,6 +78,7 @@ function App() {
     }, []);
 
     const handleAuthSuccess = useCallback((payload) => {
+        console.log('[Auth] 保存认证信息', { hasToken: !!payload.token, user: payload.user });
         setToken(payload.token);
         setUser(payload.user);
         setActiveView('lobby');
@@ -87,11 +88,14 @@ function App() {
         async (credentials) => {
             setAuthLoading(true);
             try {
+                console.log('[Login] 开始登录请求', { email: credentials.email });
                 const data = await loginRequest(credentials);
+                console.log('[Login] 登录成功', { user: data.user, hasToken: !!data.token });
                 handleAuthSuccess(data);
                 queueMessage('登录成功，欢迎回来。', 'success');
                 return { success: true };
             } catch (err) {
+                console.error('[Login] 登录失败', err);
                 const message = err?.message || '登录失败，请稍后再试。';
                 queueMessage(message, 'error');
                 throw new Error(message);

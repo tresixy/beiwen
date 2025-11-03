@@ -82,7 +82,16 @@ router.post('/complete', authMiddleware, async (req, res) => {
       }
     }
 
-    logger.info({ userId, eventId, key, selectedHex, result, cardsAddedToInventory }, 'Event completed');
+    logger.info({ 
+      userId, 
+      eventId, 
+      key, 
+      selectedHex, 
+      isFullVictory,
+      result, 
+      cardsAddedToInventory,
+      tileMarkersResult: result.tileMarkers
+    }, 'Event completed');
 
     res.json({
       success: true,

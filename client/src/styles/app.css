@@ -912,6 +912,11 @@ html:has(.lobby-shell) #app {
     box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 12px rgba(111, 175, 232, 0.4);
 }
 
+.forge-canvas__card.rarity-ruby {
+    border-color: rgba(220, 20, 60, 0.9);
+    box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 12px rgba(220, 20, 60, 0.5);
+}
+
 .forge-canvas__card.rarity-epic {
     border-color: rgba(167, 112, 213, 0.9);
     box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 14px rgba(167, 112, 213, 0.5);
@@ -1110,6 +1115,11 @@ html:has(.lobby-shell) #app {
     box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 14px rgba(167, 112, 213, 0.5);
 }
 
+.dock-slot.rarity-ruby {
+    border-color: rgba(220, 20, 60, 0.9);
+    box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 12px rgba(220, 20, 60, 0.5);
+}
+
 .dock-slot.rarity-legendary {
     border-color: rgba(255, 148, 71, 1);
     box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 16px rgba(255, 148, 71, 0.6);
@@ -1145,19 +1155,13 @@ html:has(.lobby-shell) #app {
     text-transform: uppercase;
 }
 
-.dock-slot__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
 .dock-slot__name {
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-ink);
+    margin-bottom: 6px;
 }
 
 .dock-slot__rarity {
@@ -1168,16 +1172,23 @@ html:has(.lobby-shell) #app {
     letter-spacing: 0.08em;
     font-weight: 700;
     border: 1px solid rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    margin-bottom: 4px;
 }
 
 .dock-slot__rarity.common { background: #999; color: #fff; }
+.dock-slot__rarity.ruby { background: #dc143c; color: #fff; }
 .dock-slot__rarity.uncommon { background: #7fb069; color: #fff; }
 .dock-slot__rarity.rare { background: #6fafe8; color: #fff; }
 .dock-slot__rarity.epic { background: #a878d4; color: #fff; }
 .dock-slot__rarity.legendary { background: #ff9447; color: #fff; }
 
 .dock-slot__meta {
-    font-size: 0.75rem;
+    margin-bottom: 4px;
+}
+
+.dock-slot__type {
+    font-size: 0.7rem;
     color: var(--text-gray);
 }
 
@@ -1223,21 +1234,25 @@ html:has(.lobby-shell) #app {
     font-weight: 700;
     color: var(--text-ink);
     text-align: center;
-}
-
-.card-fallback__type {
-    font-size: 0.75rem;
-    color: var(--text-gray);
+    margin-bottom: 4px;
 }
 
 .card-fallback__rarity {
-    font-size: 0.7rem;
-    padding: 2px 8px;
+    font-size: 0.65rem;
+    padding: 3px 8px;
     border-radius: 4px;
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.card-fallback__type {
+    font-size: 0.7rem;
+    color: var(--text-gray);
 }
 
 .card-fallback__rarity.common { background: #999; color: #fff; }
+.card-fallback__rarity.ruby { background: #dc143c; color: #fff; }
 .card-fallback__rarity.uncommon { background: #7fb069; color: #fff; }
 .card-fallback__rarity.rare { background: #6fafe8; color: #fff; }
 .card-fallback__rarity.epic { background: #a878d4; color: #fff; }
@@ -1404,15 +1419,11 @@ html:has(.lobby-shell) #app {
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-ink);
-}
-
-.card-type {
-    font-size: 0.75rem;
-    color: var(--text-gray);
+    margin-bottom: 6px;
 }
 
 .card-rarity {
-    align-self: flex-start;
+    display: inline-block;
     padding: 3px 8px;
     border-radius: var(--radius-sketch);
     font-size: 0.65rem;
@@ -1420,6 +1431,12 @@ html:has(.lobby-shell) #app {
     letter-spacing: 0.1em;
     font-weight: 700;
     border: 1px solid rgba(0, 0, 0, 0.2);
+    margin-bottom: 4px;
+}
+
+.card-type {
+    font-size: 0.7rem;
+    color: var(--text-gray);
 }
 
 .card-rarity.common { background: #999; color: #fff; }
@@ -1728,10 +1745,10 @@ html:has(.lobby-shell) #app {
 
 .inventory-close-btn {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
+    top: 60px;
+    right: 60px;
+    width: 100px;
+    height: 100px;
     padding: 0;
     border: none;
     background: transparent;
@@ -1755,6 +1772,7 @@ html:has(.lobby-shell) #app {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto;
     gap: 30px;
+    row-gap: 50px;
     width: 100%;
     max-width: 420px;
     margin-bottom: 70px;
@@ -1800,14 +1818,8 @@ html:has(.lobby-shell) #app {
     text-align: center;
 }
 
-.inventory-pagination {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-}
-
 .inventory-page-btn {
+    position: absolute;
     width: 50px;
     height: 50px;
     padding: 0;
@@ -1815,6 +1827,16 @@ html:has(.lobby-shell) #app {
     border: none;
     cursor: pointer;
     transition: transform 0.2s;
+    bottom: 80px;
+    z-index: 10;
+}
+
+.inventory-page-prev {
+    left: 60px;
+}
+
+.inventory-page-next {
+    right: 60px;
 }
 
 .inventory-page-btn img {
@@ -2298,6 +2320,7 @@ html:has(.lobby-shell) #app {
     height: 100%;
     object-fit: contain;
     display: block;
+    margin-left: -40px;
 }
 
 .avatar-picker {
@@ -2499,6 +2522,9 @@ html:has(.lobby-shell) #app {
     top: 60px;
     right: 60px;
     z-index: 100;
+    display: flex;
+    gap: 12px;
+    align-items: center;
 }
 
 /* 顶部中央位置信息 */
@@ -2508,6 +2534,31 @@ html:has(.lobby-shell) #app {
     left: 50%;
     transform: translateX(-50%);
     z-index: 100;
+}
+
+.location-hint {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, rgba(255, 148, 71, 0.2), rgba(255, 148, 71, 0.1));
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 2px solid rgba(255, 148, 71, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 148, 71, 0.2);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ff9447;
+    letter-spacing: 0.03em;
+    animation: hint-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hint-pulse {
+    0%, 100% {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
 }
 
 .location-badge {
@@ -2593,7 +2644,8 @@ html:has(.lobby-shell) #app {
     bottom: 30px;
     right: 200px;
     display: flex;
-    gap: 12px;
+    gap: 20px;
+    align-items: center;
     z-index: 200;
     pointer-events: auto;
 }
@@ -2622,6 +2674,31 @@ html:has(.lobby-shell) #app {
 .sci-btn-circle:hover {
     transform: translateY(-2px) scale(1.05);
     filter: drop-shadow(0 6px 14px rgba(255, 107, 53, 0.4));
+}
+
+.sci-btn-circle.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: grayscale(50%);
+}
+
+.sci-btn-circle.disabled:hover {
+    transform: none;
+    filter: grayscale(50%);
+}
+
+.sci-btn-circle.small {
+    transform: scale(0.5);
+}
+
+.sci-btn-circle.small:hover {
+    transform: scale(0.5);
+}
+
+.lobby-func-icons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
 .btn-icon-img {
@@ -2657,6 +2734,21 @@ html:has(.lobby-shell) #app {
 
 .lobby-go-btn:active {
     transform: scale(1.05) translateY(-2px);
+}
+
+.lobby-go-btn.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3)) grayscale(0.6);
+}
+
+.lobby-go-btn.disabled:hover {
+    transform: none;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3)) grayscale(0.6);
+}
+
+.lobby-go-btn.disabled:active {
+    transform: none;
 }
 
 .lobby-hex-container {

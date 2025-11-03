@@ -925,15 +925,15 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 
                 // 呼吸效果：alpha从0.5到1.0之间变化，更亮
                 const alpha = 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(breathePhase));
-                ctx.strokeStyle = `rgba(255, 223, 50, ${alpha})`;
+                ctx.strokeStyle = `rgba(255, 148, 71, ${alpha})`;
                 ctx.lineWidth = 5 * scale;
-                ctx.shadowColor = 'rgba(255, 223, 50, 0.6)';
+                ctx.shadowColor = 'rgba(255, 148, 71, 0.6)';
                 ctx.shadowBlur = 15 * scale;
                 ctx.stroke();
                 ctx.shadowBlur = 0;
                 
                 // 内发光效果
-                ctx.shadowColor = `rgba(255, 215, 0, ${alpha * 0.5})`;
+                ctx.shadowColor = `rgba(255, 148, 71, ${alpha * 0.5})`;
                 ctx.shadowBlur = 12 * scale;
                 ctx.stroke();
                 ctx.restore();
@@ -972,7 +972,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
 
         // 绘制区域名称标签 - 使用预计算的区域中心
         // 放大字体，减小行距
-        const fontSize = Math.max(24, Math.min(240, 160 * scale));
+        const fontSize = Math.max(24, Math.min(240, 184 * scale));
         const lineHeight = fontSize * 0.6; // 更贴近：缩小中英文的行距
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -1173,7 +1173,8 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             '黄河身躯', '神秘湖泊',
             '狭窄西部', '宁静之夏', '绿松石海',
             '西部宝藏', '双重庆典',
-            '岭南大地', '芳香的港湾', '海湾之门', '海之南'
+            '岭南大地', '芳香的港湾', '海湾之门', '海之南',
+            '新边疆', '四河洼地', '珍贵大陆'
         ];
         
         let loadedCount = 0;
@@ -1299,10 +1300,10 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
 
     const handleWheel = useCallback((e) => {
         e.preventDefault();
-        const delta = -e.deltaY * 0.001;
+        const delta = -e.deltaY * 0.0003;
         setScale(prev => {
             const newScale = prev + delta;
-            return Math.max(0.05, Math.min(1, newScale));
+            return Math.max(0.1, Math.min(0.8, newScale));
         });
     }, []);
 
@@ -1315,6 +1316,9 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
 
         const canvas = canvasRef.current;
         if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
 
         const rect = canvas.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
@@ -1332,7 +1336,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         // 检查是否点击了区域标签（包括landmark插画区域）
         const { regionAxialCenters } = terrainMap;
         let clickedRegion = null;
-        const fontSize = Math.max(24, Math.min(240, 160 * scale));
+        const fontSize = Math.max(24, Math.min(240, 184 * scale));
         const lineHeight = fontSize * 0.6;
         
         regionAxialCenters.forEach((axialCenter, regionKey) => {

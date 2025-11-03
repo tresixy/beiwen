@@ -143,6 +143,13 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
             setSelectedRegion(regionKey);
             const tiles = regionToTiles.get(regionKey) || [];
             setHighlightedTiles(tiles);
+            
+            // 自动选择该区域的第一个地块作为起始位置
+            if (tiles.length > 0) {
+                const firstTile = tiles[0];
+                setSelectedLocation(firstTile);
+                localStorage.setItem('selectedHex', JSON.stringify(firstTile));
+            }
         }
     }, [regionToTiles, selectedRegion]);
 
@@ -332,8 +339,14 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                     </div>
                 </div>
 
-                {/* 顶部中央位置信息 */}
-                {selectedLocation && (
+                {/* 顶部中央提示信息 */}
+                {!selectedLocation ? (
+                    <div className="lobby-top-center">
+                        <div className="location-hint">
+                            选择您想探索的地区开始游戏
+                        </div>
+                    </div>
+                ) : (
                     <div className="lobby-top-center">
                         <div className="location-badge">
                             <span className="location-name">{getTerrainName(selectedLocation)}</span>
@@ -396,22 +409,50 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                             }}
                         />
                     </button>
-                    <button className="sci-btn disabled" style={{ display: 'none' }}>
-                        <span className="sci-btn-icon">🏪</span>
-                        <span className="sci-btn-text">交易市场</span>
-                    </button>
-                    <button className="sci-btn disabled" style={{ display: 'none' }}>
-                        <span className="sci-btn-icon">📊</span>
-                        <span className="sci-btn-text">排行榜</span>
-                    </button>
                 </div>
 
                 {/* 右下角GO按钮 */}
                 <div className="lobby-bottom-right">
+                    <div className="lobby-func-icons">
+                        <button 
+                            className="sci-btn-circle func-icon-btn disabled small"
+                            disabled
+                            title="需要2个人以上通过所有主线困境，服务器会自动解锁"
+                        >
+                            <img 
+                                src="/assets/funcicon/storeicon.webp" 
+                                alt="交易市场"
+                                className="btn-icon-img"
+                            />
+                        </button>
+                        <button 
+                            className="sci-btn-circle func-icon-btn disabled small"
+                            disabled
+                            title="需要2个人以上通过所有主线困境，服务器会自动解锁"
+                        >
+                            <img 
+                                src="/assets/funcicon/leaderboardicon.webp" 
+                                alt="排行榜"
+                                className="btn-icon-img"
+                            />
+                        </button>
+                        <button 
+                            className="sci-btn-circle func-icon-btn disabled small"
+                            disabled
+                            title="需要2个人以上通过所有主线困境，服务器会自动解锁"
+                        >
+                            <img 
+                                src="/assets/funcicon/battleicon.webp" 
+                                alt="战斗"
+                                className="btn-icon-img"
+                            />
+                        </button>
+                    </div>
                     <button 
-                        className="lobby-go-btn"
-                        onClick={onEnterGame}
-                        title="启程探索"
+                        className={`lobby-go-btn${!selectedLocation ? ' disabled' : ''}`}
+                        onClick={selectedLocation ? onEnterGame : undefined}
+                        disabled={!selectedLocation}
+                        title={selectedLocation ? "启程探索" : "请先选择地块"}
                     >
                         <img 
                             src="/assets/UI/go_button.webp" 

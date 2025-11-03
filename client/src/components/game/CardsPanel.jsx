@@ -18,9 +18,9 @@ export function CardsPanel({ cards = [], selectedIds, onToggle, onDraw }) {
                         >
                             <div>
                                 <div className="card-name">{card.name}</div>
+                                <div className={`card-rarity ${card.rarity}`}>{card.rarity}</div>
                                 <div className="card-type">{card.type}</div>
                             </div>
-                            <div className={`card-rarity ${card.rarity}`}>{card.rarity}</div>
                         </div>
                     );
                 })}

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
+import { useMemo, useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle } from 'react';
 import './ForgeCanvas.css';
 import { CardSvg } from './CardSvg.jsx';
 import { hasCardSvg } from '../../utils/cardSvgMap.js';
@@ -22,7 +22,7 @@ const isPointInsideElement = (element, clientX, clientY) => {
     );
 };
 
-export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge }) {
+export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, onDrop, onRemove, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard }, ref) {
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
     const [furnaceCards, setFurnaceCards] = useState([]);
@@ -32,6 +32,7 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
     const [isFurnaceDragOver, setIsFurnaceDragOver] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
     const [draggingCardId, setDraggingCardId] = useState(null);
+    const [cheatSequence, setCheatSequence] = useState('');
 
     const resetDragState = useCallback(() => {
         setIsDragging(false);
@@ -107,6 +108,37 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
         setIsForging(Boolean(forgeLoading));
     }, [forgeLoading]);
 
+    // 作弊码：检测键盘输入 "aitaarthur" + Enter
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            const key = event.key.toLowerCase();
+            
+            // 按下回车键，检查是否匹配作弊码
+            if (key === 'enter') {
+                if (cheatSequence === 'aitaarthur') {
+                    console.log('🔑 作弊码激活，生成 key card');
+                    onSpawnKeyCard?.();
+                }
+                setCheatSequence('');
+                return;
+            }
+            
+            // 忽略修饰键和特殊键
+            if (event.ctrlKey || event.altKey || event.metaKey || key.length > 1) {
+                return;
+            }
+            
+            // 累积输入字符，最多保留 10 个字符
+            setCheatSequence(prev => {
+                const updated = (prev + key).slice(-10);
+                return updated;
+            });
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [cheatSequence, onSpawnKeyCard]);
+
     const handleDragOver = (event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
@@ -117,6 +149,15 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
 
     const handleDrop = (event) => {
         event.preventDefault();
+        
+        // 检查是否拖到了合成区域，如果是则不处理（让合成区域自己处理）
+        const target = event.target;
+        const synthesisArea = containerRef.current?.querySelector('.forge-synthesis-area');
+        if (synthesisArea && (synthesisArea.contains(target) || synthesisArea === target)) {
+            console.log('📍 拖到了合成区域，由合成区域处理');
+            return;
+        }
+        
         const cardId = event.dataTransfer.getData('text/plain');
         const normalizedId = `${cardId ?? ''}`.trim();
         console.log('📍 画布 Drop 事件, cardId:', normalizedId);
@@ -195,14 +236,22 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
             return;
         }
 
-        console.log('卡牌进入熔炉, ID:', normalizedId, 'hand 数组长度:', hand.length);
+        console.log('卡牌进入熔炉, ID:', normalizedId, 'hand 数组长度:', hand.length, 'cards 数组长度:', cards.length);
         
-        // 从手牌中查找卡牌
+        // 从手牌或画布卡牌中查找
         const safeHand = Array.isArray(hand) ? hand : [];
-        const card = safeHand.find((c) => `${c?.id ?? ''}`.trim() === normalizedId);
+        const safeCards = Array.isArray(cards) ? cards : [];
+        let card = safeHand.find((c) => `${c?.id ?? ''}`.trim() === normalizedId);
+        
         if (!card) {
-            console.log('错误: 卡牌未在 hand 列表中找到:', normalizedId);
+            // 如果在手牌中找不到，尝试在画布卡牌中查找
+            card = safeCards.find((c) => `${c?.id ?? ''}`.trim() === normalizedId);
+        }
+        
+        if (!card) {
+            console.log('错误: 卡牌未找到:', normalizedId);
             console.log('hand 内容:', safeHand.map((c) => c?.id));
+            console.log('cards 内容:', safeCards.map((c) => c?.id));
             return;
         }
         
@@ -225,7 +274,12 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
             return updated;
         });
         resetDragState();
-    }, [hand, isForging, onDrop, onSelectForForge, resetDragState]);
+    }, [hand, cards, isForging, onSelectForForge, resetDragState]);
+
+    // 暴露方法给父组件
+    useImperativeHandle(ref, () => ({
+        addCardToFurnace: handleCardDropInFurnace
+    }), [handleCardDropInFurnace]);
 
     useEffect(() => {
         setFurnaceCards(prev => {
@@ -377,7 +431,13 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
             <div className="forge-canvas__halo" />
             
             {/* 合成区域 - 横向布局 */}
-            <div className="forge-synthesis-area">
+            <div 
+                className="forge-synthesis-area"
+                onDragOver={handleFurnaceDragOver}
+                onDragEnter={handleFurnaceDragEnter}
+                onDragLeave={handleFurnaceDragLeave}
+                onDrop={handleFurnaceDrop}
+            >
                 {/* 卡槽1 */}
                 <div 
                     className="forge-slot-container"
@@ -510,4 +570,4 @@ export function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards =
             
         </div>
     );
-}
+});

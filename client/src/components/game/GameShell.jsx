@@ -220,6 +220,14 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         stageCard(cardId, position);
     }, [stageCard]);
 
+    // 处理从手牌直接拖到合成区域
+    const forgeCanvasRef = useRef(null);
+    const handleCardToFurnace = useCallback((cardId) => {
+        if (forgeCanvasRef.current?.addCardToFurnace) {
+            forgeCanvasRef.current.addCardToFurnace(cardId);
+        }
+    }, []);
+
     const handleSaveAndExit = useCallback(async (shouldSave) => {
         setEscMenuOpen(false);
         
@@ -317,6 +325,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                     <div className="board-container">
                         <ForgeOverlay overlay={overlayMemo} />
                         <ForgeCanvas
+                            ref={forgeCanvasRef}
                             cards={selectedCards}
                             hand={hand}
                             positions={stagedPositions}
@@ -327,6 +336,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                             onRemove={handleCardRemove}
                             onReposition={handleCardReposition}
                             onSynthesize={handleSynthesize}
+                            onSpawnKeyCard={spawnKeyCard}
                         />
                         <img
                             className="ui-strip ui-strip--top"
@@ -379,6 +389,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                 onShowInventory={showInventory}
                 onShowCardBook={showCardBook}
                 onBackLobby={onBackLobby}
+                onDropToFurnace={handleCardToFurnace}
             />
 
             <InventoryPanel open={inventoryOpen} cardBook={cardBook} onClose={closeInventory} />

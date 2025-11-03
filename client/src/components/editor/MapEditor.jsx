@@ -181,8 +181,8 @@ export function MapEditor() {
 
     const handleWheel = useCallback((event) => {
         event.preventDefault();
-        const delta = event.deltaY > 0 ? 0.9 : 1.1;
-        setScale(prev => Math.max(0.2, Math.min(2, prev * delta)));
+        const delta = event.deltaY > 0 ? 0.95 : 1.05;
+        setScale(prev => Math.max(0.2, Math.min(1.5, prev * delta)));
     }, []);
 
     const handleExport = useCallback(() => {

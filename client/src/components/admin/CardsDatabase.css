@@ -232,6 +232,11 @@
   color: #9e9e9e;
 }
 
+.rarity-ruby {
+  background: rgba(220, 20, 60, 0.3);
+  color: #dc143c;
+}
+
 .rarity-uncommon {
   background: rgba(76, 175, 80, 0.3);
   color: #4caf50;

@@ -161,8 +161,8 @@ export function CardBookPanel({ open, cardBook, onClose }) {
                                     )}
                                     <div className="book-card-content">
                                         <div className="book-card-name">{card.name}</div>
-                                        <div className="book-card-type">{card.type}</div>
                                         <div className="book-card-rarity">{card.rarity}</div>
+                                        <div className="book-card-type">{card.type}</div>
                                         <div className="book-card-count">×{card.count}</div>
                                     </div>
                                 </div>

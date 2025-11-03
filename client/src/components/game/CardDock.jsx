@@ -14,6 +14,7 @@ export function CardDock({
     onShowInventory,
     onShowCardBook,
     onBackLobby,
+    onDropToFurnace,
 }) {
     const slots = useMemo(() => {
         // 只显示未被放到画布上的卡牌
@@ -40,15 +41,16 @@ export function CardDock({
         const normalizedId = `${card.id ?? ''}`.trim();
         console.log('🎴 手牌 DragEnd:', card.name, 'ID:', normalizedId);
         
-        // 检查是否拖到了熔炉
+        // 检查是否拖到了合成区域
         const hovered = document.elementFromPoint(event.clientX, event.clientY);
-        const furnace = document.querySelector('.forge-furnace');
+        const synthesisArea = document.querySelector('.forge-synthesis-area');
         
-        if (furnace && (furnace.contains(hovered) || furnace === hovered)) {
-            console.log('✅ 手牌拖放到熔炉成功');
-            // 熔炉的 onDrop 会处理，这里不需要额外操作
+        if (synthesisArea && (synthesisArea.contains(hovered) || synthesisArea === hovered)) {
+            console.log('✅ 手牌拖放到合成区域成功，调用 onDropToFurnace');
+            // 直接调用回调函数，将卡牌添加到合成区域
+            onDropToFurnace?.(normalizedId);
         } else {
-            console.log('❌ 手牌未拖到熔炉');
+            console.log('❌ 手牌未拖到合成区域');
         }
     };
 
@@ -77,11 +79,11 @@ export function CardDock({
                     <CardSvg card={card} className="dock-slot__svg" />
                 ) : (
                     <>
-                        <div className="dock-slot__header">
-                            <span className="dock-slot__name">{card.name}</span>
+                        <div className="dock-slot__name">{card.name}</div>
+                        <div className="dock-slot__meta">
                             <span className={`dock-slot__rarity ${card.rarity}`}>{card.rarity}</span>
                         </div>
-                        <div className="dock-slot__meta">{card.type}</div>
+                        <div className="dock-slot__type">{card.type}</div>
                     </>
                 )}
             </div>

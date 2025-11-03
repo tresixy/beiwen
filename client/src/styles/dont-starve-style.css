@@ -976,6 +976,11 @@ body {
     box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 14px rgba(167, 112, 213, 0.5);
 }
 
+.dock-slot.rarity-ruby {
+    border-color: rgba(220, 20, 60, 0.9);
+    box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 12px rgba(220, 20, 60, 0.5);
+}
+
 .dock-slot.rarity-legendary {
     border-color: rgba(255, 148, 71, 1);
     box-shadow: 0 4px 0 rgba(90, 63, 42, 0.6), 0 0 16px rgba(255, 148, 71, 0.6);
@@ -1032,6 +1037,7 @@ body {
 }
 
 .dock-slot__rarity.common { background: #a89968; color: var(--text-light); }
+.dock-slot__rarity.ruby { background: #dc143c; color: var(--text-light); }
 .dock-slot__rarity.uncommon { background: var(--accent-leaf); color: var(--text-light); }
 .dock-slot__rarity.rare { background: var(--accent-sky); color: var(--text-light); }
 .dock-slot__rarity.epic { background: #a770d5; color: var(--text-light); }

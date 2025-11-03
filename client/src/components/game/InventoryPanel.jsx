@@ -104,28 +104,25 @@ export function InventoryPanel({ open, cardBook, onClose }) {
                         )}
                     </div>
 
-                    {/* 分页按钮 */}
-                    <div className="inventory-pagination">
-                        <button
-                            type="button"
-                            className="inventory-page-btn inventory-page-prev"
-                            onClick={handlePrevPage}
-                            disabled={currentPage === 0}
-                        >
-                            <img src="/assets/UI/左箭头.webp" alt="上一页" />
-                        </button>
-                        <span className="inventory-page-info">
-                            {currentPage + 1} / {totalPages}
-                        </span>
-                        <button
-                            type="button"
-                            className="inventory-page-btn inventory-page-next"
-                            onClick={handleNextPage}
-                            disabled={currentPage >= totalPages - 1}
-                        >
-                            <img src="/assets/UI/右箭头.webp" alt="下一页" />
-                        </button>
-                    </div>
+                    {/* 左侧翻页按钮 */}
+                    <button
+                        type="button"
+                        className="inventory-page-btn inventory-page-prev"
+                        onClick={handlePrevPage}
+                        disabled={currentPage === 0}
+                    >
+                        <img src="/assets/UI/左箭头.webp" alt="上一页" />
+                    </button>
+
+                    {/* 右侧翻页按钮 */}
+                    <button
+                        type="button"
+                        className="inventory-page-btn inventory-page-next"
+                        onClick={handleNextPage}
+                        disabled={currentPage >= totalPages - 1}
+                    >
+                        <img src="/assets/UI/右箭头.webp" alt="下一页" />
+                    </button>
                 </div>
             </div>
         </div>

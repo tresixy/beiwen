@@ -20,9 +20,9 @@ export const CARD_RARITIES = {
 export const SURVIVAL_ERA_CARDS = {
   // 钥匙卡
   keys: [
-    { name: '火', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.UNCOMMON, era: '生存时代', event: '寒冷', description: '解决【寒冷】的关键。人类首次掌握自然力。' },
-    { name: '农业', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.UNCOMMON, era: '生存时代', event: '饥饿', description: '解决【饥饿】的关键。稳定的食物生产体系。' },
-    { name: '律法', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.UNCOMMON, era: '生存时代', event: '纷争', description: '解决【纷争】的关键。将规则固化为文字，形成社会契约。' },
+    { name: '火', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '生存时代', event: '寒冷', description: '解决【寒冷】的关键。人类首次掌握自然力。' },
+    { name: '农业', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '生存时代', event: '饥饿', description: '解决【饥饿】的关键。稳定的食物生产体系。' },
+    { name: '律法', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '生存时代', event: '纷争', description: '解决【纷争】的关键。将规则固化为文字，形成社会契约。' },
   ],
   // 初始灵感卡
   initial: [
@@ -46,9 +46,9 @@ export const SURVIVAL_ERA_CARDS = {
 // 城邦时代卡牌
 export const CITYSTATE_ERA_CARDS = {
   keys: [
-    { name: '文字', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.UNCOMMON, era: '城邦时代', event: '遗忘', description: '解决【遗忘】的关键。一套成熟的符号系统，用于记录历史、法律和财产，战胜了时间。' },
-    { name: '货币', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.UNCOMMON, era: '城邦时代', event: '隔绝', description: '解决【隔绝】的关键。基于【价值】和【财富】的交换体系，打破了地理的限制。' },
-    { name: '城防', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.UNCOMMON, era: '城邦时代', event: '入侵', description: '解决【入侵】的关键。利用【劳力】和新材料（矿石）构建的防御工事，守护了文明的果实。' },
+    { name: '文字', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '城邦时代', event: '遗忘', description: '解决【遗忘】的关键。一套成熟的符号系统，用于记录历史、法律和财产，战胜了时间。' },
+    { name: '货币', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '城邦时代', event: '隔绝', description: '解决【隔绝】的关键。基于【价值】和【财富】的交换体系，打破了地理的限制。' },
+    { name: '城防', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '城邦时代', event: '入侵', description: '解决【入侵】的关键。利用【劳力】和新材料（矿石）构建的防御工事，守护了文明的果实。' },
   ],
   initial: [
     { name: '劳力', type: CARD_TYPES.INSPIRATION, rarity: CARD_RARITIES.COMMON, era: '城邦时代', description: '有组织的劳动。【部落】发展为【城邦】后，集中的人口可以进行更大规模的协作。' },
@@ -66,8 +66,8 @@ export const CITYSTATE_ERA_CARDS = {
 // 分野时代卡牌
 export const DIVERGENCE_ERA_CARDS = {
   keys: [
-    { name: '官僚体系', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '分野时代', event: '方向的迷惘', description: '解决【方向的迷惘】的关键（秩序路线）。建立系统化的管理架构。', branch: 'order' },
-    { name: '宗教', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '分野时代', event: '方向的迷惘', description: '解决【方向的迷惘】的关键（信仰路线）。建立精神信仰体系。', branch: 'faith' },
+    { name: '官僚体系', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '分野时代', event: '方向的迷惘', description: '解决【方向的迷惘】的关键（秩序路线）。建立系统化的管理架构。', branch: 'order' },
+    { name: '宗教', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '分野时代', event: '方向的迷惘', description: '解决【方向的迷惘】的关键（信仰路线）。建立精神信仰体系。', branch: 'faith' },
   ],
   initial: [
     { name: '秩序', type: CARD_TYPES.INSPIRATION, rarity: CARD_RARITIES.COMMON, era: '分野时代', description: '规范与系统。建立井然有序的社会结构。' },
@@ -85,9 +85,9 @@ export const DIVERGENCE_ERA_CARDS = {
 // 帝国时代卡牌
 export const EMPIRE_ERA_CARDS = {
   keys: [
-    { name: '道路', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '帝国时代', event: '广袤的疆域', description: '解决【广袤的疆域】的关键。连接帝国的血脉。' },
-    { name: '史诗', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '帝国时代', event: '涣散的人心', description: '解决【涣散的人心】的关键。凝聚民族认同的传说。' },
-    { name: '远洋航行', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '帝国时代', event: '无尽的欲望', description: '解决【无尽的欲望】的关键。探索未知的世界。' },
+    { name: '道路', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '帝国时代', event: '广袤的疆域', description: '解决【广袤的疆域】的关键。连接帝国的血脉。' },
+    { name: '史诗', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '帝国时代', event: '涣散的人心', description: '解决【涣散的人心】的关键。凝聚民族认同的传说。' },
+    { name: '远洋航行', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '帝国时代', event: '无尽的欲望', description: '解决【无尽的欲望】的关键。探索未知的世界。' },
   ],
   initial: [
     { name: '军团', type: CARD_TYPES.INSPIRATION, rarity: CARD_RARITIES.COMMON, era: '帝国时代', description: '有组织的军事力量。' },
@@ -107,9 +107,9 @@ export const EMPIRE_ERA_CARDS = {
 // 理性时代卡牌
 export const REASON_ERA_CARDS = {
   keys: [
-    { name: '印刷术', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '理性时代', event: '知识的囚笼', description: '解决【知识的囚笼】的关键。使知识能够大规模传播。' },
-    { name: '启蒙思想', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '理性时代', event: '帝国的黄昏', description: '解决【帝国的黄昏】的关键。新的社会理念。' },
-    { name: '蒸汽机', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '理性时代', event: '停滞的生产', description: '解决【停滞的生产】的关键。工业革命的开端。' },
+    { name: '印刷术', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '理性时代', event: '知识的囚笼', description: '解决【知识的囚笼】的关键。使知识能够大规模传播。' },
+    { name: '启蒙思想', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '理性时代', event: '帝国的黄昏', description: '解决【帝国的黄昏】的关键。新的社会理念。' },
+    { name: '蒸汽机', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '理性时代', event: '停滞的生产', description: '解决【停滞的生产】的关键。工业革命的开端。' },
   ],
   initial: [
     { name: '技艺', type: CARD_TYPES.INSPIRATION, rarity: CARD_RARITIES.COMMON, era: '理性时代', description: '精湛的工艺技术。' },
@@ -128,9 +128,9 @@ export const REASON_ERA_CARDS = {
 // 信仰时代卡牌
 export const FAITH_ERA_CARDS = {
   keys: [
-    { name: '圣典', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '信仰时代', event: '精神的虚空', description: '解决【精神的虚空】的关键。记录神意的唯一真理。' },
-    { name: '艺术', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '信仰时代', event: '理念的传播', description: '解决【理念的传播】的关键。让信众感受神的光辉。' },
-    { name: '教权', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RARE, era: '信仰时代', event: '异端的挑战', description: '解决【异端的挑战】的关键。定义唯一的"正确"。' },
+    { name: '圣典', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '信仰时代', event: '精神的虚空', description: '解决【精神的虚空】的关键。记录神意的唯一真理。' },
+    { name: '艺术', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '信仰时代', event: '理念的传播', description: '解决【理念的传播】的关键。让信众感受神的光辉。' },
+    { name: '教权', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '信仰时代', event: '异端的挑战', description: '解决【异端的挑战】的关键。定义唯一的"正确"。' },
   ],
   initial: [
     { name: '经文', type: CARD_TYPES.INSPIRATION, rarity: CARD_RARITIES.COMMON, era: '信仰时代', description: '神圣的文字记录。' },
@@ -149,9 +149,9 @@ export const FAITH_ERA_CARDS = {
 // 启蒙时代卡牌
 export const ENLIGHTENMENT_ERA_CARDS = {
   keys: [
-    { name: '科学方法', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.EPIC, era: '启蒙时代', event: '蒙昧的阴影', description: '解决【蒙昧的阴影】的关键。照亮未知的光。' },
-    { name: '人权宣言', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.EPIC, era: '启蒙时代', event: '神权的枷锁', description: '解决【神权的枷锁】的关键。凡人决定自己的命运。' },
-    { name: '电力', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.EPIC, era: '启蒙时代', event: '自然的伟力', description: '解决【自然的伟力】的关键。驾驭雷霆的力量。' },
+    { name: '科学方法', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '启蒙时代', event: '蒙昧的阴影', description: '解决【蒙昧的阴影】的关键。照亮未知的光。' },
+    { name: '人权宣言', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '启蒙时代', event: '神权的枷锁', description: '解决【神权的枷锁】的关键。凡人决定自己的命运。' },
+    { name: '电力', type: CARD_TYPES.KEY, rarity: CARD_RARITIES.RUBY, era: '启蒙时代', event: '自然的伟力', description: '解决【自然的伟力】的关键。驾驭雷霆的力量。' },
   ],
   initial: [
     { name: '实验', type: CARD_TYPES.INSPIRATION, rarity: CARD_RARITIES.UNCOMMON, era: '启蒙时代', description: '通过试验验证真理。' },

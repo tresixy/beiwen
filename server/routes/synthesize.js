@@ -1,5 +1,5 @@
 import express from 'express';
-import { authMiddleware, synthesizeRateLimit } from '../utils/security.js';
+import { authMiddleware } from '../utils/security.js';
 import { validateRequest } from '../utils/validators.js';
 import { synthesizeSchema } from '../utils/validators.js';
 import * as synthService from '../services/synthService.js';
@@ -14,7 +14,7 @@ import logger from '../utils/logger.js';
 const router = express.Router();
 
 // 合成
-router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesizeSchema), async (req, res) => {
+router.post('/', authMiddleware, validateRequest(synthesizeSchema), async (req, res) => {
   try {
     const { inputs, name, mode, generateImage, preview } = req.validated;
     const userId = req.userId;
@@ -167,7 +167,7 @@ router.post('/', authMiddleware, synthesizeRateLimit, validateRequest(synthesize
       const rarityMap = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
       const cardData = {
         name: item.name,
-        type: 'inspiration',
+        type: '普通卡',  // 合成生成的卡显示为"普通卡"
         rarity: rarityMap[Math.min(item.tier - 1, 4)] || 'common',
         era: currentEra,
         card_type: 'inspiration',

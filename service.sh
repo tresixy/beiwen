@@ -8,17 +8,39 @@ cd /root/minigame
 case "$CMD" in
   start)
     echo "启动服务..."
-    if pgrep -f "node.*server/index.js" > /dev/null; then
+    # 优先使用PM2集群模式
+    if command -v pm2 &> /dev/null; then
+      if pm2 list | grep -q "minigame"; then
+        echo "PM2服务已在运行"
+        pm2 list
+        exit 0
+      fi
+      if [ -f "ecosystem.config.js" ]; then
+        pm2 start ecosystem.config.js
+        echo "✅ PM2集群模式启动（2个进程）"
+      else
+        pm2 start server/index.js --name minigame -i 2
+        echo "✅ PM2集群模式启动（2个进程）"
+      fi
+    elif pgrep -f "node.*server/index.js" > /dev/null; then
       echo "服务已在运行"
       exit 0
+    else
+      nohup npm start > logs/server.log 2>&1 &
+      echo $! > minigame.pid
+      echo "✅ 服务已启动，PID: $(cat minigame.pid)"
     fi
-    nohup npm start > logs/server.log 2>&1 &
-    echo $! > minigame.pid
-    echo "✅ 服务已启动，PID: $(cat minigame.pid)"
     ;;
     
   stop)
     echo "停止服务..."
+    if command -v pm2 &> /dev/null; then
+      if pm2 list | grep -q "minigame"; then
+        pm2 stop minigame
+        pm2 delete minigame
+        echo "✅ PM2服务已停止"
+      fi
+    fi
     pkill -f "node.*server/index.js"
     if [ -f "minigame.pid" ]; then
       kill $(cat minigame.pid) 2>/dev/null
@@ -36,7 +58,11 @@ case "$CMD" in
     
   status)
     echo "=== 服务状态 ==="
-    if pgrep -f "node.*server/index.js" > /dev/null; then
+    if command -v pm2 &> /dev/null && pm2 list | grep -q "minigame"; then
+      echo "✅ PM2集群模式运行中"
+      pm2 list
+      pm2 describe minigame | grep -E "status|uptime|memory|cpu"
+    elif pgrep -f "node.*server/index.js" > /dev/null; then
       PID=$(pgrep -f "node.*server/index.js")
       echo "✅ 服务运行中"
       echo "   PID: $PID"
@@ -45,7 +71,7 @@ case "$CMD" in
         echo "✅ 端口 3000 正常监听"
       fi
       
-      HEALTH=$(curl -s http://localhost:3000/health)
+      HEALTH=$(curl -s http://localhost:3000/health 2>/dev/null)
       if [ "$HEALTH" = '{"status":"ok"}' ]; then
         echo "✅ 健康检查通过"
       else

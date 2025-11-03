@@ -77,11 +77,17 @@ fi
 
 # 使用pm2或直接后台运行
 if command -v pm2 &> /dev/null; then
-    pm2 start server/index.js --name minigame
-    echo "✓ 服务已启动 (PM2)"
+    if [ -f "ecosystem.config.js" ]; then
+        pm2 start ecosystem.config.js
+        echo "✓ PM2集群模式启动（2个进程）"
+    else
+        pm2 start server/index.js --name minigame -i 2
+        echo "✓ PM2集群模式启动（2个进程）"
+    fi
     echo ""
     echo "查看日志: pm2 logs minigame"
     echo "查看状态: pm2 status"
+    echo "监控资源: pm2 monit"
 else
     nohup npm start > logs/server.log 2>&1 &
     echo $! > minigame.pid

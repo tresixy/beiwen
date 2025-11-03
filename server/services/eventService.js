@@ -89,16 +89,16 @@ export async function getEventState(userId) {
     const completedEvents = row.completed_events || [];
     let activeEventId = row.active_event_id;
     
-    // 如果已完成事件数为0，必须确保active_event_id是event_number=1的事件（寒冷）
-    if (completedEvents.length === 0) {
-      // 获取event_number=1的事件ID
-      const firstEventResult = await pool.query(
-        'SELECT id FROM events WHERE event_number = 1 LIMIT 1'
-      );
-      const correctFirstEventId = firstEventResult.rows.length > 0 ? firstEventResult.rows[0].id : null;
-      
-      // 如果active_event_id为空、不是序列的第一个、或者不是event_number=1的事件，重置
-      if (!activeEventId || activeEventId !== eventSequence[0] || activeEventId !== correctFirstEventId) {
+    // 如果active_event_id为空，需要设置激活事件
+    if (!activeEventId) {
+      // 如果已完成事件数为0，设置为第一个事件
+      if (completedEvents.length === 0) {
+        // 获取event_number=1的事件ID
+        const firstEventResult = await pool.query(
+          'SELECT id FROM events WHERE event_number = 1 LIMIT 1'
+        );
+        const correctFirstEventId = firstEventResult.rows.length > 0 ? firstEventResult.rows[0].id : null;
+        
         activeEventId = correctFirstEventId || (eventSequence.length > 0 ? eventSequence[0] : null);
         
         // 同时确保序列的第一个也是event_number=1的事件
@@ -130,21 +130,21 @@ export async function getEventState(userId) {
             [userId, activeEventId]
           );
         }
-      }
-    } else if (!activeEventId) {
-      // 如果有已完成事件但active_event_id为空，设置为序列中下一个未完成的事件
-      const nextUncompletedIndex = completedEvents.length;
-      activeEventId = nextUncompletedIndex < eventSequence.length 
-        ? eventSequence[nextUncompletedIndex] 
-        : null;
-      
-      if (activeEventId) {
-        await pool.query(
-          `UPDATE user_game_state 
-           SET active_event_id = $2, updated_at = NOW()
-           WHERE user_id = $1`,
-          [userId, activeEventId]
-        );
+      } else {
+        // 如果有已完成事件但active_event_id为空，设置为序列中下一个未完成的事件
+        const nextUncompletedIndex = completedEvents.length;
+        activeEventId = nextUncompletedIndex < eventSequence.length 
+          ? eventSequence[nextUncompletedIndex] 
+          : null;
+        
+        if (activeEventId) {
+          await pool.query(
+            `UPDATE user_game_state 
+             SET active_event_id = $2, updated_at = NOW()
+             WHERE user_id = $1`,
+            [userId, activeEventId]
+          );
+        }
       }
     }
     

@@ -76,27 +76,40 @@ export function AuthScreen({ onLogin, loading }) {
             console.warn('[Preload] 2D图片预加载失败:', err);
         });
 
-        // 播放登录界面BGM
-        if (audioRef.current) {
-            audioRef.current.volume = 0.7;
-            audioRef.current.loop = true;
-            audioRef.current.play().catch(err => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        // 设置音频属性
+        audio.volume = 0.7;
+        audio.loop = true;
+
+        // 当音频可以播放时开始播放
+        const handleCanPlay = () => {
+            audio.play().catch(err => {
                 console.warn('[BGM] 登录界面音乐播放失败:', err);
             });
+        };
+
+        // 如果已经可以播放，直接播放
+        if (audio.readyState >= 2) {
+            handleCanPlay();
+        } else {
+            audio.addEventListener('canplay', handleCanPlay, { once: true });
         }
 
         // 组件卸载时停止BGM
         return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
+            if (audio) {
+                audio.removeEventListener('canplay', handleCanPlay);
+                audio.pause();
+                audio.currentTime = 0;
             }
         };
     }, []);
 
     return (
         <div className="auth-screen">
-            <audio ref={audioRef} src="/assets/music/bgm/登录界面.mp3" />
+            <audio ref={audioRef} src="/assets/music/bgm/登录界面.mp3" preload="auto" />
             <div className="auth-card">
                 <img src="/assets/UI/Logo.webp" alt="Oops, Civilization!" className="auth-logo" />
                 <form className="auth-form" onSubmit={handleSubmit}>
@@ -158,7 +171,7 @@ export function AuthScreen({ onLogin, loading }) {
                         </div>
                     </div>
                     <div className="auth-hint" style={{ color: '#ffcc80', border: '1px solid rgba(255,204,128,0.35)', marginBottom: '1rem' }}>
-                        输入用户名即可（自动添加 @garena.com）。首次登录会自动注册账号。
+                        首次登录会自动注册账号。
                     </div>
                     {error ? (
                         <div className="auth-hint" style={{ color: '#ff8080', border: '1px solid rgba(255,128,128,0.35)' }}>

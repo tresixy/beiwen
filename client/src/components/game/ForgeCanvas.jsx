@@ -27,6 +27,7 @@ const isPointInsideElement = (element, clientX, clientY) => {
 export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, forgeResultCard = null, onDrop, onRemove, onReturnCardToHand, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard, onClearForgeResult, pushMessage }, ref) {
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
+    const lastForgeClickRef = useRef(0);
     const [furnaceCards, setFurnaceCards] = useState([]);
     const [isForging, setIsForging] = useState(false);
     const [furnaceProgress, setFurnaceProgress] = useState(0);
@@ -116,7 +117,7 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
             setFurnaceCards([]);
             onSelectForForge?.([]);
         }
-    }, [forgeResultCard, onSelectForForge]);
+    }, [forgeResultCard, furnaceCards, onSelectForForge]);
 
     // 作弊码：检测键盘输入 "aitaarthur" + Enter
     useEffect(() => {
@@ -257,10 +258,8 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
             return false;
         }
 
-        // 检查结果区是否还有卡牌
-        const resultArea = containerRef.current?.querySelector('.forge-result-area');
-        const hasResultCard = resultArea?.querySelector('.forge-result-card');
-        if (hasResultCard) {
+        // 直接检查forgeResultCard prop，避免DOM查询
+        if (forgeResultCard) {
             console.log('🚫 结果区还有卡牌，请先取走再合成');
             pushMessage?.('请先取走结果区的卡牌', 'warning');
             return false;
@@ -321,7 +320,7 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         });
         resetDragState();
         return true;
-    }, [hand, cards, isForging, furnaceCards, onSelectForForge, resetDragState, pushMessage]);
+    }, [hand, cards, isForging, furnaceCards, forgeResultCard, onSelectForForge, resetDragState, pushMessage]);
 
     // 暴露方法给父组件
     useImperativeHandle(ref, () => ({
@@ -330,7 +329,16 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
 
     // 手动触发合成按钮
     const handleForgeClick = useCallback(() => {
+        // 防止0.5秒内重复点击
+        const now = Date.now();
+        if (now - lastForgeClickRef.current < 500) {
+            console.log('🚫 点击过快，请稍候');
+            return;
+        }
+        
         if (furnaceCards.length >= MAX_FURNACE_CARDS && !isForging) {
+            lastForgeClickRef.current = now;
+            
             console.log('========================================');
             console.log('✓ 触发合成! 熔炉卡牌:', furnaceCards.map(c => c.name).join(' + '));
             console.log('熔炉卡牌数量:', furnaceCards.length);
@@ -340,11 +348,9 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
             const cardIds = furnaceCards.slice(0, MAX_FURNACE_CARDS).map((c) => c.id);
             onSelectForForge?.(cardIds);
             
-            // 延迟触发合成，确保状态已更新
-            setTimeout(() => {
-                console.log('>>> 调用 onSynthesize，熔炉卡牌:', furnaceCards.map(c => c.name));
-                onSynthesize?.(furnaceCards);
-            }, 800);
+            // 直接触发合成，不需要延迟
+            console.log('>>> 调用 onSynthesize，熔炉卡牌:', furnaceCards.map(c => c.name));
+            onSynthesize?.(furnaceCards);
         }
     }, [furnaceCards, isForging, onSynthesize, onSelectForForge]);
 

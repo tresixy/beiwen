@@ -98,6 +98,28 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     const [escMenuOpen, setEscMenuOpen] = useState(false);
     const [volume, setVolume] = useState(70);
     const [guideOpen, setGuideOpen] = useState(false);
+    
+    const quotes = [
+        '「思考正在发酵中……」',
+        '「合成失败？也许那就是进化的开始。」',
+        '「火与石正在思考如何成为朋友。」',
+        '「概念加载中，请耐心等待思想成形。」',
+        '「有人说，错误比真理更有创意。」',
+        '「火种点亮了夜，思想点亮了人。」',
+        '「人类第一步：思考。第二步：后悔。」',
+        '「文明加载中……请保持睁眼状态。」',
+        '「请把卡牌丢进熔炉，不行就再丢一次。」',
+        '「A + B = C。或者炸炉。看你手气。」',
+        '「两张卡正激烈讨论它们要变成什么。」',
+        '「配方正确率：50%。自信心：100%。」',
+        '「别担心，连宇宙都在不断尝试组合错误。」',
+        '「历史证明：一堆火可以解决90%的问题。」',
+        '「世界进化中……但它还没决定想成为什么。」',
+        '「上一次文明加载到这里时，他们造出了咖啡。」'
+    ];
+    const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+    const [quoteOpacity, setQuoteOpacity] = useState(1);
+    const quoteTimerRef = useRef(null);
 
     // 初始化音效系统
     useEffect(() => {
@@ -167,6 +189,31 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
             audioService.switchBGM(era);
         }
     }, [era]);
+
+    useEffect(() => {
+        if (loading) {
+            setCurrentQuoteIndex(0);
+            setQuoteOpacity(1);
+            quoteTimerRef.current = setInterval(() => {
+                setQuoteOpacity(0);
+                setTimeout(() => {
+                    setCurrentQuoteIndex((prev) => (prev + 1) % quotes.length);
+                    setQuoteOpacity(1);
+                }, 300);
+            }, 3000);
+        } else {
+            if (quoteTimerRef.current) {
+                clearInterval(quoteTimerRef.current);
+                quoteTimerRef.current = null;
+            }
+        }
+        return () => {
+            if (quoteTimerRef.current) {
+                clearInterval(quoteTimerRef.current);
+                quoteTimerRef.current = null;
+            }
+        };
+    }, [loading, quotes.length]);
 
     useEffect(() => {
         if (!loading) {
@@ -337,6 +384,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                     <div className="loading-title">正在加载游戏数据...</div>
                     <div className="loading-subtitle">从云端同步您的游戏进度</div>
                     <div className="loading-bar">
+                        <div className="loading-quote" style={{ opacity: quoteOpacity }}>{quotes[currentQuoteIndex]}</div>
                         <div className="loading-bar__track">
                             <div
                                 className="loading-bar__fill"

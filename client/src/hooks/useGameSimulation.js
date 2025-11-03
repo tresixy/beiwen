@@ -257,8 +257,28 @@ export function useGameSimulation({ pushMessage, token }) {
     }, []);
 
     const addCardToHand = useCallback((card) => {
-        setHand((prev) => [...prev, card]);
-    }, []);
+        setHand((prev) => {
+            // 检查卡牌是否已在手牌中（避免重复添加）
+            const normalizedId = `${card.id ?? ''}`.trim();
+            if (prev.some(c => `${c.id ?? ''}`.trim() === normalizedId)) {
+                console.log('⚠️ 卡牌已在手牌中，不重复添加:', card.name);
+                return prev;
+            }
+            
+            // 检查手牌区实际卡牌数量（不包括已放到画布的）
+            const availableHandCards = prev.filter(c => !selectedIds.includes(c.id));
+            
+            if (availableHandCards.length >= MAX_HAND_SIZE) {
+                pushMessage?.('手牌已满，无法添加更多卡牌', 'warning');
+                return prev;
+            }
+            
+            // 添加到手牌并更新卡册
+            updateCardBook((book) => addCardToBook(book, card));
+            console.log('✓ 卡牌添加到手牌:', card.name);
+            return [...prev, card];
+        });
+    }, [selectedIds, pushMessage, updateCardBook]);
 
     const openForgePanel = useCallback(() => {
         if (selectedCards.length < 2) {
@@ -322,9 +342,9 @@ export function useGameSimulation({ pushMessage, token }) {
         
         // 从手牌中移除被消耗的卡牌
         const remaining = hand.filter((card) => !actualForgedIds.includes(card.id));
-        setHand([...remaining, resultCard]);
+        setHand(remaining);
         
-        // 设置合成结果卡牌到结果区域显示
+        // 设置合成结果卡牌到结果区域显示（用户可拖到手牌区或画布）
         setForgeResultCard(resultCard);
         
         setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
@@ -1288,12 +1308,29 @@ export function useGameSimulation({ pushMessage, token }) {
             setCardBookOpen(false);
             setContract(null);
             setActiveEvent(null);
+            setEra('生存时代');
             
             // 如果有token，从服务器重新初始化
             if (token && serverSyncEnabled) {
                 // 清空服务器手牌
                 await gameStateApi.saveHand(token, []);
                 console.log('✅ 服务器手牌已清空');
+                
+                // 重新生成 events 序列
+                try {
+                    await eventsApi.regenerateEventSequence(token);
+                    console.log('✅ Events 序列已重新生成');
+                    
+                    // 获取新的激活事件
+                    const eventData = await eventsApi.getActiveEvent(token);
+                    if (eventData.event) {
+                        setActiveEvent(eventData.event);
+                        console.log('✅ 已加载新的激活事件:', eventData.event.name);
+                    }
+                } catch (eventErr) {
+                    console.error('❌ 重置 events 失败:', eventErr);
+                    pushMessage?.('重置事件失败', 'error');
+                }
                 
                 // 重新抽牌直接到手牌
                 const drawn = await gameStateApi.drawCards(token, MAX_HAND_SIZE);

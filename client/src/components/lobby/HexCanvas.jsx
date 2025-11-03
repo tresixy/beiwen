@@ -952,56 +952,22 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             .sort((a, b) => a.py - b.py); // 按Y坐标排序，上面的先画
         
         for (const marker of markersToRender) {
-            const markerSize = size * 1.2;
-            ctx.save();
-            
-            // 绘制奖励文字底板（金色背景）
-            ctx.fillStyle = 'rgba(255, 200, 80, 0.9)';
-            ctx.strokeStyle = 'rgba(139, 69, 19, 0.9)';
-            ctx.lineWidth = 3 * scale;
-            
-            // 测量文字宽度
-            const rewardText = marker.marker_type || '奖励';
-            ctx.font = `bold ${markerSize * 0.5}px var(--font-game)`;
-            const textMetrics = ctx.measureText(rewardText);
-            const textWidth = textMetrics.width;
-            const padding = 12 * scale;
-            const boxWidth = textWidth + padding * 2;
-            const boxHeight = markerSize * 0.7;
-            
-            // 绘制圆角矩形底板
-            const boxX = marker.px - boxWidth / 2;
-            const boxY = marker.py - boxHeight / 2;
-            const radius = 8 * scale;
-            
-            ctx.beginPath();
-            ctx.moveTo(boxX + radius, boxY);
-            ctx.lineTo(boxX + boxWidth - radius, boxY);
-            ctx.quadraticCurveTo(boxX + boxWidth, boxY, boxX + boxWidth, boxY + radius);
-            ctx.lineTo(boxX + boxWidth, boxY + boxHeight - radius);
-            ctx.quadraticCurveTo(boxX + boxWidth, boxY + boxHeight, boxX + boxWidth - radius, boxY + boxHeight);
-            ctx.lineTo(boxX + radius, boxY + boxHeight);
-            ctx.quadraticCurveTo(boxX, boxY + boxHeight, boxX, boxY + boxHeight - radius);
-            ctx.lineTo(boxX, boxY + radius);
-            ctx.quadraticCurveTo(boxX, boxY, boxX + radius, boxY);
-            ctx.closePath();
-            
-            // 添加阴影
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowBlur = 10 * scale;
-            ctx.shadowOffsetY = 4 * scale;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetY = 0;
-            ctx.stroke();
-            
-            // 绘制奖励文字
-            ctx.fillStyle = '#4a2511';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(rewardText, marker.px, marker.py);
-            
-            ctx.restore();
+            if (marker.image_path) {
+                // TODO: 加载并绘制标志图片
+                // 这里先绘制一个占位符
+                const markerSize = size * 0.8;
+                ctx.save();
+                ctx.fillStyle = 'rgba(255, 100, 50, 0.8)';
+                ctx.beginPath();
+                ctx.arc(marker.px, marker.py, markerSize * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.font = `${markerSize * 0.4}px var(--font-game)`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(marker.marker_type.substring(0, 2), marker.px, marker.py);
+                ctx.restore();
+            }
         }
 
         // 绘制区域名称标签 - 使用预计算的区域中心

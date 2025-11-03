@@ -51,7 +51,7 @@ body {
     color: var(--text-ink);
     overflow: hidden;
     user-select: none;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.5px;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
 }
@@ -118,7 +118,7 @@ html:has(.lobby-shell) #app {
     font-size: 2rem;
     text-align: center;
     color: var(--text-ink);
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     font-weight: 700;
     text-shadow: 2px 2px 0 rgba(255, 148, 71, 0.25);
     transform: rotate(-0.5deg);
@@ -340,7 +340,7 @@ html:has(.lobby-shell) #app {
 .loading-title {
     font-size: clamp(1.35rem, 2.8vw, 1.8rem);
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     text-shadow: 
         0 2px 8px rgba(0, 0, 0, 0.9),
         0 0 20px rgba(0, 0, 0, 0.8),
@@ -351,7 +351,7 @@ html:has(.lobby-shell) #app {
 .loading-subtitle {
     font-size: clamp(0.9rem, 2vw, 1rem);
     color: rgba(255, 255, 255, 0.95);
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     text-shadow: 
         0 2px 6px rgba(0, 0, 0, 0.9),
         0 0 15px rgba(0, 0, 0, 0.7),
@@ -363,6 +363,28 @@ html:has(.lobby-shell) #app {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.loading-quote {
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: 0.08em;
+    font-weight: 500;
+    text-align: center;
+    text-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.85),
+        0 0 15px rgba(0, 0, 0, 0.6),
+        1px 1px 3px rgba(0, 0, 0, 1);
+    min-height: 1.5em;
+    padding: 0 clamp(16px, 4vw, 24px);
+    opacity: 1;
+    transition: opacity 0.6s ease-in-out;
+}
+
+@media (max-width: 520px) {
+    .loading-quote {
+        font-size: clamp(0.85rem, 2.2vw, 1rem);
+    }
 }
 
 .loading-bar__track {
@@ -401,7 +423,7 @@ html:has(.lobby-shell) #app {
     align-self: flex-end;
     font-size: 0.9rem;
     font-weight: 600;
-    letter-spacing: 0.16em;
+    letter-spacing: 2.5px;
     color: #fff;
     text-shadow: 
         0 2px 6px rgba(0, 0, 0, 0.9),
@@ -417,7 +439,7 @@ html:has(.lobby-shell) #app {
     }
 
     .loading-bar__label {
-        letter-spacing: 0.12em;
+        letter-spacing: 2px;
     }
 }
 
@@ -547,7 +569,7 @@ html:has(.lobby-shell) #app {
     font-size: 1.2rem;
     font-weight: bold;
     color: var(--accent-fire);
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
 }
 
 .event-progress {
@@ -590,7 +612,7 @@ html:has(.lobby-shell) #app {
     text-shadow: 
         0 1px 2px rgba(0, 0, 0, 0.6),
         0 0 8px rgba(127, 176, 105, 0.4);
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     box-shadow: 
         0 2px 0 rgba(90, 63, 42, 0.4),
         0 0 12px rgba(127, 176, 105, 0.3),
@@ -715,7 +737,7 @@ html:has(.lobby-shell) #app {
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-ink);
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
 }
 
 .profession-info {
@@ -997,13 +1019,13 @@ html:has(.lobby-shell) #app {
     font-size: 1.2rem;
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    letter-spacing: 0.1em;
+    letter-spacing: 1.5px;
 }
 
 .forge-canvas__name {
     font-size: 0.9rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-ink);
     text-align: center;
@@ -1045,7 +1067,7 @@ html:has(.lobby-shell) #app {
 
 .card-dock__title {
     font-size: 0.9rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-brown);
     font-weight: 700;
@@ -1162,7 +1184,7 @@ html:has(.lobby-shell) #app {
 
 .dock-slot__hint {
     font-size: 0.75rem;
-    letter-spacing: 0.12em;
+    letter-spacing: 2px;
     color: var(--text-gray);
     text-transform: uppercase;
 }
@@ -1170,7 +1192,7 @@ html:has(.lobby-shell) #app {
 .dock-slot__name {
     font-size: 0.85rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-ink);
     margin-bottom: 6px;
@@ -1181,7 +1203,7 @@ html:has(.lobby-shell) #app {
     border-radius: var(--radius-sketch);
     font-size: 0.65rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     font-weight: 700;
     border: 1px solid rgba(0, 0, 0, 0.2);
     display: inline-block;
@@ -1249,6 +1271,28 @@ html:has(.lobby-shell) #app {
     border: 2px solid var(--border-sketch);
 }
 
+.card-fallback--loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-fallback--loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0));
+    animation: card-fallback-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes card-fallback-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
 .card-fallback__name {
     font-size: 1rem;
     font-weight: 700;
@@ -1281,7 +1325,7 @@ html:has(.lobby-shell) #app {
 .card-dock__hint {
     font-size: 0.7rem;
     color: var(--text-gray);
-    letter-spacing: 0.1em;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
 }
 
@@ -1475,7 +1519,7 @@ html:has(.lobby-shell) #app {
 
 .panel-header h3 {
     font-size: 0.85rem;
-    letter-spacing: 0.1em;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-brown);
     font-weight: 700;
@@ -1489,7 +1533,7 @@ html:has(.lobby-shell) #app {
     color: var(--text-ink);
     cursor: pointer;
     font-size: 0.75rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     font-weight: 700;
     box-shadow: var(--shadow-stamp);
@@ -1526,7 +1570,7 @@ html:has(.lobby-shell) #app {
 .card-name {
     font-size: 0.85rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-ink);
     margin-bottom: 6px;
@@ -1538,7 +1582,7 @@ html:has(.lobby-shell) #app {
     border-radius: var(--radius-sketch);
     font-size: 0.65rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 1.5px;
     font-weight: 700;
     border: 1px solid rgba(0, 0, 0, 0.2);
     margin-bottom: 4px;
@@ -1584,7 +1628,7 @@ html:has(.lobby-shell) #app {
     color: #fff;
     font-size: 0.85rem;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     box-shadow: var(--shadow-stamp);
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
@@ -1688,7 +1732,7 @@ html:has(.lobby-shell) #app {
 
 .contract-panel h3 {
     font-size: 1rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-ink);
     font-weight: 700;
@@ -1732,7 +1776,7 @@ html:has(.lobby-shell) #app {
     background: linear-gradient(135deg, #f4e8d8, #e8d4ba);
     color: var(--text-brown);
     cursor: pointer;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     font-size: 0.75rem;
     font-weight: 700;
@@ -2493,7 +2537,7 @@ html:has(.lobby-shell) #app {
     font-size: 1.2rem;
     font-weight: 800;
     color: #ffffff;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.5px;
     text-shadow: none;
 }
 
@@ -2528,7 +2572,7 @@ html:has(.lobby-shell) #app {
     font-size: 1rem;
     font-weight: 700;
     color: #ffffff;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.5px;
     text-shadow: none;
 }
 
@@ -2656,7 +2700,7 @@ html:has(.lobby-shell) #app {
     font-size: 0.95rem;
     font-weight: 600;
     color: #ff9447;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.5px;
     animation: hint-pulse 2s ease-in-out infinite;
 }
 
@@ -2689,7 +2733,7 @@ html:has(.lobby-shell) #app {
     font-size: 0.9rem;
     font-weight: 700;
     color: var(--text-ink);
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     text-transform: uppercase;
 }
 
@@ -2724,7 +2768,7 @@ html:has(.lobby-shell) #app {
     box-shadow: 0 3px 8px rgba(42, 24, 16, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     font-size: 0.85rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.5px;
 }
 
 .sci-btn:hover:not(.disabled) {
@@ -2809,7 +2853,7 @@ html:has(.lobby-shell) #app {
     display: flex;
     gap: 2px;
     align-items: center;
-    padding: 8px 12px;
+    padding: 5.6px 12px;
     border-radius: 12px;
     border: 3px solid #8b6f47;
     background: rgba(249, 243, 232, 0.9);
@@ -2895,7 +2939,7 @@ html:has(.lobby-shell) #app {
     font-size: 0.8rem;
     line-height: 1.5;
     color: var(--text-brown);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.5px;
     border-radius: var(--radius-sketch);
     background:
         repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(139, 111, 71, 0.02) 1px, rgba(139, 111, 71, 0.02) 2px),
@@ -2924,7 +2968,7 @@ html:has(.lobby-shell) #app {
 
 .lobby-quick-start h4 {
     font-size: 0.85rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-ink);
     font-weight: 700;
@@ -2945,7 +2989,7 @@ html:has(.lobby-shell) #app {
     background: linear-gradient(135deg, #a8d08d, #7fb069);
     color: #fff;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     font-size: 0.8rem;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -2967,7 +3011,7 @@ html:has(.lobby-shell) #app {
     background: #f4e8d8;
     color: var(--text-brown);
     font-weight: 600;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     font-size: 0.75rem;
     transition: transform 0.15s ease, background 0.15s ease;
 }
@@ -3039,7 +3083,7 @@ html:has(.lobby-shell) #app {
     color: #fff;
     font-size: 0.6rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
 }
@@ -3052,7 +3096,7 @@ html:has(.lobby-shell) #app {
 
 .nav-item__text h4 {
     font-size: 0.9rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-ink);
     font-weight: 700;
@@ -3061,7 +3105,7 @@ html:has(.lobby-shell) #app {
 .nav-item__text span {
     font-size: 0.7rem;
     color: var(--text-gray);
-    letter-spacing: 0.03em;
+    letter-spacing: 0.5px;
 }
 
 /* 响应式布局 - 横板游戏 */
@@ -3139,7 +3183,7 @@ html:has(.lobby-shell) #app {
 
 .lobby-settings-panel h3 {
     font-size: 1.2rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     text-align: center;
     text-transform: uppercase;
     color: var(--text-ink);
@@ -3154,7 +3198,7 @@ html:has(.lobby-shell) #app {
 
 .settings-item label {
     font-size: 0.9rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 1px;
     color: var(--text-brown);
     font-weight: 600;
     text-transform: uppercase;
@@ -3211,7 +3255,7 @@ html:has(.lobby-shell) #app {
     border: 3px solid #8b6f47;
     cursor: pointer;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     font-size: 0.85rem;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -3499,7 +3543,7 @@ html:has(.lobby-shell) #app {
     color: #fff;
     font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.15s ease;
@@ -3682,7 +3726,7 @@ html:has(.lobby-shell) #app {
     text-shadow: 
         0 2px 8px rgba(0, 0, 0, 0.8),
         0 0 20px rgba(255, 215, 0, 0.6);
-    letter-spacing: 0.1em;
+    letter-spacing: 1.5px;
     animation: glowPulse 2s ease-in-out infinite;
 }
 
@@ -3774,7 +3818,7 @@ html:has(.lobby-shell) #app {
     font-size: 1rem;
     color: rgba(244, 232, 216, 0.8);
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 2.5px;
     font-weight: 600;
 }
 
@@ -3801,7 +3845,7 @@ html:has(.lobby-shell) #app {
     cursor: pointer;
     font-size: 1.1rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     transition: all 0.2s ease;
     box-shadow: 
         0 4px 12px rgba(42, 24, 16, 0.4),
@@ -3896,7 +3940,7 @@ html:has(.lobby-shell) #app {
     text-shadow: 
         0 2px 8px rgba(0, 0, 0, 0.8),
         0 0 20px rgba(220, 20, 60, 0.6);
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
 }
 
 .event-crisis-description {
@@ -3920,7 +3964,7 @@ html:has(.lobby-shell) #app {
     cursor: pointer;
     font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 1px;
     transition: all 0.2s ease;
     box-shadow: 
         0 4px 12px rgba(42, 24, 16, 0.5),

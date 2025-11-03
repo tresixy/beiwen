@@ -91,6 +91,27 @@
             backdrop-filter: blur(6px);
         }
 
+        .loading-quote {
+            font-size: clamp(0.95rem, 2vw, 1.15rem);
+            color: rgba(255, 255, 255, 0.95);
+            letter-spacing: 0.08em;
+            font-weight: 500;
+            text-align: center;
+            text-shadow:
+                0 2px 6px rgba(0, 0, 0, 0.85),
+                0 0 15px rgba(0, 0, 0, 0.6),
+                1px 1px 3px rgba(0, 0, 0, 1);
+            font-family: 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            min-height: 1.5em;
+            padding: 0 clamp(16px, 4vw, 24px);
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        .loading-quote.active {
+            opacity: 1;
+        }
+
         .loading-progress__track {
             width: 100%;
             max-width: 1560px;
@@ -137,7 +158,7 @@
             font-family: 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
         }
 
-        @media (max-width: 520px) {
+            @media (max-width: 520px) {
             .loading-panel {
                 border-radius: 20px;
                 gap: 18px;
@@ -146,6 +167,10 @@
 
             .loading-progress {
                 padding: clamp(18px, 5vh, 28px) 0;
+            }
+
+            .loading-quote {
+                font-size: clamp(0.85rem, 2.2vw, 1rem);
             }
 
             .loading-progress__label {
@@ -162,6 +187,7 @@
             <img alt="Oops, Civilization!" class="loading-logo" style="opacity: 0;" />
         </div>
         <div class="loading-progress">
+            <div class="loading-quote"></div>
             <div class="loading-progress__track">
                 <div class="loading-progress__fill"></div>
             </div>
@@ -178,10 +204,56 @@
 
             const fill = screen.querySelector('.loading-progress__fill');
             const label = screen.querySelector('.loading-progress__label');
+            const quoteEl = screen.querySelector('.loading-quote');
             const logoImg = screen.querySelector('.loading-logo');
             if (!fill || !label) {
                 return;
             }
+
+            const quotes = [
+                '「思考正在发酵中……」',
+                '「合成失败？也许那就是进化的开始。」',
+                '「火与石正在思考如何成为朋友。」',
+                '「概念加载中，请耐心等待思想成形。」',
+                '「有人说，错误比真理更有创意。」',
+                '「火种点亮了夜，思想点亮了人。」',
+                '「人类第一步：思考。第二步：后悔。」',
+                '「文明加载中……请保持睁眼状态。」',
+                '「请把卡牌丢进熔炉，不行就再丢一次。」',
+                '「A + B = C。或者炸炉。看你手气。」',
+                '「两张卡正激烈讨论它们要变成什么。」',
+                '「配方正确率：50%。自信心：100%。」',
+                '「别担心，连宇宙都在不断尝试组合错误。」',
+                '「历史证明：一堆火可以解决90%的问题。」',
+                '「世界进化中……但它还没决定想成为什么。」',
+                '「上一次文明加载到这里时，他们造出了咖啡。」'
+            ];
+
+            let quoteIndex = 0;
+            let quoteTimer = null;
+
+            const showNextQuote = () => {
+                if (!quoteEl) return;
+                quoteEl.classList.remove('active');
+                setTimeout(() => {
+                    quoteEl.textContent = quotes[quoteIndex];
+                    quoteEl.classList.add('active');
+                    quoteIndex = (quoteIndex + 1) % quotes.length;
+                }, 300);
+            };
+
+            const startQuoteRotation = () => {
+                if (!quoteEl) return;
+                showNextQuote();
+                quoteTimer = setInterval(showNextQuote, 3000);
+            };
+
+            const stopQuoteRotation = () => {
+                if (quoteTimer !== null) {
+                    clearInterval(quoteTimer);
+                    quoteTimer = null;
+                }
+            };
 
             let target = 0;
             let current = 0;
@@ -252,6 +324,7 @@
                     window.clearInterval(autoTimer);
                     autoTimer = null;
                 }
+                stopQuoteRotation();
                 setTarget(100);
             };
 
@@ -292,6 +365,7 @@
                 assetsLoaded = true;
                 updateDom();
                 startProgress();
+                startQuoteRotation();
             });
 
             window.addEventListener('app-ready', finish, { once: true });

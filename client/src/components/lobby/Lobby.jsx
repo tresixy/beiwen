@@ -79,16 +79,19 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
 
     const getTerrainName = (hex) => {
         if (!hex) return '';
-        const noise = ((hex.q * 374761393) + (hex.r * 668265263) + 12345) % 2147483647;
-        const value = (noise / 2147483647 + 1) / 2;
-        const dist = Math.sqrt(hex.q * hex.q + hex.r * hex.r);
         
-        if (dist < 5) return '草原';
-        if (value < 0.2) return '水域';
-        if (value < 0.6) return '草原';
-        if (value < 0.75) return '森林';
-        if (value < 0.85) return '沙漠';
-        return '山脉';
+        // 地形类型中文映射
+        const terrainNameMap = {
+            ocean: '海洋',
+            grassland: '草原',
+            forest: '森林',
+            mountain: '山脉',
+            desert: '沙漠',
+            snow: '雪地',
+            water: '水域'
+        };
+        
+        return terrainNameMap[hex.terrain] || '未知';
     };
 
     const handleSelectHex = useCallback((hex) => {
@@ -332,7 +335,7 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                         <div className="user-panel-text">
                             <span className="user-panel-name">
                                 {user 
-                                    ? `${user.username.slice(0, 5)}${user.email.split('@')[0].slice(0, 5)}`
+                                    ? user.email.split('@')[0]
                                     : '旅者'
                                 }
                             </span>

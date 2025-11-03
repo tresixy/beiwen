@@ -2,6 +2,7 @@ import express from 'express';
 import { authMiddleware } from '../utils/security.js';
 import * as eventService from '../services/eventService.js';
 import logger from '../utils/logger.js';
+import pool from '../db/connection.js';
 
 const router = express.Router();
 
@@ -116,14 +117,30 @@ router.post('/complete', authMiddleware, async (req, res) => {
 router.post('/regenerate', authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
+    
+    // 重新生成序列
     const sequence = await eventService.generateEventSequence(userId);
     
-    logger.info({ userId, sequence }, 'Event sequence regenerated');
+    // 重置游戏进度：清空已完成事件、重置时代、设置第一个事件为激活状态
+    const firstEventId = sequence.length > 0 ? sequence[0] : null;
+    await pool.query(
+      `UPDATE user_game_state 
+       SET era = '生存时代', 
+           unlocked_keys = '[]', 
+           completed_events = '[]', 
+           active_event_id = $2, 
+           updated_at = NOW()
+       WHERE user_id = $1`,
+      [userId, firstEventId]
+    );
+    
+    logger.info({ userId, sequence, firstEventId }, 'Event sequence regenerated and progress reset');
 
     res.json({
       success: true,
-      message: '已生成新的events序列',
+      message: '已生成新的events序列并重置进度',
       sequence,
+      firstEventId,
     });
   } catch (err) {
     logger.error({ err, userId: req.userId }, 'Regenerate events error');

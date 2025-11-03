@@ -116,21 +116,29 @@ export async function highlightTile(userId, q, r, eventName = null) {
 /**
  * 完成事件后放置标志并高亮地块
  */
-export async function markEventCompletion(userId, selectedQ, selectedR, markerType, eventName) {
+export async function markEventCompletion(userId, selectedQ, selectedR, markerType, eventName, isFullVictory = true) {
   const client = await pool.connect();
   
   try {
     await client.query('BEGIN');
     
-    // 选择要标记的地块（包括选中的地块和随机周围地块）
-    const tilesToMark = getRandomNearbyTiles(selectedQ, selectedR, 1, 5);
+    // 根据是否完全胜利选择地块
+    let tilesToMark;
+    if (isFullVictory) {
+      // 完全胜利：标记所有半径2范围内的地块
+      tilesToMark = getTilesInRadius(selectedQ, selectedR, 2);
+    } else {
+      // 部分胜利：随机选择部分地块
+      tilesToMark = getRandomNearbyTiles(selectedQ, selectedR, 1, 5);
+    }
     
     logger.info({ 
       userId, 
       selectedQ, 
       selectedR, 
       markerType, 
-      eventName, 
+      eventName,
+      isFullVictory,
       tileCount: tilesToMark.length 
     }, 'Marking tiles for event completion');
     

@@ -2,6 +2,7 @@ import { useMemo, useRef, useState, useCallback, useEffect, forwardRef, useImper
 import './ForgeCanvas.css';
 import { CardSvg } from './CardSvg.jsx';
 import { hasCardSvg } from '../../utils/cardSvgMap.js';
+import audioService from '../../services/audioService.js';
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
@@ -265,6 +266,9 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
             }
             const updated = [...prev, card].slice(0, MAX_FURNACE_CARDS);
             console.log('✓ 熔炉现有卡牌数:', updated.length, updated.map(c => c.name));
+            
+            // 播放卡牌放置音效
+            audioService.playClick();
             
             // 熔炉卡牌独立管理，不影响 selectedIds（画布选中状态）
             // 只通知 onSelectForForge 用于合成逻辑
@@ -542,11 +546,12 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
                 
                 const rarityClass = card.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
                 const hasSvg = hasCardSvg(card.name);
+                const isKeyCard = card.type === 'key' || card.card_type === 'key' || card.rarity === 'ruby';
                 
                 return (
                     <div
                         key={card.id}
-                        className={`forge-canvas__card ${rarityClass} ${hasSvg ? 'has-svg' : ''}`}
+                        className={`forge-canvas__card ${rarityClass} ${hasSvg ? 'has-svg' : ''} ${isKeyCard ? 'is-keycard' : ''}`}
                         style={{
                             left: `${position.x}%`,
                             top: `${position.y}%`,

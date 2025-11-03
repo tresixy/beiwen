@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
 const RESOURCE_LIST = [
-    { key: 'food', icon: '🍖', label: '食粮' },
-    { key: 'production', icon: '⚙️', label: '生产' },
-    { key: 'research', icon: '🔬', label: '研究' },
+    { key: 'food', icon: '🍖', label: '食粮', tooltip: '食粮资源 - 用于维持人口生存和军队补给' },
+    { key: 'production', icon: '⚙️', label: '生产', tooltip: '生产力 - 用于建造建筑和生产工业品' },
+    { key: 'research', icon: '🔬', label: '研究', tooltip: '研究点数 - 用于解锁科技和推动文明进步' },
 ];
 
 export function HUD({
@@ -56,8 +56,12 @@ export function HUD({
     return (
         <header className="hud">
             <div className="resources">
-                {RESOURCE_LIST.map(({ key, icon }) => (
-                    <div key={key} className={`resource-chip${pulses[key] ? ' bump' : ''}`}>
+                {RESOURCE_LIST.map(({ key, icon, tooltip }) => (
+                    <div 
+                        key={key} 
+                        className={`resource-chip${pulses[key] ? ' bump' : ''}`}
+                        title={tooltip}
+                    >
                         <span className="icon" aria-label={key}>
                             {icon}
                         </span>

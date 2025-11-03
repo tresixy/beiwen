@@ -1751,8 +1751,13 @@ export function getCardSvg(cardName) {
   return CARD_SVG_MAP[cleanName] || null;
 }
 
-// 检查卡牌是否有SVG
+// 检查卡牌是否有SVG或图片资源
 export function hasCardSvg(cardName) {
   const cleanName = cardName?.replace(/【|】/g, '') || '';
-  return cleanName in CARD_SVG_MAP;
+  // 基础卡有SVG，直接返回true
+  if (cleanName in CARD_SVG_MAP) {
+    return true;
+  }
+  // 其他卡（钥匙卡、合成卡等）假定都有webp图片，返回true让CardSvg组件处理
+  return true;
 }

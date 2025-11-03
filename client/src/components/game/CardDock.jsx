@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { CardSvg } from './CardSvg.jsx';
 import { hasCardSvg } from '../../utils/cardSvgMap.js';
+import audioService from '../../services/audioService.js';
 
 const MAX_SLOTS = 5;
 
@@ -28,6 +29,9 @@ export function CardDock({
         if (!card) {
             return;
         }
+        // 播放卡牌拖动音效
+        audioService.playClick();
+        
         const normalizedId = `${card.id ?? ''}`.trim();
         console.log('🎴 手牌 DragStart:', card.name, 'ID:', normalizedId);
         event.dataTransfer.effectAllowed = 'move';
@@ -65,11 +69,12 @@ export function CardDock({
 
         const rarityClass = card.rarity ? `rarity-${card.rarity.toLowerCase()}` : '';
         const hasSvg = hasCardSvg(card.name);
+        const isKeyCard = card.type === 'key' || card.card_type === 'key' || card.rarity === 'ruby';
         
         return (
             <div
                 key={card.id}
-                className={`dock-slot ${rarityClass} ${hasSvg ? 'has-svg' : ''}`}
+                className={`dock-slot ${rarityClass} ${hasSvg ? 'has-svg' : ''} ${isKeyCard ? 'is-keycard' : ''}`}
                 draggable
                 onDragStart={(event) => handleDragStart(event, card)}
                 onDragEnd={(event) => handleDragEnd(event, card)}

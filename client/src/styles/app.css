@@ -936,6 +936,18 @@ html:has(.lobby-shell) #app {
     justify-content: center;
 }
 
+/* 钥匙卡无需底板 */
+.forge-canvas__card.is-keycard {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.forge-canvas__card.is-keycard:active {
+    box-shadow: none;
+}
+
 .forge-canvas__svg {
     width: 100%;
     height: 100%;
@@ -1194,6 +1206,14 @@ html:has(.lobby-shell) #app {
 
 /* SVG卡牌样式 */
 .dock-slot.has-svg {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* 钥匙卡无需底板 */
+.dock-slot.is-keycard {
     padding: 0;
     background: transparent;
     border: none;
@@ -2641,7 +2661,7 @@ html:has(.lobby-shell) #app {
 /* 右下角功能按钮组 */
 .lobby-bottom-right {
     position: absolute;
-    bottom: 30px;
+    bottom: 15px;
     right: 200px;
     display: flex;
     gap: 20px;
@@ -2697,7 +2717,7 @@ html:has(.lobby-shell) #app {
 
 .lobby-func-icons {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     align-items: center;
 }
 

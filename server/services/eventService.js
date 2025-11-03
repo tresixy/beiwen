@@ -190,7 +190,7 @@ export async function getActiveEvent(userId) {
 }
 
 // 完成event，解锁钥匙并激活下一个event
-export async function completeEvent(userId, eventId, unlockedKey, selectedHex = null) {
+export async function completeEvent(userId, eventId, unlockedKey, selectedHex = null, isFullVictory = true) {
   const client = await pool.connect();
   
   try {
@@ -333,13 +333,15 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
           selectedHex.q,
           selectedHex.r,
           eventReward,
-          eventName
+          eventName,
+          isFullVictory
         );
         logger.info({ 
           userId, 
           eventId, 
           selectedHex, 
           reward: eventReward,
+          isFullVictory,
           tileMarkerResult 
         }, 'Tile markers placed for event completion');
       } catch (markerErr) {

@@ -94,22 +94,54 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
 
     // 初始化音效系统
     useEffect(() => {
-        // 音效文件路径配置（当音效文件准备好后取消注释）
-        // audioService.init({
-        //     bgm: '/audio/bgm.mp3',
-        //     click: '/audio/click.mp3',
-        //     synthesis: '/audio/synthesis.mp3',
-        //     eventComplete: '/audio/event_complete.mp3',
-        //     cardDrag: '/audio/card_drag.mp3',
-        //     cardDrop: '/audio/card_drop.mp3',
-        //     hexClick: '/audio/hex_click.mp3',
-        // });
+        audioService.init({
+            sounds: {
+                // 点击音效（多个变体，随机播放）
+                clickVariants: [
+                    '/assets/music/SE/点击卡牌.wav',
+                    '/assets/music/SE/点击卡牌 (2).wav',
+                    '/assets/music/SE/点击卡牌 (3).wav',
+                    '/assets/music/SE/点击卡牌 (4).wav',
+                ],
+                // 合成音效（多个变体）
+                synthesisVariants: [
+                    '/assets/music/SE/中间合成物1.wav',
+                    '/assets/music/SE/中间合成物2.wav',
+                ],
+                // 钥匙卡合成音效
+                keySynthesis: '/assets/music/SE/钥匙卡合成音效.wav',
+                // 事件完成音效
+                eventComplete: '/assets/music/SE/解决困境.wav',
+                // 时代切换音效
+                eraTransition: '/assets/music/SE/进入下一个时代.wav',
+                // 进入游戏音效
+                enterGame: '/assets/music/SE/进入游戏.wav',
+            },
+            bgm: {
+                '生存时代': '/assets/music/bgm/生存时代.mp3',
+                '城邦时代': '/assets/music/bgm/城邦时代.mp3',
+                '分野时代': '/assets/music/bgm/后期的时代.mp3',
+                '帝国时代': '/assets/music/bgm/后期的时代.mp3',
+                '理性时代': '/assets/music/bgm/后期的时代.mp3',
+                '信仰时代': '/assets/music/bgm/后期的时代.mp3',
+                '启蒙时代': '/assets/music/bgm/后期的时代.mp3',
+                '全球时代': '/assets/music/bgm/后期的时代.mp3',
+                '第二次分野时代': '/assets/music/bgm/后期的时代.mp3',
+                '星辰时代': '/assets/music/bgm/后期的时代.mp3',
+                '奇点时代': '/assets/music/bgm/后期的时代.mp3',
+            }
+        });
         
         // 设置初始音量
         audioService.setVolume(volume / 100);
         
-        // 播放背景音乐（当音效文件准备好后取消注释）
-        // audioService.playBGM();
+        // 播放进入游戏音效
+        audioService.playEnterGame();
+        
+        // 根据当前时代播放BGM
+        if (era) {
+            audioService.switchBGM(era);
+        }
         
         return () => {
             // 清理：停止背景音乐
@@ -121,6 +153,13 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     useEffect(() => {
         audioService.setVolume(volume / 100);
     }, [volume]);
+
+    // 时代变化时切换BGM
+    useEffect(() => {
+        if (era) {
+            audioService.switchBGM(era);
+        }
+    }, [era]);
 
     useEffect(() => {
         if (!loading) {

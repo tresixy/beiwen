@@ -7,6 +7,7 @@ import { createInitialInventory, forgeResultToInventoryItem } from '../data/inve
 import { createInitialCardBook, addCardToBook, loadCardBook, persistCardBook } from '../data/cardBook.js';
 import * as gameStateApi from '../services/gameStateApi.js';
 import * as eventsApi from '../api/eventsApi.js';
+import audioService from '../services/audioService.js';
 
 const INITIAL_RESOURCES = {
     food: 8,
@@ -445,6 +446,10 @@ export function useGameSimulation({ pushMessage, token }) {
                         setForgeName('');
                         setOverlayState({ visible: false });
                         
+                        // 播放合成音效（检查是否为钥匙卡）
+                        const isKeyCard = resultCard.rarity === 'ruby';
+                        audioService.playSynthesis(isKeyCard);
+                        
                         // 显示合成详情
                         const inputNames = cards.map(c => c.name).join(' + ');
                         pushMessage?.(`✨ 合成成功：${inputNames} → 「${actualName}」`, 'success');
@@ -453,6 +458,62 @@ export function useGameSimulation({ pushMessage, token }) {
                             const idea = data.ideas[0];
                             const ideaText = idea.name || idea.results || '未知灵感';
                             pushMessage?.(`🤖 AI灵感：${ideaText}`, 'info');
+                        }
+                        
+                        // 检测是否匹配 key card
+                        if (activeEvent && activeEvent.required_key) {
+                            const requiredKeyRaw = `${activeEvent.required_key}`.trim();
+                            const requiredKeys = requiredKeyRaw.split('或').map(k => k.trim());
+                            const cardName = resultCard.name;
+                            
+                            let isExactMatch = false;
+                            let isPartialMatch = false;
+                            
+                            // 检查精确匹配
+                            for (const key of requiredKeys) {
+                                if (cardName === key) {
+                                    isExactMatch = true;
+                                    break;
+                                }
+                            }
+                            
+                            // 检查模糊匹配（卡牌名包含 key card 名）
+                            if (!isExactMatch) {
+                                for (const key of requiredKeys) {
+                                    if (cardName.includes(key)) {
+                                        isPartialMatch = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // 触发胜利结算
+                            if (isExactMatch || isPartialMatch) {
+                                console.log('🎉 检测到胜利条件！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
+                                setTimeout(() => {
+                                    if (window.showVictoryModal) {
+                                        window.showVictoryModal({
+                                            eventName: activeEvent.name,
+                                            cardName: cardName,
+                                            isFullVictory: isExactMatch,
+                                            onBackToLobby: async () => {
+                                                // 保存通关状态到后端
+                                                try {
+                                                    const selectedHexStr = localStorage.getItem('selectedHex');
+                                                    const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
+                                                    await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
+                                                    
+                                                    // 返回主页
+                                                    window.location.href = '/';
+                                                } catch (err) {
+                                                    console.error('保存通关状态失败:', err);
+                                                    window.location.href = '/';
+                                                }
+                                            }
+                                        });
+                                    }
+                                }, 800);
+                            }
                         }
                     } else {
                         // 如果没有消耗卡牌，直接从手牌中移除并显示合成结果
@@ -488,6 +549,10 @@ export function useGameSimulation({ pushMessage, token }) {
                         setForgeName('');
                         setOverlayState({ visible: false });
                         
+                        // 播放合成音效（检查是否为钥匙卡）
+                        const isKeyCard = resultCard.rarity === 'ruby';
+                        audioService.playSynthesis(isKeyCard);
+                        
                         // 显示合成详情
                         const inputNames = cards.map(c => c.name).join(' + ');
                         pushMessage?.(`✨ 合成成功：${inputNames} → 「${resultCard.name}」`, 'success');
@@ -496,6 +561,62 @@ export function useGameSimulation({ pushMessage, token }) {
                             const idea = data.ideas[0];
                             const ideaText = idea.name || idea.results || '未知灵感';
                             pushMessage?.(`🤖 AI灵感：${ideaText}`, 'info');
+                        }
+                        
+                        // 检测是否匹配 key card
+                        if (activeEvent && activeEvent.required_key) {
+                            const requiredKeyRaw = `${activeEvent.required_key}`.trim();
+                            const requiredKeys = requiredKeyRaw.split('或').map(k => k.trim());
+                            const cardName = resultCard.name;
+                            
+                            let isExactMatch = false;
+                            let isPartialMatch = false;
+                            
+                            // 检查精确匹配
+                            for (const key of requiredKeys) {
+                                if (cardName === key) {
+                                    isExactMatch = true;
+                                    break;
+                                }
+                            }
+                            
+                            // 检查模糊匹配（卡牌名包含 key card 名）
+                            if (!isExactMatch) {
+                                for (const key of requiredKeys) {
+                                    if (cardName.includes(key)) {
+                                        isPartialMatch = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // 触发胜利结算
+                            if (isExactMatch || isPartialMatch) {
+                                console.log('🎉 检测到胜利条件！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
+                                setTimeout(() => {
+                                    if (window.showVictoryModal) {
+                                        window.showVictoryModal({
+                                            eventName: activeEvent.name,
+                                            cardName: cardName,
+                                            isFullVictory: isExactMatch,
+                                            onBackToLobby: async () => {
+                                                // 保存通关状态到后端
+                                                try {
+                                                    const selectedHexStr = localStorage.getItem('selectedHex');
+                                                    const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
+                                                    await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
+                                                    
+                                                    // 返回主页
+                                                    window.location.href = '/';
+                                                } catch (err) {
+                                                    console.error('保存通关状态失败:', err);
+                                                    window.location.href = '/';
+                                                }
+                                            }
+                                        });
+                                    }
+                                }, 800);
+                            }
                         }
                     }
                     
@@ -671,7 +792,7 @@ export function useGameSimulation({ pushMessage, token }) {
             return;
         }
 
-        // 若存在多选钥匙，以“或”分隔，取第一个
+        // 若存在多选钥匙，以"或"分隔，取第一个
         const requiredKeyName = requiredKeyRaw.split('或')[0].trim();
         if (!requiredKeyName) {
             pushMessage?.('无法解析事件钥匙', 'warning');
@@ -699,7 +820,63 @@ export function useGameSimulation({ pushMessage, token }) {
         updateCardBook((previous) => addCardToBook(previous, newKeyCard));
 
         pushMessage?.(`已生成钥匙卡：「${requiredKeyName}」`, 'success');
-    }, [activeEvent, pushMessage, updateCardBook]);
+        
+        // 检测是否匹配 key card（作弊码生成的也触发胜利检测）
+        if (activeEvent && activeEvent.required_key) {
+            const requiredKeys = requiredKeyRaw.split('或').map(k => k.trim());
+            const cardName = requiredKeyName;
+            
+            let isExactMatch = false;
+            let isPartialMatch = false;
+            
+            // 检查精确匹配
+            for (const key of requiredKeys) {
+                if (cardName === key) {
+                    isExactMatch = true;
+                    break;
+                }
+            }
+            
+            // 检查模糊匹配（卡牌名包含 key card 名）
+            if (!isExactMatch) {
+                for (const key of requiredKeys) {
+                    if (cardName.includes(key)) {
+                        isPartialMatch = true;
+                        break;
+                    }
+                }
+            }
+            
+            // 触发胜利结算
+            if (isExactMatch || isPartialMatch) {
+                console.log('🎉 作弊码触发胜利条件！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
+                setTimeout(() => {
+                    if (window.showVictoryModal) {
+                        window.showVictoryModal({
+                            eventName: activeEvent.name,
+                            cardName: cardName,
+                            isFullVictory: isExactMatch,
+                            onBackToLobby: async () => {
+                                // 保存通关状态到后端
+                                try {
+                                    const localToken = token || localStorage.getItem('token');
+                                    const selectedHexStr = localStorage.getItem('selectedHex');
+                                    const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
+                                    await eventsApi.completeEvent(localToken, activeEvent.id, cardName, selectedHex, [cardName], isExactMatch);
+                                    
+                                    // 返回主页
+                                    window.location.href = '/';
+                                } catch (err) {
+                                    console.error('保存通关状态失败:', err);
+                                    window.location.href = '/';
+                                }
+                            }
+                        });
+                    }
+                }, 800);
+            }
+        }
+    }, [activeEvent, pushMessage, updateCardBook, token]);
 
     const toggleCarryOver = useCallback(async (carryOver) => {
         const localToken = token || localStorage.getItem('token');
@@ -888,6 +1065,9 @@ export function useGameSimulation({ pushMessage, token }) {
             const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, handCardNames);
             
             if (result.success) {
+                // 播放事件完成音效
+                audioService.playEventComplete();
+                
                 pushMessage?.(`🎉 成功完成【${activeEvent.name}】`, 'success');
                 
                 // 清空所有手牌（因为都已加入背包）
@@ -904,7 +1084,9 @@ export function useGameSimulation({ pushMessage, token }) {
                 }
                 
                 // 更新时代
-                if (result.newEra) {
+                if (result.newEra && result.newEra !== era) {
+                    // 播放时代切换音效
+                    audioService.playEraTransition();
                     setEra(result.newEra);
                     pushMessage?.(`🌟 进入新时代：${result.newEra}`, 'success');
                 }

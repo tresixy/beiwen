@@ -3,7 +3,7 @@ import env from '../config/env.js';
 import logger from '../utils/logger.js';
 import { cacheGet, cacheSet } from '../db/redis.js';
 import { generateRecipeHash } from './synthService.js';
-import { TECH_TIERS } from '../config/eraConfig.js';
+import { TECH_TIERS, ERAS } from '../config/eraConfig.js';
 
 let openai = null;
 
@@ -32,12 +32,13 @@ if (env.aiEnabled && env.aiApiKey) {
 }
 
 // AI合成
-export async function synthesizeByAI(inputItems, name, userId, currentEra = '生存时代') {
+export async function synthesizeByAI(inputItems, name, userId, currentEra = '生存时代', lastFailReason = null) {
   if (!env.aiEnabled || !openai) {
     throw new Error('AI service not available');
   }
 
   // 使用名称而非ID生成缓存key，避免不同用户相同卡牌组合的缓存miss
+  // 如果有失败原因，不使用缓存，强制重新生成
   const inputNames = inputItems.map(item => item.name);
   const recipeHash = generateRecipeHash(
     inputNames,
@@ -46,41 +47,75 @@ export async function synthesizeByAI(inputItems, name, userId, currentEra = '生
   const cacheKey = `cache:recipe:${recipeHash}`;
 
   try {
-    const cached = await cacheGet(cacheKey);
-    if (cached) {
-      logger.info({ recipe_hash: recipeHash }, 'AI synthesis cache hit');
-      return cached;
+    // 如果有失败原因，跳过缓存
+    if (!lastFailReason) {
+      const cached = await cacheGet(cacheKey);
+      if (cached) {
+        logger.info({ recipe_hash: recipeHash }, 'AI synthesis cache hit');
+        return cached;
+      }
+    } else {
+      logger.info({ recipe_hash: recipeHash, lastFailReason }, 'Skipping cache due to retry');
     }
+    
     const combinationSentence = formatCombinationInputs(inputNames);
 
     // 获取AI文明名称（优先使用第一张卡牌的ai_civilization_name，否则使用currentEra）
     const aiCivilizationName = inputItems[0]?.ai_civilization_name || currentEra || '石器时代';
 
-    // 获取时代限制
+    // 获取时代配置
     const techConfig = TECH_TIERS[currentEra] || TECH_TIERS['生存时代'];
-    const techRestriction = [
-      `当前时代：${currentEra}`,
-      `科技限制：最高等级${techConfig.maxTier}，允许的概念包括：${techConfig.allowedConcepts.slice(0, 10).join('、')}等`,
-      `禁止概念：${techConfig.forbiddenConcepts.slice(0, 8).join('、')}等`,
-    ].join('；');
+    
+    // 获取时代定义
+    const eraInfo = ERAS.find(e => e.name === currentEra) || ERAS[0];
+    const eraDefinition = eraInfo.description || '人类文明的萌芽期';
 
-    const prompt = [
-      `我在做一个游戏，我需要你用json格式回复我：${combinationSentence}在${aiCivilizationName}可以合成什么东西。`,
-      '你需要想象所有可能合成的东西，可以是现实的、魔法的、科幻的、魔幻的等等所有能想象到的内容。',
-      techRestriction,
-      '请确保只返回一个JSON，格式如下：',
-      '{',
-      '  "combinations": [',
-      '    {"name": "合成物名称", "prompt": "生图提示词"}',
-      '  ]',
-      '}',
-      '要求：',
-      '1. 至少给出3个不同的合成结果设想；',
-      '2. name 字段填写合成物的名称（中文），prompt 字段填写简单的生图提示词（中文）；',
-      '3. 合成结果必须符合当前时代的科技限制，不能包含禁止的概念；',
-      '4. 每个合成物都要有独立的 {name:"", prompt:""} 对象；',
-      '5. 只返回JSON，不要有其他文字。'
-    ].join('\n');
+    const promptLines = [
+      '# 核心规则：时代限制',
+      '',
+      '你必须严格遵循以下时代背景来生成所有结果。你的所有想象都必须牢牢扎根于这个时代背景。合成物的名称、概念和生图提示词必须是这个时代的人能够理解或想象的。',
+      '',
+      `- **当前时代**：${aiCivilizationName}`,
+      `- **时代定义**：${eraDefinition}`,
+      `- **合成原料**：${combinationSentence}`,
+      '',
+      '# 创作要求',
+      '',
+      `1. **紧扣时代**：合成结果必须完全符合【时代定义】。`,
+      `   - 允许的概念：${techConfig.allowedConcepts.slice(0, 8).join('、')}等`,
+      `   - **严格禁止**：${techConfig.forbiddenConcepts.join('、')}`,
+      `   - 在"${currentEra}"，绝对不能出现任何禁止概念相关的物品`,
+      '',
+      '2. **适度幻想**：在遵循时代背景的前提下，发挥你的想象力。合成物可以是符合逻辑的工具，也可以是那个时代的人因认知局限而产生的"神秘"或"奇迹"般的物品。',
+      '',
+      '3. **多样性**：至少提供3个不同的合成结果设想。',
+      '',
+      '4. **生图质量**：`prompt` 字段需要是一个简洁但画面感强的中文短语，用于AI绘画。',
+    ];
+    
+    // 如果有上次失败的原因，添加警告
+    if (lastFailReason) {
+      promptLines.push('');
+      promptLines.push('# 重要警告');
+      promptLines.push('');
+      promptLines.push(`上次生成的结果不符合要求：${lastFailReason}`);
+      promptLines.push(`请务必避免生成包含【${techConfig.forbiddenConcepts.join('、')}】等概念的物品！`);
+    }
+    
+    promptLines.push('');
+    promptLines.push('# 输出格式');
+    promptLines.push('');
+    promptLines.push('请严格按照以下JSON格式返回结果，不要包含任何JSON格式之外的解释、注释或文字。');
+    promptLines.push('');
+    promptLines.push('{');
+    promptLines.push('  "combinations": [');
+    promptLines.push('    {"name": "合成物名称1", "prompt": "对应的中文生图提示词1"},');
+    promptLines.push('    {"name": "合成物名称2", "prompt": "对应的中文生图提示词2"},');
+    promptLines.push('    {"name": "合成物名称3", "prompt": "对应的中文生图提示词3"}');
+    promptLines.push('  ]');
+    promptLines.push('}');
+    
+    const prompt = promptLines.join('\n');
 
     const response = await openai.chat.completions.create({
       model: env.aiModel,
@@ -134,13 +169,16 @@ export async function synthesizeByAI(inputItems, name, userId, currentEra = '生
       model: env.aiModel,
     };
 
-    // 缓存AI合成结果（7天）
-    const cacheSuccess = await cacheSet(cacheKey, payload, 7 * 24 * 3600);
-    if (!cacheSuccess) {
-      logger.warn({ userId, recipe_hash: recipeHash }, 'Failed to cache AI synthesis result (Redis unavailable or error)');
+    // 只在没有失败原因的情况下缓存（首次成功）
+    if (!lastFailReason) {
+      const cacheSuccess = await cacheSet(cacheKey, payload, 7 * 24 * 3600);
+      if (!cacheSuccess) {
+        logger.warn({ userId, recipe_hash: recipeHash }, 'Failed to cache AI synthesis result (Redis unavailable or error)');
+      }
+      logger.info({ userId, recipe_hash: recipeHash, cached: cacheSuccess }, 'AI synthesis completed');
+    } else {
+      logger.info({ userId, recipe_hash: recipeHash, wasRetry: true }, 'AI synthesis completed (retry, not cached)');
     }
-
-    logger.info({ userId, recipe_hash: recipeHash, cached: cacheSuccess }, 'AI synthesis completed');
 
     return payload;
   } catch (err) {

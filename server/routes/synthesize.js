@@ -59,25 +59,88 @@ router.post('/', authMiddleware, validateRequest(synthesizeSchema), async (req, 
     let aiIdeas = null;
     let aiPromptUsed = null;
     let aiModelUsed = null;
+    const maxRetries = 3;
+    let retryCount = 0;
+    let lastFailReason = null;
     
-    // 尝试AI合成
+    // 尝试AI合成（带重试机制）
     if ((mode === 'ai' || mode === 'auto') && env.aiEnabled) {
-      logger.info({ userId, mode, aiEnabled: env.aiEnabled, hasApiKey: !!env.aiApiKey }, 'Attempting AI synthesis');
-      try {
-        const aiResult = await aiService.synthesizeByAI(inputItems, name, userId, currentEra);
-        output = aiResult.output;
-        aiIdeas = aiResult.ideas;
-        aiPromptUsed = aiResult.prompt;
-        aiModelUsed = aiResult.model;
-        aiUsed = true;
-        logger.info({ userId, mode, preview, era: currentEra, outputName: output?.name }, 'AI synthesis succeeded');
-      } catch (err) {
-        logger.error({ err: err.message, stack: err.stack, userId, mode }, 'AI synthesis failed');
-        // AI合成失败，直接返回错误，不再降级到规则合成
-        return res.status(500).json({ 
-          error: '融合失败',
-          message: err.message || 'AI合成服务暂时不可用，请稍后重试'
-        });
+      while (retryCount <= maxRetries) {
+        logger.info({ 
+          userId, 
+          mode, 
+          retryCount,
+          lastFailReason,
+          aiEnabled: env.aiEnabled, 
+          hasApiKey: !!env.aiApiKey 
+        }, 'Attempting AI synthesis');
+        
+        try {
+          const aiResult = await aiService.synthesizeByAI(
+            inputItems, 
+            name, 
+            userId, 
+            currentEra,
+            lastFailReason // 传递上次失败原因
+          );
+          output = aiResult.output;
+          aiIdeas = aiResult.ideas;
+          aiPromptUsed = aiResult.prompt;
+          aiModelUsed = aiResult.model;
+          aiUsed = true;
+          
+          // 检查时代限制
+          const techCheck = isTechAllowed(output.name, output.tier, output.attrs, currentEra);
+          if (!techCheck.allowed) {
+            // 如果是tier过高，自动降级到当前时代允许的最高tier
+            const eraConfig = (await import('../config/eraConfig.js')).TECH_TIERS[currentEra];
+            if (eraConfig && output.tier > eraConfig.maxTier) {
+              logger.warn({ 
+                userId, 
+                itemName: output.name, 
+                originalTier: output.tier, 
+                adjustedTier: eraConfig.maxTier,
+                reason: 'tier exceeds era limit, auto-adjusted'
+              }, 'Tier auto-adjusted to era limit');
+              output.tier = eraConfig.maxTier;
+              break; // tier调整后继续
+            } else {
+              // 如果是包含禁止概念，重新生成
+              retryCount++;
+              lastFailReason = techCheck.reason;
+              logger.warn({ 
+                userId, 
+                itemName: output.name, 
+                reason: techCheck.reason,
+                retryCount 
+              }, 'AI synthesis violates era limit, retrying');
+              
+              if (retryCount > maxRetries) {
+                // 达到最大重试次数，返回错误
+                const friendlyMessage = `多次尝试后仍无法生成符合当前时代的物品。${techCheck.reason}。当前处于【${currentEra}】，此项技术尚未出现。`;
+                return res.status(403).json({ 
+                  error: '时代限制',
+                  message: friendlyMessage,
+                  currentEra,
+                  reason: techCheck.reason,
+                });
+              }
+              continue; // 重试
+            }
+          }
+          
+          // 通过检查，跳出循环
+          logger.info({ userId, mode, preview, era: currentEra, outputName: output?.name, retryCount }, 'AI synthesis succeeded');
+          break;
+          
+        } catch (err) {
+          logger.error({ err: err.message, stack: err.stack, userId, mode, retryCount }, 'AI synthesis failed');
+          // AI合成失败，直接返回错误，不再降级到规则合成
+          return res.status(500).json({ 
+            error: '融合失败',
+            message: err.message || 'AI合成服务暂时不可用，请稍后重试'
+          });
+        }
       }
     } else {
       logger.info({ userId, mode, aiEnabled: env.aiEnabled, hasApiKey: !!env.aiApiKey }, 'AI synthesis skipped');
@@ -95,17 +158,6 @@ router.post('/', authMiddleware, validateRequest(synthesizeSchema), async (req, 
       return res.status(500).json({ 
         error: '融合失败',
         message: '无法生成合成结果'
-      });
-    }
-    
-    // 检查时代限制
-    const techCheck = isTechAllowed(output.name, output.tier, output.attrs, currentEra);
-    if (!techCheck.allowed) {
-      return res.status(403).json({ 
-        error: '时代限制',
-        message: techCheck.reason,
-        currentEra,
-        suggestedTier: output.tier,
       });
     }
     

@@ -7,6 +7,7 @@ import audioService from '../../services/audioService.js';
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 const MAX_FURNACE_CARDS = 2;
+const MAX_STAGED_CARDS = 10; // 画布最大卡牌数量
 const PROGRESS_DURATION = 1500;
 const PROGRESS_RESET_DELAY = 220;
 
@@ -23,7 +24,7 @@ const isPointInsideElement = (element, clientX, clientY) => {
     );
 };
 
-export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, forgeResultCard = null, onDrop, onRemove, onReturnCardToHand, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard, onClearForgeResult }, ref) {
+export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, forgeResultCard = null, onDrop, onRemove, onReturnCardToHand, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard, onClearForgeResult, pushMessage }, ref) {
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
     const [furnaceCards, setFurnaceCards] = useState([]);
@@ -173,6 +174,17 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         if (!normalizedId) {
             return;
         }
+        
+        // 检查画布是否已满（只检查从手牌拖来的新卡牌）
+        const safeCards = Array.isArray(cards) ? cards : [];
+        const isAlreadyOnCanvas = safeCards.some(c => `${c?.id ?? ''}`.trim() === normalizedId);
+        if (!isAlreadyOnCanvas && safeCards.length >= MAX_STAGED_CARDS) {
+            console.log(`🚫 画布已满（${MAX_STAGED_CARDS}张），无法添加卡牌`);
+            pushMessage?.(`画布已满，最多可以放置${MAX_STAGED_CARDS}张卡牌`, 'warning');
+            resetDragState();
+            return;
+        }
+        
         const position = extractPosition(event);
         console.log('📍 位置:', position, '调用 onDrop');
         onDrop?.(normalizedId, position);
@@ -237,12 +249,12 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         const normalizedId = `${cardId ?? ''}`.trim();
         if (!normalizedId) {
             console.warn('handleCardDropInFurnace 收到空的 cardId', cardId);
-            return;
+            return false;
         }
 
         if (isForging) {
             console.log('正在合成中，无法放入卡牌');
-            return;
+            return false;
         }
 
         console.log('卡牌进入熔炉, ID:', normalizedId, 'hand 数组长度:', hand.length, 'cards 数组长度:', cards.length);
@@ -261,18 +273,31 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
             console.log('错误: 卡牌未找到:', normalizedId);
             console.log('hand 内容:', safeHand.map((c) => c?.id));
             console.log('cards 内容:', safeCards.map((c) => c?.id));
-            return;
+            return false;
         }
         
         console.log('找到卡牌:', card.name);
         
+        // 提前检查是否能添加
+        const currentFurnaceCards = furnaceCards;
+        
+        // 避免重复添加
+        if (currentFurnaceCards.some((c) => `${c.id}`.trim() === normalizedId)) {
+            console.log('卡牌已在熔炉中');
+            resetDragState();
+            return false;
+        }
+        
+        // 检查熔炉是否已满
+        if (currentFurnaceCards.length >= MAX_FURNACE_CARDS) {
+            console.log('熔炉已满，无法添加更多卡牌');
+            resetDragState();
+            return false;
+        }
+        
+        // 可以添加
         setFurnaceCards(prev => {
-            // 避免重复添加
-            if (prev.some((c) => `${c.id}`.trim() === normalizedId)) {
-                console.log('卡牌已在熔炉中');
-                return prev;
-            }
-            const updated = [...prev, card].slice(0, MAX_FURNACE_CARDS);
+            const updated = [...prev, card];
             console.log('✓ 熔炉现有卡牌数:', updated.length, updated.map(c => c.name));
             
             // 播放卡牌放置音效
@@ -286,23 +311,13 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
             return updated;
         });
         resetDragState();
-    }, [hand, cards, isForging, onSelectForForge, resetDragState]);
+        return true;
+    }, [hand, cards, isForging, furnaceCards, onSelectForForge, resetDragState]);
 
     // 暴露方法给父组件
     useImperativeHandle(ref, () => ({
         addCardToFurnace: handleCardDropInFurnace
     }), [handleCardDropInFurnace]);
-
-    useEffect(() => {
-        setFurnaceCards(prev => {
-            const safeHand = Array.isArray(hand) ? hand : [];
-            const filtered = prev.filter(card => safeHand.some(entry => entry.id === card.id));
-            if (filtered.length === prev.length) {
-                return prev;
-            }
-            return filtered;
-        });
-    }, [hand]);
 
     // 手动触发合成按钮
     const handleForgeClick = useCallback(() => {
@@ -413,6 +428,16 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         }
 
         if (containerRef.current?.contains(hovered)) {
+            // 检查画布是否已满
+            const safeCards = Array.isArray(cards) ? cards : [];
+            if (safeCards.length >= MAX_STAGED_CARDS) {
+                console.log(`🚫 画布已满（${MAX_STAGED_CARDS}张），无法从熔炉添加卡牌`);
+                pushMessage?.(`画布已满，最多可以放置${MAX_STAGED_CARDS}张卡牌`, 'warning');
+                // 卡牌返回手牌
+                onReturnCardToHand?.(card);
+                return;
+            }
+            
             const position = extractPosition(event);
             onDrop?.(normalizedId, position);
             return;
@@ -437,6 +462,9 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         const normalizedId = `${cardId ?? ''}`.trim();
         const cardDock = document.querySelector('.card-dock__rail');
         
+        // 先保存卡牌引用，再清除状态
+        const resultCard = forgeResultCard;
+        
         // 清除结果卡牌显示
         onClearForgeResult?.();
         
@@ -446,17 +474,38 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
 
         // 检查是否拖到手牌堆（添加到手牌）
         if (cardDock && hovered && cardDock.contains(hovered)) {
-            if (forgeResultCard) {
-                onReturnCardToHand?.(forgeResultCard);
+            if (resultCard) {
+                onReturnCardToHand?.(resultCard);
             }
             return;
         }
 
         // 检查是否拖到画布（放到画布上）
         if (containerRef.current?.contains(hovered)) {
+            // 检查画布是否已满
+            const safeCards = Array.isArray(cards) ? cards : [];
+            if (safeCards.length >= MAX_STAGED_CARDS) {
+                console.log(`🚫 画布已满（${MAX_STAGED_CARDS}张），无法添加合成结果`);
+                pushMessage?.(`画布已满，最多可以放置${MAX_STAGED_CARDS}张卡牌`, 'warning');
+                // 卡牌返回手牌
+                if (resultCard) {
+                    onReturnCardToHand?.(resultCard);
+                }
+                return;
+            }
+            
+            // 先添加到手牌，再放到画布
+            if (resultCard) {
+                onReturnCardToHand?.(resultCard);
+            }
             const position = extractPosition(event);
             onDrop?.(normalizedId, position);
             return;
+        }
+        
+        // 其他情况（拖到画布外），返回手牌
+        if (resultCard) {
+            onReturnCardToHand?.(resultCard);
         }
     };
 

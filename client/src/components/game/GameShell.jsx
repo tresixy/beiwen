@@ -270,9 +270,11 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     const forgeCanvasRef = useRef(null);
     const handleCardToFurnace = useCallback((cardId) => {
         if (forgeCanvasRef.current?.addCardToFurnace) {
-            forgeCanvasRef.current.addCardToFurnace(cardId);
-            // 从手牌中移除该卡牌
-            removeCardFromHand(cardId);
+            const success = forgeCanvasRef.current.addCardToFurnace(cardId);
+            // 只有成功添加到熔炉时才从手牌中移除
+            if (success) {
+                removeCardFromHand(cardId);
+            }
         }
     }, [removeCardFromHand]);
 
@@ -392,6 +394,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                             onSynthesize={handleSynthesize}
                             onSpawnKeyCard={spawnKeyCard}
                             onClearForgeResult={clearForgeResult}
+                            pushMessage={pushMessage}
                         />
                         <img
                             className="ui-strip ui-strip--top"

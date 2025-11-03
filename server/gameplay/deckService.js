@@ -66,10 +66,12 @@ export async function drawCards(userId, count = 3) {
       }
     }
     
-    // 抽取剩余的卡牌
+    // 抽取剩余的卡牌（允许重复抽取同一种卡）
     const remainingCount = count - hand.length;
-    for (let i = 0; i < remainingCount && availableCards.length > 0; i++) {
-      const weights = availableCards.map(c => {
+    for (let i = 0; i < remainingCount; i++) {
+      if (cards.length === 0) break; // 没有可用卡牌则停止
+      
+      const weights = cards.map(c => {
         const rarityWeight = {
           common: 50,
           uncommon: 30,
@@ -93,10 +95,10 @@ export async function drawCards(userId, count = 3) {
         }
       }
       
-      const selectedCard = availableCards[selectedIndex];
+      const selectedCard = cards[selectedIndex];
       // 格式化卡牌数据，确保包含前端需要的所有字段
       hand.push({
-        id: `card-${selectedCard.id}-${Date.now()}-${hand.length}`,
+        id: `card-${selectedCard.id}-${Date.now()}-${hand.length}-${Math.random().toString(36).substr(2, 9)}`,
         name: selectedCard.name,
         type: selectedCard.type,
         rarity: selectedCard.rarity,
@@ -106,8 +108,7 @@ export async function drawCards(userId, count = 3) {
         attrs: selectedCard.attrs_json || {},
       });
       
-      // 从可用卡牌列表中移除已选择的卡牌，避免重复抽取
-      availableCards.splice(selectedIndex, 1);
+      // 不再移除已选择的卡牌，允许重复抽取
     }
     
     logger.info({ userId, count, drawn: hand.length, cards: hand.map(c => c.name) }, 'Cards drawn');

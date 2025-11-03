@@ -1054,12 +1054,12 @@ export function useGameSimulation({ pushMessage, token }) {
                         updateCardBook((prev) => meaningfulCards.reduce((book, card) => addCardToBook(book, card), prev));
                     }
                 } else {
-                    // 手牌为空，从服务器抽取初始手牌到待领取区域
+                    // 手牌为空，从服务器抽取初始手牌直接进入手牌区
                     try {
                         const drawn = await gameStateApi.drawCards(token, MAX_HAND_SIZE);
                         const newCards = drawn?.hand ?? [];
                         if (newCards.length > 0) {
-                            setPendingCards(newCards);
+                            setHand(newCards);
                             const meaningfulCards = newCards.filter((card) => card && card.type !== 'empty');
                             if (meaningfulCards.length > 0) {
                                 updateCardBook((prev) => meaningfulCards.reduce((book, card) => addCardToBook(book, card), prev));
@@ -1295,10 +1295,10 @@ export function useGameSimulation({ pushMessage, token }) {
                 await gameStateApi.saveHand(token, []);
                 console.log('✅ 服务器手牌已清空');
                 
-                // 重新抽牌到待领取区域
+                // 重新抽牌直接到手牌
                 const drawn = await gameStateApi.drawCards(token, MAX_HAND_SIZE);
                 const newCards = drawn?.hand ?? [];
-                setPendingCards(newCards);
+                setHand(newCards);
                 console.log(`✅ 已抽取 ${newCards.length} 张新手牌`);
                 
                 pushMessage?.('🔄 游戏已重新开始！', 'success');

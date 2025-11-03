@@ -30,6 +30,7 @@ export function CardDock({
         if (!card) {
             return;
         }
+        
         // 播放卡牌拖动音效
         audioService.playClick();
         

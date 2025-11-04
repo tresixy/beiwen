@@ -109,7 +109,7 @@ export function AuthScreen({ onLogin, loading }) {
 
     return (
         <div className="auth-screen">
-            <audio ref={audioRef} src="/assets/music/bgm/登录界面.mp3" preload="auto" />
+            <audio ref={audioRef} src="/assets/music/bgm/登录界面.ogg" preload="auto" />
             <div className="auth-card">
                 <img src="/assets/UI/Logo.webp" alt="Oops, Civilization!" className="auth-logo" />
                 <form className="auth-form" onSubmit={handleSubmit}>

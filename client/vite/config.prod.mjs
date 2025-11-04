@@ -32,15 +32,7 @@ export default defineConfig({
                 }
             }
         },
-        minify: 'terser',
-        terserOptions: {
-            compress: {
-                passes: 2
-            },
-            mangle: true,
-            format: {
-                comments: false
-            }
-        }
+        minify: 'esbuild',
+        target: 'es2019'
     }
 });

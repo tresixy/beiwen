@@ -144,7 +144,9 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
+    background-color: transparent;
     border: none;
+    outline: none;
     cursor: pointer;
     transition: transform 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
     opacity: 0.5;
@@ -155,6 +157,7 @@
     cursor: not-allowed;
     opacity: 0.5;
     filter: grayscale(0.8);
+    outline: none;
 }
 
 .forge-button.active {
@@ -165,6 +168,7 @@
 .forge-button.active:hover {
     transform: scale(1.1);
     filter: brightness(1.2);
+    outline: none;
 }
 
 .forge-button.forging {

@@ -495,6 +495,17 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
             {showSettings && (
                 <div className="lobby-settings-overlay" onClick={() => setShowSettings(false)}>
                     <div className="lobby-settings-panel" onClick={(e) => e.stopPropagation()}>
+                        <button 
+                            type="button"
+                            className="settings-close-icon" 
+                            onClick={() => setShowSettings(false)}
+                            title="关闭"
+                        >
+                            <img 
+                                src="/assets/UI/退出.webp" 
+                                alt="关闭"
+                            />
+                        </button>
                         <h3>⚙️ 设置</h3>
                         <div className="settings-item">
                             <label>🔊 音量</label>
@@ -528,10 +539,10 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                             )}
                             <button 
                                 type="button" 
-                                className="settings-close" 
-                                onClick={() => setShowSettings(false)}
+                                className="settings-logout" 
+                                onClick={onLogout}
                             >
-                                关闭
+                                登出
                             </button>
                         </div>
                     </div>

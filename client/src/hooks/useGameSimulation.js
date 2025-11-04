@@ -135,6 +135,12 @@ export function useGameSimulation({ pushMessage, token }) {
     }, [pushMessage, updateCardBook, token]);
 
     const drawCards = useCallback(async (count = 1) => {
+        // 检查是否正在合成
+        if (forgeLoading || forgePanelOpen) {
+            pushMessage?.('专心一点！合成呢', 'warning');
+            return;
+        }
+        
         // 计算实际手牌区的卡牌数量（不包括已放到画布上的）
         const availableHandCards = hand.filter(card => !selectedIds.includes(card.id));
         
@@ -168,7 +174,7 @@ export function useGameSimulation({ pushMessage, token }) {
             console.error('从服务器抽牌失败:', err);
             pushMessage?.(`抽牌失败: ${err.message}`, 'error');
         }
-    }, [hand, selectedIds, pushMessage, updateCardBook, token]);
+    }, [hand, selectedIds, pushMessage, updateCardBook, token, forgeLoading, forgePanelOpen]);
 
     // 从待领取区域移动卡牌到手牌区
     const claimCardToHand = useCallback((cardId) => {
@@ -539,39 +545,48 @@ export function useGameSimulation({ pushMessage, token }) {
                                 }
                             }
                             
-                            // 触发胜利结算
+                            // 触发key card展示 -> 胜利结算
                             if (isExactMatch || isPartialMatch) {
                                 console.log('🎉 检测到胜利条件！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
                                 setTimeout(() => {
-                                    if (window.showVictoryModal) {
-                                        window.showVictoryModal({
-                                            eventName: activeEvent.name,
-                                            cardName: cardName,
-                                            isFullVictory: isExactMatch,
-                                            onBackToLobby: async () => {
-                                                // 保存通关状态到后端
-                                                try {
-                                                    const selectedHexStr = localStorage.getItem('selectedHex');
-                                                    const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
-                                                    console.log('🎯 调用 completeEvent:', {
-                                                        eventId: activeEvent.id,
+                                    // 先展示key card放大效果
+                                    if (window.showKeyCardReveal) {
+                                        window.showKeyCardReveal({
+                                            keyCard: resultCard,
+                                            onNext: () => {
+                                                // 用户点击"下一步"后，触发胜利结算
+                                                if (window.showVictoryModal) {
+                                                    window.showVictoryModal({
                                                         eventName: activeEvent.name,
-                                                        cardName,
-                                                        selectedHex,
-                                                        handCards: hand.map(c => c.name),
-                                                        isExactMatch
+                                                        cardName: cardName,
+                                                        isFullVictory: isExactMatch,
+                                                        onBackToLobby: async () => {
+                                                            // 保存通关状态到后端
+                                                            try {
+                                                                const selectedHexStr = localStorage.getItem('selectedHex');
+                                                                const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
+                                                                console.log('🎯 调用 completeEvent:', {
+                                                                    eventId: activeEvent.id,
+                                                                    eventName: activeEvent.name,
+                                                                    cardName,
+                                                                    selectedHex,
+                                                                    handCards: hand.map(c => c.name),
+                                                                    isExactMatch
+                                                                });
+                                                                const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
+                                                                console.log('✅ completeEvent 返回结果:', result);
+                                                                
+                                                                // 等待500ms确保数据库已保存
+                                                                await new Promise(resolve => setTimeout(resolve, 500));
+                                                                
+                                                                // 返回主页
+                                                                window.location.href = '/';
+                                                            } catch (err) {
+                                                                console.error('保存通关状态失败:', err);
+                                                                window.location.href = '/';
+                                                            }
+                                                        }
                                                     });
-                                                    const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
-                                                    console.log('✅ completeEvent 返回结果:', result);
-                                                    
-                                                    // 等待500ms确保数据库已保存
-                                                    await new Promise(resolve => setTimeout(resolve, 500));
-                                                    
-                                                    // 返回主页
-                                                    window.location.href = '/';
-                                                } catch (err) {
-                                                    console.error('保存通关状态失败:', err);
-                                                    window.location.href = '/';
                                                 }
                                             }
                                         });
@@ -648,39 +663,48 @@ export function useGameSimulation({ pushMessage, token }) {
                                 }
                             }
                             
-                            // 触发胜利结算
+                            // 触发key card展示 -> 胜利结算
                             if (isExactMatch || isPartialMatch) {
                                 console.log('🎉 检测到胜利条件！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
                                 setTimeout(() => {
-                                    if (window.showVictoryModal) {
-                                        window.showVictoryModal({
-                                            eventName: activeEvent.name,
-                                            cardName: cardName,
-                                            isFullVictory: isExactMatch,
-                                            onBackToLobby: async () => {
-                                                // 保存通关状态到后端
-                                                try {
-                                                    const selectedHexStr = localStorage.getItem('selectedHex');
-                                                    const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
-                                                    console.log('🎯 调用 completeEvent:', {
-                                                        eventId: activeEvent.id,
+                                    // 先展示key card放大效果
+                                    if (window.showKeyCardReveal) {
+                                        window.showKeyCardReveal({
+                                            keyCard: resultCard,
+                                            onNext: () => {
+                                                // 用户点击"下一步"后，触发胜利结算
+                                                if (window.showVictoryModal) {
+                                                    window.showVictoryModal({
                                                         eventName: activeEvent.name,
-                                                        cardName,
-                                                        selectedHex,
-                                                        handCards: hand.map(c => c.name),
-                                                        isExactMatch
+                                                        cardName: cardName,
+                                                        isFullVictory: isExactMatch,
+                                                        onBackToLobby: async () => {
+                                                            // 保存通关状态到后端
+                                                            try {
+                                                                const selectedHexStr = localStorage.getItem('selectedHex');
+                                                                const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
+                                                                console.log('🎯 调用 completeEvent:', {
+                                                                    eventId: activeEvent.id,
+                                                                    eventName: activeEvent.name,
+                                                                    cardName,
+                                                                    selectedHex,
+                                                                    handCards: hand.map(c => c.name),
+                                                                    isExactMatch
+                                                                });
+                                                                const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
+                                                                console.log('✅ completeEvent 返回结果:', result);
+                                                                
+                                                                // 等待500ms确保数据库已保存
+                                                                await new Promise(resolve => setTimeout(resolve, 500));
+                                                                
+                                                                // 返回主页
+                                                                window.location.href = '/';
+                                                            } catch (err) {
+                                                                console.error('保存通关状态失败:', err);
+                                                                window.location.href = '/';
+                                                            }
+                                                        }
                                                     });
-                                                    const result = await eventsApi.completeEvent(token, activeEvent.id, cardName, selectedHex, hand.map(c => c.name), isExactMatch);
-                                                    console.log('✅ completeEvent 返回结果:', result);
-                                                    
-                                                    // 等待500ms确保数据库已保存
-                                                    await new Promise(resolve => setTimeout(resolve, 500));
-                                                    
-                                                    // 返回主页
-                                                    window.location.href = '/';
-                                                } catch (err) {
-                                                    console.error('保存通关状态失败:', err);
-                                                    window.location.href = '/';
                                                 }
                                             }
                                         });
@@ -954,47 +978,63 @@ export function useGameSimulation({ pushMessage, token }) {
                 }
             }
             
-                            // 触发胜利结算
+                            // 触发key card展示 -> 胜利结算
                             if (isExactMatch || isPartialMatch) {
                                 console.log('🎉 作弊码触发胜利条件！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
                                 setTimeout(() => {
-                                    console.log('🎯 检查 window.showVictoryModal:', window.showVictoryModal);
-                                    if (window.showVictoryModal) {
-                                        console.log('✅ 调用 window.showVictoryModal');
-                                        window.showVictoryModal({
-                            eventName: activeEvent.name,
-                            cardName: cardName,
-                            isFullVictory: isExactMatch,
-                            onBackToLobby: async () => {
-                                // 保存通关状态到后端
-                                try {
-                                    const localToken = token || localStorage.getItem('token');
-                                    const selectedHexStr = localStorage.getItem('selectedHex');
-                                    const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
-                                    console.log('🎯 作弊码调用 completeEvent:', {
-                                        eventId: activeEvent.id,
+                                    // 先展示key card放大效果
+                                    if (window.showKeyCardReveal) {
+                                        const keyCard = {
+                                            id: Date.now().toString(),
+                                            name: cardName,
+                                            type: 'key',
+                                            rarity: 'ruby',
+                                            attrs: {}
+                                        };
+                                        window.showKeyCardReveal({
+                                            keyCard: keyCard,
+                                            onNext: () => {
+                                                // 用户点击"下一步"后，触发胜利结算
+                                                console.log('🎯 检查 window.showVictoryModal:', window.showVictoryModal);
+                                                if (window.showVictoryModal) {
+                                                    console.log('✅ 调用 window.showVictoryModal');
+                                                    window.showVictoryModal({
                                         eventName: activeEvent.name,
-                                        cardName,
-                                        selectedHex,
-                                        handCards: [cardName],
-                                        isExactMatch
+                                        cardName: cardName,
+                                        isFullVictory: isExactMatch,
+                                        onBackToLobby: async () => {
+                                            // 保存通关状态到后端
+                                            try {
+                                                const localToken = token || localStorage.getItem('token');
+                                                const selectedHexStr = localStorage.getItem('selectedHex');
+                                                const selectedHex = selectedHexStr ? JSON.parse(selectedHexStr) : null;
+                                                console.log('🎯 作弊码调用 completeEvent:', {
+                                                    eventId: activeEvent.id,
+                                                    eventName: activeEvent.name,
+                                                    cardName,
+                                                    selectedHex,
+                                                    handCards: [cardName],
+                                                    isExactMatch
+                                                });
+                                                const result = await eventsApi.completeEvent(localToken, activeEvent.id, cardName, selectedHex, [cardName], isExactMatch);
+                                                console.log('✅ completeEvent 返回结果:', result);
+                                                
+                                                // 等待500ms确保数据库已保存
+                                                await new Promise(resolve => setTimeout(resolve, 500));
+                                                
+                                                // 返回主页
+                                                window.location.href = '/';
+                                            } catch (err) {
+                                                console.error('保存通关状态失败:', err);
+                                                window.location.href = '/';
+                                            }
+                                        }
                                     });
-                                    const result = await eventsApi.completeEvent(localToken, activeEvent.id, cardName, selectedHex, [cardName], isExactMatch);
-                                    console.log('✅ completeEvent 返回结果:', result);
-                                    
-                                    // 等待500ms确保数据库已保存
-                                    await new Promise(resolve => setTimeout(resolve, 500));
-                                    
-                                    // 返回主页
-                                    window.location.href = '/';
-                                } catch (err) {
-                                    console.error('保存通关状态失败:', err);
-                                    window.location.href = '/';
-                                }
-                            }
-                        });
-                    }
-                }, 800);
+                                                }
+                                            }
+                                        });
+                                    }
+                                }, 800);
             }
         }
     }, [activeEvent, pushMessage, updateCardBook, token, era, hand, selectedIds]);
@@ -1268,6 +1308,11 @@ export function useGameSimulation({ pushMessage, token }) {
     const fillHandToMax = useCallback(async () => {
         if (!token) return;
         
+        // 检查是否正在合成
+        if (forgeLoading || forgePanelOpen) {
+            return;
+        }
+        
         // 计算实际手牌区的卡牌数量（不包括已放到画布上的）
         const availableHandCards = hand.filter(card => !selectedIds.includes(card.id));
         if (availableHandCards.length >= MAX_HAND_SIZE) return;
@@ -1284,7 +1329,7 @@ export function useGameSimulation({ pushMessage, token }) {
         } catch (err) {
             console.error('❌ 自动补牌失败:', err);
         }
-    }, [token, hand, selectedIds, updateCardBook]);
+    }, [token, hand, selectedIds, updateCardBook, forgeLoading, forgePanelOpen]);
 
     // 重新开始游戏
     const restartGame = useCallback(async () => {

@@ -16,6 +16,7 @@ import { CardBookPanel } from './CardBookPanel.jsx';
 import { EscMenu } from './EscMenu.jsx';
 import audioService from '../../services/audioService.js';
 import { VictoryModal } from './VictoryModal.jsx';
+import { KeyCardRevealModal } from './KeyCardRevealModal.jsx';
 import { PendingCardsArea } from './PendingCardsArea.jsx';
 
 const detectMobile = () => {
@@ -27,6 +28,7 @@ const detectMobile = () => {
 
 export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     const [victoryModalData, setVictoryModalData] = useState(null);
+    const [keyCardRevealData, setKeyCardRevealData] = useState(null);
     
     const {
         loading,
@@ -127,37 +129,37 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
             sounds: {
                 // 点击音效（多个变体，随机播放）
                 clickVariants: [
-                    '/assets/music/SE/点击卡牌.wav',
-                    '/assets/music/SE/点击卡牌 (2).wav',
-                    '/assets/music/SE/点击卡牌 (3).wav',
-                    '/assets/music/SE/点击卡牌 (4).wav',
+                    '/assets/music/SE/点击卡牌.ogg',
+                    '/assets/music/SE/点击卡牌 (2).ogg',
+                    '/assets/music/SE/点击卡牌 (3).ogg',
+                    '/assets/music/SE/点击卡牌 (4).ogg',
                 ],
                 // 合成音效（多个变体）
                 synthesisVariants: [
-                    '/assets/music/SE/中间合成物1.wav',
-                    '/assets/music/SE/中间合成物2.wav',
+                    '/assets/music/SE/中间合成物1.ogg',
+                    '/assets/music/SE/中间合成物2.ogg',
                 ],
                 // 钥匙卡合成音效
-                keySynthesis: '/assets/music/SE/钥匙卡合成音效.wav',
+                keySynthesis: '/assets/music/SE/钥匙卡合成音效.ogg',
                 // 事件完成音效
-                eventComplete: '/assets/music/SE/解决困境.wav',
+                eventComplete: '/assets/music/SE/解决困境.ogg',
                 // 时代切换音效
-                eraTransition: '/assets/music/SE/进入下一个时代.wav',
+                eraTransition: '/assets/music/SE/进入下一个时代.ogg',
                 // 进入游戏音效
-                enterGame: '/assets/music/SE/进入游戏.wav',
+                enterGame: '/assets/music/SE/进入游戏.ogg',
             },
             bgm: {
-                '生存时代': '/assets/music/bgm/生存时代.mp3',
-                '城邦时代': '/assets/music/bgm/城邦时代.mp3',
-                '分野时代': '/assets/music/bgm/后期的时代.mp3',
-                '帝国时代': '/assets/music/bgm/后期的时代.mp3',
-                '理性时代': '/assets/music/bgm/后期的时代.mp3',
-                '信仰时代': '/assets/music/bgm/后期的时代.mp3',
-                '启蒙时代': '/assets/music/bgm/后期的时代.mp3',
-                '全球时代': '/assets/music/bgm/后期的时代.mp3',
-                '第二次分野时代': '/assets/music/bgm/后期的时代.mp3',
-                '星辰时代': '/assets/music/bgm/后期的时代.mp3',
-                '奇点时代': '/assets/music/bgm/后期的时代.mp3',
+                '生存时代': '/assets/music/bgm/生存时代.ogg',
+                '城邦时代': '/assets/music/bgm/城邦时代.ogg',
+                '分野时代': '/assets/music/bgm/后期的时代.ogg',
+                '帝国时代': '/assets/music/bgm/后期的时代.ogg',
+                '理性时代': '/assets/music/bgm/后期的时代.ogg',
+                '信仰时代': '/assets/music/bgm/后期的时代.ogg',
+                '启蒙时代': '/assets/music/bgm/后期的时代.ogg',
+                '全球时代': '/assets/music/bgm/后期的时代.ogg',
+                '第二次分野时代': '/assets/music/bgm/后期的时代.ogg',
+                '星辰时代': '/assets/music/bgm/后期的时代.ogg',
+                '奇点时代': '/assets/music/bgm/后期的时代.ogg',
             }
         });
         
@@ -235,14 +237,18 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         return () => window.clearInterval(interval);
     }, [loading]);
     
-    // 提供全局函数用于显示胜利界面
+    // 提供全局函数用于显示胜利界面和key card展示
     useEffect(() => {
         window.showVictoryModal = (data) => {
             setVictoryModalData(data);
         };
+        window.showKeyCardReveal = (data) => {
+            setKeyCardRevealData(data);
+        };
         
         return () => {
             delete window.showVictoryModal;
+            delete window.showKeyCardReveal;
         };
     }, []);
 
@@ -570,6 +576,16 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                     </div>
                 </div>
             )}
+            
+            <KeyCardRevealModal
+                show={!!keyCardRevealData}
+                keyCard={keyCardRevealData?.keyCard}
+                onNext={() => {
+                    const callback = keyCardRevealData?.onNext;
+                    setKeyCardRevealData(null);
+                    if (callback) callback();
+                }}
+            />
             
             <VictoryModal
                 show={!!victoryModalData}

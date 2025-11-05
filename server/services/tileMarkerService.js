@@ -116,7 +116,7 @@ export async function highlightTile(userId, q, r, eventName = null) {
 /**
  * 完成事件后放置标志并高亮地块
  */
-export async function markEventCompletion(userId, selectedQ, selectedR, markerType, eventName, isFullVictory = true) {
+export async function markEventCompletion(userId, selectedQ, selectedR, markerType, eventName, isFullVictory = true, selectedRegionTiles = null) {
   const client = await pool.connect();
   
   try {
@@ -124,23 +124,42 @@ export async function markEventCompletion(userId, selectedQ, selectedR, markerTy
     
     // 根据是否完全胜利选择地块
     let tilesToMark;
-    if (isFullVictory) {
-      // 完全胜利：标记所有半径2范围内的地块
+    if (selectedRegionTiles && Array.isArray(selectedRegionTiles) && selectedRegionTiles.length > 0) {
+      // 如果传入了区域地块列表，使用整个区域的地块
+      tilesToMark = selectedRegionTiles;
+      logger.info({ 
+        userId, 
+        selectedQ, 
+        selectedR, 
+        markerType, 
+        eventName,
+        tileCount: tilesToMark.length 
+      }, 'Using provided region tiles for marking');
+    } else if (isFullVictory) {
+      // 完全胜利：标记所有半径2范围内的地块（旧逻辑兼容）
       tilesToMark = getTilesInRadius(selectedQ, selectedR, 2);
+      logger.info({ 
+        userId, 
+        selectedQ, 
+        selectedR, 
+        markerType, 
+        eventName,
+        isFullVictory,
+        tileCount: tilesToMark.length 
+      }, 'Using radius-based tiles for marking (fallback)');
     } else {
       // 部分胜利：随机选择部分地块
       tilesToMark = getRandomNearbyTiles(selectedQ, selectedR, 1, 5);
+      logger.info({ 
+        userId, 
+        selectedQ, 
+        selectedR, 
+        markerType, 
+        eventName,
+        isFullVictory,
+        tileCount: tilesToMark.length 
+      }, 'Using random nearby tiles for marking');
     }
-    
-    logger.info({ 
-      userId, 
-      selectedQ, 
-      selectedR, 
-      markerType, 
-      eventName,
-      isFullVictory,
-      tileCount: tilesToMark.length 
-    }, 'Marking tiles for event completion');
     
     // 在第一个地块（中心地块）放置标志
     const imagePath = findMarkerImage(markerType);

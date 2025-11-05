@@ -139,6 +139,7 @@ const HEX_DIRECTIONS = [
 const MAP_RADIUS = 38;
 const CLUSTER_SPACING = 4;
 const LAND_RADIUS = 44;
+const BASE_HEX_SIZE = 112;
 
 function keyFromHex(hex) {
     return `${hex.q},${hex.r}`;
@@ -659,7 +660,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         
         const { map: terrainMapData, regionAxialCenters } = terrainMap;
         
-        const baseSize = 112;
+        const baseSize = BASE_HEX_SIZE;
         const size = baseSize * scale;
         const hexHeight = size * 2;
         const hexWidth = Math.sqrt(3) * size;
@@ -952,22 +953,88 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             .sort((a, b) => a.py - b.py); // 按Y坐标排序，上面的先画
         
         for (const marker of markersToRender) {
-            if (marker.image_path) {
-                // TODO: 加载并绘制标志图片
-                // 这里先绘制一个占位符
-                const markerSize = size * 0.8;
-                ctx.save();
-                ctx.fillStyle = 'rgba(255, 100, 50, 0.8)';
-                ctx.beginPath();
-                ctx.arc(marker.px, marker.py, markerSize * 0.3, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#fff';
-                ctx.font = `${markerSize * 0.4}px var(--font-game)`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(marker.marker_type.substring(0, 2), marker.px, marker.py);
-                ctx.restore();
-            }
+            const baseSize = size * 1.4;
+            const flagHeight = baseSize * 1.5;
+            const flagWidth = baseSize * 1.2;
+            
+            ctx.save();
+            ctx.translate(marker.px, marker.py - baseSize * 0.5);
+            
+            // 绘制底部发光光圈
+            const pulseScale = 1 + Math.sin(breathePhase) * 0.15;
+            const gradient = ctx.createRadialGradient(0, baseSize * 0.5, 0, 0, baseSize * 0.5, baseSize * 0.8 * pulseScale);
+            gradient.addColorStop(0, 'rgba(255, 200, 100, 0.4)');
+            gradient.addColorStop(1, 'rgba(255, 150, 50, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(0, baseSize * 0.5, baseSize * 0.8 * pulseScale, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制旗杆
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            
+            const poleGradient = ctx.createLinearGradient(-2, 0, 2, 0);
+            poleGradient.addColorStop(0, '#8B7355');
+            poleGradient.addColorStop(0.5, '#A0826D');
+            poleGradient.addColorStop(1, '#6B5344');
+            ctx.fillStyle = poleGradient;
+            ctx.fillRect(-2, -flagHeight * 0.9, 4, flagHeight);
+            
+            // 绘制旗帜主体（飘扬效果）
+            const wave = Math.sin(breathePhase * 2) * 0.1;
+            ctx.beginPath();
+            ctx.moveTo(2, -flagHeight * 0.85);
+            ctx.bezierCurveTo(
+                flagWidth * 0.3, -flagHeight * 0.85 + wave * 10,
+                flagWidth * 0.6, -flagHeight * 0.7 - wave * 10,
+                flagWidth * 0.9, -flagHeight * 0.7
+            );
+            ctx.lineTo(flagWidth * 0.9 - wave * 8, -flagHeight * 0.4);
+            ctx.bezierCurveTo(
+                flagWidth * 0.6, -flagHeight * 0.4 + wave * 8,
+                flagWidth * 0.3, -flagHeight * 0.3 - wave * 8,
+                2, -flagHeight * 0.3
+            );
+            ctx.closePath();
+            
+            // 旗帜渐变色
+            const flagGradient = ctx.createLinearGradient(0, -flagHeight * 0.85, flagWidth, -flagHeight * 0.4);
+            flagGradient.addColorStop(0, '#E63946');
+            flagGradient.addColorStop(0.5, '#DC2F3C');
+            flagGradient.addColorStop(1, '#B71C2E');
+            ctx.fillStyle = flagGradient;
+            ctx.fill();
+            
+            // 旗帜边框
+            ctx.shadowColor = 'transparent';
+            ctx.strokeStyle = 'rgba(180, 30, 40, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 绘制旗帜上的文字/图标
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 3;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = `bold ${baseSize * 0.45}px var(--font-game)`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const markerText = marker.marker_type || marker.event_name || '✓';
+            ctx.fillText(markerText.substring(0, 2), flagWidth * 0.45, -flagHeight * 0.57);
+            
+            // 绘制旗帜顶端的装饰
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(0, -flagHeight * 0.9, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#FFA500';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.restore();
         }
 
         // 绘制区域名称标签 - 使用预计算的区域中心
@@ -1249,6 +1316,63 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
     const rafIdRef = useRef(null); // requestAnimationFrame ID
     const DRAG_THRESHOLD = 5; // 移动超过5像素才算拖拽
 
+    const getLogicalCanvasCoords = useCallback((event) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return null;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return null;
+        const dpr = window.devicePixelRatio || 1;
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        const scaledX = (mouseX * canvas.width) / rect.width;
+        const scaledY = (mouseY * canvas.height) / rect.height;
+        return { x: scaledX / dpr, y: scaledY / dpr };
+    }, []);
+
+    const findHexAtCanvasPoint = useCallback((canvasPoint) => {
+        if (!canvasPoint) return null;
+        const baseSize = BASE_HEX_SIZE;
+        const size = baseSize * scale;
+        const originX = width / 2 + offset.x;
+        const originY = height / 3 + offset.y;
+        const approx = isometricToAxial(canvasPoint.x - originX, canvasPoint.y - originY, size);
+        const tileW = size * 1.5;
+        const tileH = size * 0.75;
+
+        const candidateKeys = new Set([`${approx.q},${approx.r}`]);
+        HEX_DIRECTIONS.forEach((dir) => {
+            candidateKeys.add(`${approx.q + dir.q},${approx.r + dir.r}`);
+        });
+
+        let best = null;
+        candidateKeys.forEach((key) => {
+            const [q, r] = key.split(',').map(Number);
+            // 使用当前的 scale 和 offset 实时计算坐标，而不是依赖 hexMapRef 中可能过时的数据
+            const { x, y } = axialToIsometric(q, r, size);
+            const px = originX + x;
+            const py = originY + y;
+            
+            const dx = Math.abs(canvasPoint.x - px);
+            const dy = Math.abs(canvasPoint.y - py);
+            const score = dx / tileW + dy / tileH;
+            if (score <= 1.05 && (!best || score < best.score)) {
+                best = { q, r, score };
+            }
+        });
+
+        if (best) {
+            return { q: best.q, r: best.r };
+        }
+
+        // 检查 terrainMap 中是否存在该坐标（而不是检查可能过时的 hexMapRef）
+        const { map: terrainMapData } = terrainMap;
+        if (terrainMapData.has(`${approx.q},${approx.r}`)) {
+            return approx;
+        }
+
+        return null;
+    }, [offset, scale, width, height, terrainMap]);
+
     const handleMouseDown = useCallback((e) => {
         wasDraggingRef.current = false;
         mouseDownPosRef.current = { x: e.clientX, y: e.clientY };
@@ -1257,19 +1381,6 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
     }, [offset]);
 
     const handleMouseMove = useCallback((e) => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-
-        // 转换为canvas坐标
-        const scaleX = width / rect.width;
-        const scaleY = height / rect.height;
-        const canvasX = mouseX * scaleX;
-        const canvasY = mouseY * scaleY;
-
         if (isDragging) {
             // 检查是否真的在拖拽（移动超过阈值）
             const dx = e.clientX - mouseDownPosRef.current.x;
@@ -1296,13 +1407,18 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 });
             }
         } else {
-            const originX = width / 2 + offset.x;
-            const originY = height / 3 + offset.y;
-            const baseSize = 112;
-            const hex = isometricToAxial(canvasX - originX, canvasY - originY, baseSize * scale);
-            setHoveredHex(hex);
+            const logicalPos = getLogicalCanvasCoords(e);
+            if (!logicalPos) return;
+            const hex = findHexAtCanvasPoint(logicalPos);
+            setHoveredHex((prev) => {
+                if (!hex) return null;
+                if (prev && prev.q === hex.q && prev.r === hex.r) {
+                    return prev;
+                }
+                return hex;
+            });
         }
-    }, [isDragging, dragStart, width, height, offset, scale]);
+    }, [isDragging, dragStart, getLogicalCanvasCoords, findHexAtCanvasPoint]);
 
     const handleMouseUp = useCallback(() => {
         setIsDragging(false);
@@ -1344,19 +1460,9 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
+        const logicalPos = getLogicalCanvasCoords(e);
+        if (!logicalPos) return;
 
-        const scaleX = width / rect.width;
-        const scaleY = height / rect.height;
-        const canvasX = mouseX * scaleX;
-        const canvasY = mouseY * scaleY;
-
-        const originX = width / 2 + offset.x;
-        const originY = height / 3 + offset.y;
-        const baseSize = 112;
-        
         // 检查是否点击了区域标签（包括landmark插画区域）
         const { regionAxialCenters } = terrainMap;
         let clickedRegion = null;
@@ -1368,9 +1474,9 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             if (!regionDef) return;
             
             const off = REGION_LABEL_OFFSETS.get(regionKey) || { q: 0, r: 0 };
-            const { x, y } = axialToIsometric(axialCenter.q + off.q, axialCenter.r + off.r, baseSize * scale);
-            const centerX = originX + x;
-            const centerY = originY + y;
+            const { x, y } = axialToIsometric(axialCenter.q + off.q, axialCenter.r + off.r, BASE_HEX_SIZE * scale);
+            const centerX = width / 2 + offset.x + x;
+            const centerY = height / 3 + offset.y + y;
             
             // 与绘制一致的文本与底板几何
             const englishFontSize = fontSize * 0.7;
@@ -1407,10 +1513,10 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             
             // 检查点击是否在区域内（矩形检测）
             const clickAreaWidth = areaWidth;
-            if (canvasX >= centerX - clickAreaWidth / 2 && 
-                canvasX <= centerX + clickAreaWidth / 2 &&
-                canvasY >= clickAreaTop && 
-                canvasY <= clickAreaTop + clickAreaHeight) {
+            if (logicalPos.x >= centerX - clickAreaWidth / 2 && 
+                logicalPos.x <= centerX + clickAreaWidth / 2 &&
+                logicalPos.y >= clickAreaTop && 
+                logicalPos.y <= clickAreaTop + clickAreaHeight) {
                 clickedRegion = regionKey;
             }
         });
@@ -1421,14 +1527,18 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             return;
         }
         
-        // 否则选中地块
-        const hex = isometricToAxial(canvasX - originX, canvasY - originY, baseSize * scale);
-        const key = `${hex.q},${hex.r}`;
-        if (terrainMap.map.has(key)) {
-            setSelectedHex(hex);
-            onSelectHex?.(hex);
+        // 点击地块时，高亮该地块所属的整个区域
+        const hex = findHexAtCanvasPoint(logicalPos);
+        if (!hex) {
+            return;
         }
-    }, [width, height, offset, scale, onSelectHex, terrainMap, onRegionClick]);
+        const key = `${hex.q},${hex.r}`;
+        const tileData = terrainMap.map.get(key);
+        if (tileData && tileData.regionKey && onRegionClick) {
+            // 调用区域点击逻辑，高亮整个区域
+            onRegionClick(tileData.regionKey);
+        }
+    }, [width, height, offset, scale, terrainMap, onRegionClick, getLogicalCanvasCoords, findHexAtCanvasPoint]);
 
     return (
         <div ref={containerRef} className="lobby-hex-container">

@@ -1,6 +1,7 @@
 import './VictoryModal.css';
+import { CardSvg } from './CardSvg';
 
-export function VictoryModal({ show, onClose, eventName, reward, cardsAdded = [], cardName, isFullVictory, onBackToLobby }) {
+export function VictoryModal({ show, onClose, eventName, reward, cardsAdded = [], cardName, isFullVictory, onBackToLobby, unlockedRewardCards = [] }) {
     // 如果有 onBackToLobby 回调，说明是合成触发的胜利结算
     const isGameVictory = !!onBackToLobby;
     
@@ -56,6 +57,20 @@ export function VictoryModal({ show, onClose, eventName, reward, cardsAdded = []
                     
                     {reward && (
                         <p className="victory-reward">获得奖励：{reward}</p>
+                    )}
+                    
+                    {unlockedRewardCards && unlockedRewardCards.length > 0 && (
+                        <div className="victory-reward-cards">
+                            <p className="victory-reward-cards-title">✨ 解锁新卡牌：</p>
+                            <div className="victory-reward-cards-grid">
+                                {unlockedRewardCards.map((cardName, idx) => (
+                                    <div key={idx} className="victory-reward-card">
+                                        <CardSvg name={cardName} className="victory-reward-card-image" />
+                                        <p className="victory-reward-card-name">{cardName}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     )}
                     
                     {cardsAdded && cardsAdded.length > 0 && (

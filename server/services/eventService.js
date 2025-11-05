@@ -204,7 +204,7 @@ export async function getActiveEvent(userId) {
 }
 
 // 完成event，解锁钥匙并激活下一个event
-export async function completeEvent(userId, eventId, unlockedKey, selectedHex = null, isFullVictory = true) {
+export async function completeEvent(userId, eventId, unlockedKey, selectedHex = null, isFullVictory = true, selectedRegionTiles = null) {
   const client = await pool.connect();
   
   try {
@@ -323,6 +323,7 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
     // 获取事件信息用于后续处理
     let eventName = '';
     let eventReward = '';
+    let unlockedRewardCards = [];
     try {
       const eventResult = await pool.query('SELECT name, reward FROM events WHERE id = $1', [eventId]);
       if (eventResult.rows.length > 0) {
@@ -330,7 +331,7 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
         eventReward = eventResult.rows[0].reward;
         
         // 解锁奖励卡牌
-        const unlockedRewardCards = await cardService.checkAndUnlockRewardCards(userId, eventName);
+        unlockedRewardCards = await cardService.checkAndUnlockRewardCards(userId, eventName);
         logger.info({ userId, eventId, eventName, unlockedRewardCards }, 'Reward cards unlocked after event');
       }
     } catch (cardErr) {
@@ -338,30 +339,39 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
       // 不抛出错误，因为event已经完成
     }
 
-    // 在地图上放置标志并高亮地块
+    // 在地图上放置标志并高亮地块（使用 unlockedKey 作为 marker）
     let tileMarkerResult = null;
-    if (selectedHex && eventReward) {
+    if (selectedHex) {
       try {
+        // 使用 unlockedKey（如"火"）作为marker类型和event名称
+        const markerName = unlockedKey || eventReward || eventName || 'completed';
+        
         tileMarkerResult = await tileMarkerService.markEventCompletion(
           userId,
           selectedHex.q,
           selectedHex.r,
-          eventReward,
-          eventName,
-          isFullVictory
+          markerName,
+          eventName || unlockedKey,
+          isFullVictory,
+          selectedRegionTiles
         );
         logger.info({ 
           userId, 
           eventId, 
           selectedHex, 
-          reward: eventReward,
+          markerName,
+          eventName,
+          unlockedKey,
           isFullVictory,
+          selectedRegionTiles: selectedRegionTiles ? selectedRegionTiles.length : 0,
           tileMarkerResult 
         }, 'Tile markers placed for event completion');
       } catch (markerErr) {
         logger.error({ err: markerErr, userId, eventId, selectedHex }, 'Failed to place tile markers');
         // 不抛出错误，标志放置失败不影响事件完成
       }
+    } else {
+      logger.warn({ userId, eventId }, 'No selectedHex provided, skipping tile marker placement');
     }
     
     // 如果进入新时代，解锁该时代的初始卡牌
@@ -390,6 +400,7 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
       nextEventId,
       completedCount: completedEvents.length,
       tileMarkers: tileMarkerResult,
+      unlockedRewardCards: unlockedRewardCards || [],
     };
   } catch (err) {
     await client.query('ROLLBACK');

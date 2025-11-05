@@ -10,8 +10,6 @@ export function LoadingTest() {
     return (
         <div className="game-shell game-shell--loading">
             <div className="loading-panel">
-                <div className="loading-title">正在加载游戏数据...</div>
-                <div className="loading-subtitle">从云端同步您的游戏进度</div>
                 <div className="loading-bar">
                     <div className="loading-bar__track">
                         <div 

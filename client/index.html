@@ -229,7 +229,7 @@
                 '「上一次文明加载到这里时，他们造出了咖啡。」'
             ];
 
-            let quoteIndex = 0;
+            let quoteIndex = Math.floor(Math.random() * quotes.length);
             let quoteTimer = null;
 
             const showNextQuote = () => {
@@ -238,7 +238,12 @@
                 setTimeout(() => {
                     quoteEl.textContent = quotes[quoteIndex];
                     quoteEl.classList.add('active');
-                    quoteIndex = (quoteIndex + 1) % quotes.length;
+                    // 随机选择下一条，避免重复
+                    let next;
+                    do {
+                        next = Math.floor(Math.random() * quotes.length);
+                    } while (next === quoteIndex && quotes.length > 1);
+                    quoteIndex = next;
                 }, 300);
             };
 

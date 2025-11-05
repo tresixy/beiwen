@@ -43,3 +43,22 @@ export async function clearMarkers(token) {
   return response.json();
 }
 
+/**
+ * 合成keycard时高亮地块
+ */
+export async function highlightOnKeycard(token, q, r, keyCardName) {
+  const response = await fetch(`${API_BASE}/tiles/highlight-on-keycard`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify({ q, r, keyCardName }),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to highlight tile on keycard');
+  }
+  return response.json();
+}
+

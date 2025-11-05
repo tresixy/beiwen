@@ -69,6 +69,7 @@ export async function synthesizeByAI(inputItems, name, userId, currentEra = '生
     // 获取时代定义
     const eraInfo = ERAS.find(e => e.name === currentEra) || ERAS[0];
     const eraDefinition = eraInfo.description || '人类文明的萌芽期';
+    const eraHighlights = Array.isArray(eraInfo.lore) ? eraInfo.lore : [];
 
     const promptLines = [
       '# 核心规则：时代限制',
@@ -77,21 +78,29 @@ export async function synthesizeByAI(inputItems, name, userId, currentEra = '生
       '',
       `- **当前时代**：${aiCivilizationName}`,
       `- **时代定义**：${eraDefinition}`,
-      `- **合成原料**：${combinationSentence}`,
-      '',
-      '# 创作要求',
-      '',
-      `1. **紧扣时代**：合成结果必须完全符合【时代定义】。`,
-      `   - 允许的概念：${techConfig.allowedConcepts.slice(0, 8).join('、')}等`,
-      `   - **严格禁止**：${techConfig.forbiddenConcepts.join('、')}`,
-      `   - 在"${currentEra}"，绝对不能出现任何禁止概念相关的物品`,
-      '',
-      '2. **适度幻想**：在遵循时代背景的前提下，发挥你的想象力。合成物可以是符合逻辑的工具，也可以是那个时代的人因认知局限而产生的"神秘"或"奇迹"般的物品。',
-      '',
-      '3. **多样性**：至少提供3个不同的合成结果设想。',
-      '',
-      '4. **生图质量**：`prompt` 字段需要是一个简洁但画面感强的中文短语，用于AI绘画。',
     ];
+
+    if (eraHighlights.length > 0) {
+      promptLines.push('- **时代特征要点**：');
+      eraHighlights.forEach((note) => {
+        promptLines.push(`   - ${note}`);
+      });
+    }
+
+    promptLines.push(`- **合成原料**：${combinationSentence}`);
+    promptLines.push('');
+    promptLines.push('# 创作要求');
+    promptLines.push('');
+    promptLines.push(`1. **紧扣时代**：合成结果必须完全符合【时代定义】。`);
+    promptLines.push(`   - 允许的概念：${techConfig.allowedConcepts.slice(0, 8).join('、')}等`);
+    promptLines.push(`   - **严格禁止**：${techConfig.forbiddenConcepts.join('、')}`);
+    promptLines.push(`   - 在"${currentEra}"，绝对不能出现任何禁止概念相关的物品`);
+    promptLines.push('');
+    promptLines.push('2. **适度幻想**：在遵循时代背景的前提下，发挥你的想象力。合成物可以是符合逻辑的工具，也可以是那个时代的人因认知局限而产生的"神秘"或"奇迹"般的物品。');
+    promptLines.push('');
+    promptLines.push('3. **多样性**：至少提供3个不同的合成结果设想。');
+    promptLines.push('');
+    promptLines.push('4. **生图质量**：`prompt` 字段需要是一个简洁但画面感强的中文短语，用于AI绘画。');
     
     // 如果有上次失败的原因，添加警告
     if (lastFailReason) {
@@ -171,7 +180,7 @@ export async function synthesizeByAI(inputItems, name, userId, currentEra = '生
 
     // 只在没有失败原因的情况下缓存（首次成功）
     if (!lastFailReason) {
-      const cacheSuccess = await cacheSet(cacheKey, payload, 7 * 24 * 3600);
+      const cacheSuccess = await cacheSet(cacheKey, payload, 3600);
       if (!cacheSuccess) {
         logger.warn({ userId, recipe_hash: recipeHash }, 'Failed to cache AI synthesis result (Redis unavailable or error)');
       }

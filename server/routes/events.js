@@ -37,7 +37,7 @@ router.get('/active', authMiddleware, async (req, res) => {
 router.post('/complete', authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
-    const { eventId, key, selectedHex, handCards = [], isFullVictory = true } = req.body;
+    const { eventId, key, selectedHex, handCards = [], isFullVictory = true, selectedRegionTiles = null } = req.body;
 
     if (!eventId || !key) {
       return res.status(400).json({ error: '缺少eventId或key参数' });
@@ -59,8 +59,8 @@ router.post('/complete', authMiddleware, async (req, res) => {
       });
     }
 
-    // 完成event（传入选中的地块坐标和是否完全胜利）
-    const result = await eventService.completeEvent(userId, eventId, key, selectedHex, isFullVictory);
+    // 完成event（传入选中的地块坐标、是否完全胜利和区域地块列表）
+    const result = await eventService.completeEvent(userId, eventId, key, selectedHex, isFullVictory, selectedRegionTiles);
 
     // 将手牌中的卡牌加入背包（包括key卡和合成的卡牌）
     let cardsAddedToInventory = [];
@@ -102,6 +102,7 @@ router.post('/complete', authMiddleware, async (req, res) => {
       nextEventId: result.nextEventId,
       tileMarkers: result.tileMarkers,
       cardsAdded: cardsAddedToInventory,
+      unlockedRewardCards: result.unlockedRewardCards || [],
       progress: {
         completed: result.completedCount,
         total: activeEvent.totalEvents,

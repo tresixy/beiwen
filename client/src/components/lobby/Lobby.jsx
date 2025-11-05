@@ -56,7 +56,8 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
     });
     const [iconPickerOpen, setIconPickerOpen] = useState(false);
     const [markers, setMarkers] = useState([]);
-    const [highlightedTiles, setHighlightedTiles] = useState([]);
+    const [permanentHighlights, setPermanentHighlights] = useState([]); // 永久高亮（沙盘奖励）
+    const [temporaryHighlights, setTemporaryHighlights] = useState([]); // 临时区域高亮
     const [regionToTiles, setRegionToTiles] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
     const [frameSize, setFrameSize] = useState({ width: '100%', height: '100%' });
@@ -95,10 +96,18 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
     };
 
     const handleSelectHex = useCallback((hex) => {
+        // 检查该地块是否已经被点亮（永久占领）
+        const isHighlighted = permanentHighlights.some(tile => tile.q === hex.q && tile.r === hex.r);
+        
+        if (isHighlighted) {
+            console.log('🚫 该地块已被点亮，无法再次选择', hex);
+            return; // 不允许选择已点亮的地块
+        }
+        
         setSelectedLocation(hex);
         // 保存到localStorage供游戏中使用
         localStorage.setItem('selectedHex', JSON.stringify(hex));
-    }, []);
+    }, [permanentHighlights]);
 
     const toggleIconPicker = useCallback(() => {
         setIconPickerOpen((open) => !open);
@@ -138,23 +147,32 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
         if (!regionToTiles) return;
         
         if (selectedRegion === regionKey) {
-            // 取消选中
+            // 取消选中：只清空临时高亮，保留永久高亮
             setSelectedRegion(null);
-            setHighlightedTiles([]);
+            setTemporaryHighlights([]);
+            setSelectedLocation(null);
+            localStorage.removeItem('selectedHex');
+            localStorage.removeItem('selectedRegion');
+            localStorage.removeItem('selectedRegionTiles');
         } else {
-            // 选中新区域
+            // 选中新区域：只设置临时高亮
             setSelectedRegion(regionKey);
             const tiles = regionToTiles.get(regionKey) || [];
-            setHighlightedTiles(tiles);
+            setTemporaryHighlights(tiles);
             
-            // 自动选择该区域的第一个地块作为起始位置
+            // 自动选择该区域的第一个地块作为起始位置（优先选择未被永久点亮的地块）
             if (tiles.length > 0) {
-                const firstTile = tiles[0];
-                setSelectedLocation(firstTile);
-                localStorage.setItem('selectedHex', JSON.stringify(firstTile));
+                const availableTile = tiles.find(t => 
+                    !permanentHighlights.some(p => p.q === t.q && p.r === t.r)
+                ) || tiles[0];
+                
+                setSelectedLocation(availableTile);
+                localStorage.setItem('selectedHex', JSON.stringify(availableTile));
+                localStorage.setItem('selectedRegion', regionKey);
+                localStorage.setItem('selectedRegionTiles', JSON.stringify(tiles));
             }
         }
-    }, [regionToTiles, selectedRegion]);
+    }, [regionToTiles, selectedRegion, permanentHighlights]);
 
     useEffect(() => {
         if (!cardBookOpen) {
@@ -234,10 +252,10 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
         ])
             .then(([markersData, highlightsData]) => {
                 console.log('✅ 地块标记加载完成:', markersData.markers?.length || 0, '个标记');
-                console.log('✅ 高亮地块加载完成:', highlightsData.highlights?.length || 0, '个地块');
-                console.log('高亮地块详情:', highlightsData.highlights);
+                console.log('✅ 永久高亮地块加载完成:', highlightsData.highlights?.length || 0, '个地块');
+                console.log('永久高亮地块详情:', highlightsData.highlights);
                 setMarkers(markersData.markers || []);
-                setHighlightedTiles(highlightsData.highlights || []);
+                setPermanentHighlights(highlightsData.highlights || []);
             })
             .catch((err) => {
                 console.error('❌ 加载地块数据失败:', err);
@@ -306,7 +324,7 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                         height={canvasSize.height}
                         onSelectHex={handleSelectHex}
                         markers={markers}
-                        highlightedTiles={highlightedTiles}
+                        highlightedTiles={[...permanentHighlights, ...temporaryHighlights]}
                         onRegionMapReady={handleRegionMapReady}
                         onRegionClick={handleRegionClick}
                     />
@@ -436,11 +454,14 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
 
                 {/* 右下角GO按钮 */}
                 <div className="lobby-bottom-right">
-                    <div className="lobby-func-icons">
+                    <div
+                        className="lobby-func-icons"
+                        data-tooltip="需要2个人以上通过所有主线困境，服务器会自动解锁"
+                    >
                         <button 
                             className="sci-btn-circle func-icon-btn disabled small"
                             disabled
-                            title="需要2个人以上通过所有主线困境，服务器会自动解锁"
+                            aria-label="需要2个人以上通过所有主线困境，服务器会自动解锁"
                         >
                             <img 
                                 src="/assets/funcicon/storeicon.webp" 
@@ -451,7 +472,7 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                         <button 
                             className="sci-btn-circle func-icon-btn disabled small"
                             disabled
-                            title="需要2个人以上通过所有主线困境，服务器会自动解锁"
+                            aria-label="需要2个人以上通过所有主线困境，服务器会自动解锁"
                         >
                             <img 
                                 src="/assets/funcicon/leaderboardicon.webp" 
@@ -462,7 +483,7 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                         <button 
                             className="sci-btn-circle func-icon-btn disabled small"
                             disabled
-                            title="需要2个人以上通过所有主线困境，服务器会自动解锁"
+                            aria-label="需要2个人以上通过所有主线困境，服务器会自动解锁"
                         >
                             <img 
                                 src="/assets/funcicon/battleicon.webp" 

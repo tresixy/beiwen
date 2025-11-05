@@ -145,8 +145,9 @@ export function EscMenu({ isOpen, onClose, onBackToLobby, onSaveAndExit, onResta
                             <p className="save-dialog-hint">
                                 重新开始将会：<br/>
                                 • 清空当前手牌<br/>
-                                • 重置关卡进度<br/>
+                                • 重置资源和回合数<br/>
                                 • 重新抽取起始手牌<br/>
+                                • 保持在当前困境<br/>
                                 <br/>
                                 <strong>此操作不可撤销！</strong>
                             </p>

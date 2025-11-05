@@ -194,12 +194,20 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
 
     useEffect(() => {
         if (loading) {
-            setCurrentQuoteIndex(0);
+            // 初始随机选择
+            setCurrentQuoteIndex(Math.floor(Math.random() * quotes.length));
             setQuoteOpacity(1);
             quoteTimerRef.current = setInterval(() => {
                 setQuoteOpacity(0);
                 setTimeout(() => {
-                    setCurrentQuoteIndex((prev) => (prev + 1) % quotes.length);
+                    // 随机选择下一条，避免重复
+                    setCurrentQuoteIndex((prev) => {
+                        let next;
+                        do {
+                            next = Math.floor(Math.random() * quotes.length);
+                        } while (next === prev && quotes.length > 1);
+                        return next;
+                    });
                     setQuoteOpacity(1);
                 }, 300);
             }, 3000);
@@ -387,8 +395,6 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         return (
             <div className="game-shell game-shell--loading">
                 <div className="loading-panel">
-                    <div className="loading-title">正在加载游戏数据...</div>
-                    <div className="loading-subtitle">从云端同步您的游戏进度</div>
                     <div className="loading-bar">
                         <div className="loading-quote" style={{ opacity: quoteOpacity }}>{quotes[currentQuoteIndex]}</div>
                         <div className="loading-bar__track">

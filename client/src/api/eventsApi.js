@@ -35,14 +35,14 @@ export async function getActiveEvent(token) {
 }
 
 // 完成event
-export async function completeEvent(token, eventId, key, selectedHex = null, handCards = [], isFullVictory = true) {
+export async function completeEvent(token, eventId, key, selectedHex = null, handCards = [], isFullVictory = true, selectedRegionTiles = null) {
   const response = await fetch(`${API_BASE}/events/complete`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ eventId, key, selectedHex, handCards, isFullVictory }),
+    body: JSON.stringify({ eventId, key, selectedHex, handCards, isFullVictory, selectedRegionTiles }),
   });
 
   if (!response.ok) {

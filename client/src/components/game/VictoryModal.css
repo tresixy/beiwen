@@ -168,7 +168,10 @@
 }
 
 .victory-back-to-lobby-btn {
-    position: relative;
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 2;
     padding: 16px 48px;
     font-size: 1.4rem;
@@ -181,7 +184,6 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
     animation: victoryBtnPulse 2s ease infinite;
-    margin-top: 40vh;
 }
 
 .victory-back-to-lobby-btn:hover {
@@ -202,6 +204,92 @@
     }
 }
 
+/* 奖励卡样式 */
+.victory-reward-cards {
+    margin: 24px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 165, 0, 0.1));
+    border-radius: 12px;
+    border: 3px solid rgba(255, 215, 0, 0.5);
+    box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
+    animation: rewardGlow 2s ease infinite;
+}
+
+@keyframes rewardGlow {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 24px rgba(255, 215, 0, 0.6);
+    }
+}
+
+.victory-reward-cards-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ff8c00;
+    margin-bottom: 16px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.victory-reward-cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+}
+
+.victory-reward-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    border: 2px solid rgba(255, 215, 0, 0.6);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    animation: cardReveal 0.5s ease backwards;
+}
+
+.victory-reward-card:nth-child(1) { animation-delay: 0.1s; }
+.victory-reward-card:nth-child(2) { animation-delay: 0.2s; }
+.victory-reward-card:nth-child(3) { animation-delay: 0.3s; }
+.victory-reward-card:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes cardReveal {
+    from {
+        opacity: 0;
+        transform: scale(0.8) rotateY(90deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotateY(0deg);
+    }
+}
+
+.victory-reward-card:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
+}
+
+.victory-reward-card-image {
+    width: 120px;
+    height: 168px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.victory-reward-card-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-ink);
+    margin: 0;
+    text-align: center;
+}
+
 @media (max-width: 720px) {
     .victory-modal {
         padding: 24px;
@@ -220,7 +308,16 @@
     .victory-back-to-lobby-btn {
         font-size: 1.2rem;
         padding: 12px 36px;
-        margin-top: 50vh;
+        bottom: 20px;
+    }
+    
+    .victory-reward-card-image {
+        width: 90px;
+        height: 126px;
+    }
+    
+    .victory-reward-cards-grid {
+        gap: 12px;
     }
 }
 

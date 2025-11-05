@@ -53,7 +53,8 @@ export function CardSvg({ card, className = '', style = {} }) {
         }
     };
 
-    const showFallback = status !== 'loaded';
+    // 只在图片真正加载失败时显示 fallback，加载中时不显示
+    const showFallback = status === 'error';
     const rarityClass = (card.rarity || '').toLowerCase();
 
     return (
@@ -71,13 +72,14 @@ export function CardSvg({ card, className = '', style = {} }) {
                         width: '100%',
                         height: '100%',
                         objectFit: 'contain',
-                        display: status === 'loaded' ? 'block' : 'none',
+                        opacity: status === 'loaded' ? 1 : 0,
+                        transition: 'opacity 0.2s ease-in',
                     }}
                 />
             )}
 
             {showFallback && (
-                <div className={`card-fallback ${status === 'loading' ? 'card-fallback--loading' : ''}`}>
+                <div className="card-fallback">
                     <div className="card-fallback__name">{card.name}</div>
                     {card.rarity ? (
                         <div className={`card-fallback__rarity ${rarityClass}`}>{card.rarity}</div>

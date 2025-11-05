@@ -25,6 +25,8 @@ const isPointInsideElement = (element, clientX, clientY) => {
 };
 
 export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = [], positions = {}, ideaCards = [], forgeLoading = false, forgeResultCard = null, onDrop, onRemove, onReturnCardToHand, onReposition, onSynthesize, onSelectForForge, onSpawnKeyCard, onClearForgeResult, pushMessage }, ref) {
+    // 禁用所有游戏提示
+    pushMessage = null;
     const containerRef = useRef(null);
     const progressTimerRef = useRef(null);
     const lastForgeClickRef = useRef(0);
@@ -119,14 +121,14 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
         }
     }, [forgeResultCard, furnaceCards, onSelectForForge]);
 
-    // 作弊码：检测键盘输入 "aitaarthur" + Enter
+    // 作弊码：检测键盘输入 "garenaloveai" + Enter
     useEffect(() => {
         const handleKeyDown = (event) => {
             const key = event.key.toLowerCase();
             
             // 按下回车键，检查是否匹配作弊码
             if (key === 'enter') {
-                if (cheatSequence === 'aitaarthur') {
+                if (cheatSequence === 'garenaloveai') {
                     console.log('🔑 作弊码激活，生成 key card');
                     onSpawnKeyCard?.();
                 }
@@ -139,9 +141,9 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
                 return;
             }
             
-            // 累积输入字符，最多保留 10 个字符
+            // 累积输入字符，最多保留 12 个字符
             setCheatSequence(prev => {
-                const updated = (prev + key).slice(-10);
+                const updated = (prev + key).slice(-12);
                 return updated;
             });
         };
@@ -566,23 +568,13 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
                 >
                     {furnaceCards[0] ? (
                         <div
-                            className={`dock-slot ${furnaceCards[0]?.rarity ? `rarity-${furnaceCards[0].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[0].id ? 'is-dragging' : ''} ${hasCardSvg(furnaceCards[0].name) ? 'has-svg' : ''}`}
+                            className={`dock-slot ${furnaceCards[0]?.rarity ? `rarity-${furnaceCards[0].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[0].id ? 'is-dragging' : ''} has-svg`}
                             draggable={!isForging}
                             onDragStart={(event) => handleFurnaceCardDragStart(event, furnaceCards[0].id)}
                             onDragEnd={(event) => handleFurnaceCardDragEnd(event, furnaceCards[0].id)}
                             style={{ width: '110px', height: '150px', margin: 0 }}
                         >
-                            {hasCardSvg(furnaceCards[0].name) ? (
                                 <CardSvg card={furnaceCards[0]} className="dock-slot__svg" />
-                            ) : (
-                                <>
-                                    <div className="dock-slot__header">
-                                        <span className="dock-slot__name">{furnaceCards[0].name}</span>
-                                        <span className={`dock-slot__rarity ${furnaceCards[0].rarity}`}>{furnaceCards[0].rarity}</span>
-                                    </div>
-                                    <div className="dock-slot__meta">{furnaceCards[0].type}</div>
-                                </>
-                            )}
                         </div>
                     ) : (
                         <div className="forge-slot-empty" />
@@ -600,23 +592,13 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
                 >
                     {furnaceCards[1] ? (
                         <div
-                            className={`dock-slot ${furnaceCards[1]?.rarity ? `rarity-${furnaceCards[1].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[1].id ? 'is-dragging' : ''} ${hasCardSvg(furnaceCards[1].name) ? 'has-svg' : ''}`}
+                            className={`dock-slot ${furnaceCards[1]?.rarity ? `rarity-${furnaceCards[1].rarity.toLowerCase()}` : ''} ${isForging ? 'is-forging' : ''} ${draggingCardId === furnaceCards[1].id ? 'is-dragging' : ''} has-svg`}
                             draggable={!isForging}
                             onDragStart={(event) => handleFurnaceCardDragStart(event, furnaceCards[1].id)}
                             onDragEnd={(event) => handleFurnaceCardDragEnd(event, furnaceCards[1].id)}
                             style={{ width: '110px', height: '150px', margin: 0 }}
                         >
-                            {hasCardSvg(furnaceCards[1].name) ? (
                                 <CardSvg card={furnaceCards[1]} className="dock-slot__svg" />
-                            ) : (
-                                <>
-                                    <div className="dock-slot__header">
-                                        <span className="dock-slot__name">{furnaceCards[1].name}</span>
-                                        <span className={`dock-slot__rarity ${furnaceCards[1].rarity}`}>{furnaceCards[1].rarity}</span>
-                                    </div>
-                                    <div className="dock-slot__meta">{furnaceCards[1].type}</div>
-                                </>
-                            )}
                         </div>
                     ) : (
                         <div className="forge-slot-empty" />
@@ -643,23 +625,13 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
                     )}
                     {forgeResultCard && (
                         <div
-                            className={`dock-slot forge-result-card ${forgeResultCard?.rarity ? `rarity-${forgeResultCard.rarity.toLowerCase()}` : ''} ${draggingCardId === forgeResultCard.id ? 'is-dragging' : ''} ${hasCardSvg(forgeResultCard.name) ? 'has-svg' : ''}`}
+                            className={`dock-slot forge-result-card ${forgeResultCard?.rarity ? `rarity-${forgeResultCard.rarity.toLowerCase()}` : ''} ${draggingCardId === forgeResultCard.id ? 'is-dragging' : ''} has-svg`}
                             draggable={true}
                             onDragStart={(event) => handleResultCardDragStart(event, forgeResultCard.id)}
                             onDragEnd={(event) => handleResultCardDragEnd(event, forgeResultCard.id)}
                             style={{ width: '110px', height: '150px', margin: 0 }}
                         >
-                            {hasCardSvg(forgeResultCard.name) ? (
                                 <CardSvg card={forgeResultCard} className="dock-slot__svg" />
-                            ) : (
-                                <>
-                                    <div className="dock-slot__header">
-                                        <span className="dock-slot__name">{forgeResultCard.name}</span>
-                                        <span className={`dock-slot__rarity ${forgeResultCard.rarity}`}>{forgeResultCard.rarity}</span>
-                                    </div>
-                                    <div className="dock-slot__meta">{forgeResultCard.type}</div>
-                                </>
-                            )}
                         </div>
                     )}
                 </div>
@@ -685,7 +657,7 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
                 return (
                     <div
                         key={card.id}
-                        className={`forge-canvas__card ${rarityClass} ${hasSvg ? 'has-svg' : ''} ${isKeyCard ? 'is-keycard' : ''}`}
+                        className={`forge-canvas__card ${rarityClass} has-svg ${isKeyCard ? 'is-keycard' : ''}`}
                         style={{
                             left: `${position.x}%`,
                             top: `${position.y}%`,
@@ -694,19 +666,10 @@ export const ForgeCanvas = forwardRef(function ForgeCanvas({ cards = [], hand = 
                         onDragStart={(event) => handleStageDragStart(event, card.id)}
                         onDragEnd={(event) => handleStageDragEnd(event, card.id)}
                     >
-                        {hasSvg ? (
                             <CardSvg card={card} className="forge-canvas__svg" />
-                        ) : (
-                            <>
-                                <div className="forge-canvas__name">{card.name}</div>
-                                <div className="forge-canvas__type">{card.type}</div>
-                            </>
-                        )}
                     </div>
                 );
             })}
-
-            
         </div>
     );
 });

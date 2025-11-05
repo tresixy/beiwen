@@ -29,7 +29,25 @@ const UI_IMAGES = [
     '/assets/UI/go_button.webp',
     '/assets/UI/局内.webp',
     '/assets/UI/登录.webp',
+    '/assets/UI/地名底板02.webp',
 ];
+
+/**
+ * Landmark 插画列表
+ */
+const LANDMARK_IMAGES = [
+    '黑龙之河', '幸运森林', '遥远和平',
+    '北方之都', '天国之渡', '山之影', '河之卫',
+    '山之晨', '长江腹地', '海上明珠', '弯曲河流', '财富建设', '高台湾地',
+    '黄河身躯', '神秘湖泊',
+    '狭窄西部', '宁静之夏', '绿松石海',
+    '西部宝藏', '双重庆典',
+    '岭南大地', '芳香的港湾', '海湾之门', '海之南',
+    '新边疆', '四河洼地', '珍贵大陆', '云之南'
+];
+
+// 全局缓存：已加载的landmark图片
+const landmarkImageCache = new Map();
 
 /**
  * 预加载单个图片
@@ -122,4 +140,66 @@ export function preloadUIAssets() {
     });
 }
 
+/**
+ * 预加载 Landmark 插画（带缓存）
+ * @returns {Promise<void>}
+ */
+export function preloadLandmarkImages() {
+    // 预加载Landmark插画
+    
+    const promises = LANDMARK_IMAGES.map(name => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const imagePath = `/assets/landmark/${name}.webp`;
+            
+            img.onload = () => {
+                landmarkImageCache.set(name, img);
+                resolve(true);
+            };
+            
+            img.onerror = () => {
+                console.warn(`[Preload] 加载失败: ${imagePath}`);
+                resolve(false);
+            };
+            
+            img.src = imagePath;
+        });
+    });
+    
+    return Promise.allSettled(promises).then((results) => {
+        const successCount = results.filter(r => r.value === true).length;
+        // Landmark插画预加载完成
+    });
+}
 
+/**
+ * 获取已缓存的Landmark图片
+ * @param {string} name - 图片名称
+ * @returns {HTMLImageElement | null}
+ */
+export function getCachedLandmarkImage(name) {
+    return landmarkImageCache.get(name) || null;
+}
+
+/**
+ * 获取所有已缓存的Landmark图片
+ * @returns {Map<string, HTMLImageElement>}
+ */
+export function getAllCachedLandmarkImages() {
+    return new Map(landmarkImageCache);
+}
+
+/**
+ * 预加载所有资源（统一入口）
+ * @returns {Promise<void>}
+ */
+export function preloadAllAssets() {
+    console.log('[Preload] 开始预加载所有资源...');
+    return Promise.all([
+        preloadUIAssets(),
+        preloadLandmarkImages(),
+        preloadAll2DImages(),
+    ]).then(() => {
+        console.log('[Preload] 所有资源预加载完成！');
+    });
+}

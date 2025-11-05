@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { getAllCachedLandmarkImages, getCachedLandmarkImage } from '../../utils/preloadImages.js';
 
 // 浅色地形配色
 const TERRAIN_TYPES = {
@@ -339,7 +340,6 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
     const [scale, setScale] = useState(0.35);
     const [isDragging, setIsDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-    const [hoveredHex, setHoveredHex] = useState(null);
     const [selectedHex, setSelectedHex] = useState(null);
     const hexMapRef = useRef(new Map());
     const [breathePhase, setBreathePhase] = useState(0);
@@ -347,6 +347,9 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
     const maskImgRef = useRef(null);
     const holeMaskCanvasRef = useRef(null);
     const landmarkImagesRef = useRef(new Map());
+    
+    // 性能优化：防抖重绘
+    const pendingOffsetRef = useRef(offset);
 
     const terrainMap = useMemo(() => {
         const map = new Map();
@@ -721,86 +724,88 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             ctx.strokeStyle = fillColor;
             ctx.stroke();
 
-            // 内部纹理标记（简单的点或线）
-            ctx.globalAlpha = 0.15;
-            ctx.fillStyle = borderColor;
-            if (terrainData.terrain === 'forest') {
-                // 森林：小点代表树木
-                for (let i = 0; i < 3; i++) {
-                    const dotX = px + (Math.sin(px + i) * tileW * 0.3);
-                    const dotY = py + (Math.cos(py + i) * tileH * 0.3);
+            // 内部纹理标记 - 仅在scale足够大时绘制（性能优化）
+            if (scale > 0.25) {
+                ctx.globalAlpha = 0.15;
+                ctx.fillStyle = borderColor;
+                if (terrainData.terrain === 'forest') {
+                    // 森林：小点代表树木
+                    for (let i = 0; i < 3; i++) {
+                        const dotX = px + (Math.sin(px + i) * tileW * 0.3);
+                        const dotY = py + (Math.cos(py + i) * tileH * 0.3);
+                        ctx.beginPath();
+                        ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                } else if (terrainData.terrain === 'mountain') {
+                    // 山脉：折线
+                    ctx.strokeStyle = borderColor;
+                    ctx.lineWidth = 1.5;
                     ctx.beginPath();
-                    ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            } else if (terrainData.terrain === 'mountain') {
-                // 山脉：折线
-                ctx.strokeStyle = borderColor;
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.moveTo(px - tileW * 0.3, py);
-                ctx.lineTo(px - tileW * 0.1, py - tileH * 0.3);
-                ctx.lineTo(px + tileW * 0.1, py - tileH * 0.2);
-                ctx.lineTo(px + tileW * 0.3, py);
-                ctx.stroke();
-            } else if (terrainData.terrain === 'desert') {
-                // 沙漠：沙丘曲线
-                ctx.strokeStyle = borderColor;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(px - tileW * 0.3, py - 5);
-                ctx.quadraticCurveTo(px - tileW * 0.15, py - 10, px, py - 5);
-                ctx.quadraticCurveTo(px + tileW * 0.15, py, px + tileW * 0.3, py - 5);
-                ctx.stroke();
-            } else if (terrainData.terrain === 'snow') {
-                // 雪地：雪花标记
-                ctx.strokeStyle = borderColor;
-                ctx.lineWidth = 1;
-                for (let i = 0; i < 2; i++) {
-                    const cx = px + (i === 0 ? -tileW * 0.2 : tileW * 0.2);
-                    const cy = py;
-                    const r = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(cx, cy - r);
-                    ctx.lineTo(cx, cy + r);
-                    ctx.moveTo(cx - r, cy);
-                    ctx.lineTo(cx + r, cy);
+                    ctx.moveTo(px - tileW * 0.3, py);
+                    ctx.lineTo(px - tileW * 0.1, py - tileH * 0.3);
+                    ctx.lineTo(px + tileW * 0.1, py - tileH * 0.2);
+                    ctx.lineTo(px + tileW * 0.3, py);
                     ctx.stroke();
-                }
-            } else if (terrainData.terrain === 'grassland') {
-                // 草原：小草标记
-                ctx.strokeStyle = borderColor;
-                ctx.lineWidth = 1;
-                for (let i = 0; i < 3; i++) {
-                    const gx = px + (i - 1) * tileW * 0.2;
-                    const gy = py + (i % 2 === 0 ? 2 : -2);
+                } else if (terrainData.terrain === 'desert') {
+                    // 沙漠：沙丘曲线
+                    ctx.strokeStyle = borderColor;
+                    ctx.lineWidth = 1;
                     ctx.beginPath();
-                    ctx.moveTo(gx, gy + 3);
-                    ctx.lineTo(gx, gy - 3);
+                    ctx.moveTo(px - tileW * 0.3, py - 5);
+                    ctx.quadraticCurveTo(px - tileW * 0.15, py - 10, px, py - 5);
+                    ctx.quadraticCurveTo(px + tileW * 0.15, py, px + tileW * 0.3, py - 5);
                     ctx.stroke();
-                }
-            } else if (terrainData.terrain === 'water' || terrainData.terrain === 'ocean') {
-                // 水域/海域：波浪线
-                ctx.strokeStyle = borderColor;
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.moveTo(px - tileW * 0.4, py);
-                ctx.quadraticCurveTo(px - tileW * 0.2, py - 5, px, py);
-                ctx.quadraticCurveTo(px + tileW * 0.2, py + 5, px + tileW * 0.4, py);
-                ctx.stroke();
-                
-                // 深海额外标记
-                if (terrainData.terrain === 'ocean') {
+                } else if (terrainData.terrain === 'snow') {
+                    // 雪地：雪花标记
+                    ctx.strokeStyle = borderColor;
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i < 2; i++) {
+                        const cx = px + (i === 0 ? -tileW * 0.2 : tileW * 0.2);
+                        const cy = py;
+                        const r = 3;
+                        ctx.beginPath();
+                        ctx.moveTo(cx, cy - r);
+                        ctx.lineTo(cx, cy + r);
+                        ctx.moveTo(cx - r, cy);
+                        ctx.lineTo(cx + r, cy);
+                        ctx.stroke();
+                    }
+                } else if (terrainData.terrain === 'grassland') {
+                    // 草原：小草标记
+                    ctx.strokeStyle = borderColor;
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i < 3; i++) {
+                        const gx = px + (i - 1) * tileW * 0.2;
+                        const gy = py + (i % 2 === 0 ? 2 : -2);
+                        ctx.beginPath();
+                        ctx.moveTo(gx, gy + 3);
+                        ctx.lineTo(gx, gy - 3);
+                        ctx.stroke();
+                    }
+                } else if (terrainData.terrain === 'water' || terrainData.terrain === 'ocean') {
+                    // 水域/海域：波浪线
+                    ctx.strokeStyle = borderColor;
+                    ctx.lineWidth = 1;
                     ctx.beginPath();
-                    ctx.moveTo(px - tileW * 0.3, py + 8);
-                    ctx.quadraticCurveTo(px - tileW * 0.15, py + 3, px, py + 8);
-                    ctx.quadraticCurveTo(px + tileW * 0.15, py + 13, px + tileW * 0.3, py + 8);
+                    ctx.moveTo(px - tileW * 0.4, py);
+                    ctx.quadraticCurveTo(px - tileW * 0.2, py - 5, px, py);
+                    ctx.quadraticCurveTo(px + tileW * 0.2, py + 5, px + tileW * 0.4, py);
                     ctx.stroke();
+                    
+                    // 深海额外标记
+                    if (terrainData.terrain === 'ocean') {
+                        ctx.beginPath();
+                        ctx.moveTo(px - tileW * 0.3, py + 8);
+                        ctx.quadraticCurveTo(px - tileW * 0.15, py + 3, px, py + 8);
+                        ctx.quadraticCurveTo(px + tileW * 0.15, py + 13, px + tileW * 0.3, py + 8);
+                        ctx.stroke();
+                    }
                 }
+                ctx.globalAlpha = 1;
             }
-            ctx.globalAlpha = 1;
 
-            // 边框只在悬停或选中时显示
+            // 边框只在悬停或选中时显示 - 优化shadowBlur使用
             if (isSelected) {
                 // 选中：深色边框 + 明显高亮
                 ctx.strokeStyle = borderColor;
@@ -815,11 +820,11 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 ctx.stroke();
                 ctx.globalAlpha = 1;
                 
-                // 外发光效果
+                // 外发光效果 - 减少blur强度提升性能
                 ctx.strokeStyle = '#ff9447';
                 ctx.lineWidth = 3;
                 ctx.shadowColor = '#ff9447';
-                ctx.shadowBlur = 12;
+                ctx.shadowBlur = 6; // 从12降到6
                 ctx.beginPath();
                 ctx.moveTo(basePoints[0].x, basePoints[0].y);
                 ctx.lineTo(basePoints[1].x, basePoints[1].y);
@@ -842,11 +847,11 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 ctx.stroke();
                 ctx.globalAlpha = 1;
                 
-                // 外发光效果
+                // 外发光效果 - 减少blur强度提升性能
                 ctx.strokeStyle = '#ffb86c';
                 ctx.lineWidth = 2.5;
                 ctx.shadowColor = '#ffb86c';
-                ctx.shadowBlur = 8;
+                ctx.shadowBlur = 4; // 从8降到4
                 ctx.beginPath();
                 ctx.moveTo(basePoints[0].x, basePoints[0].y);
                 ctx.lineTo(basePoints[1].x, basePoints[1].y);
@@ -900,10 +905,10 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         
         for (const hex of hexesToDraw) {
             const isSelected = selectedHex && selectedHex.q === hex.q && selectedHex.r === hex.r;
-            const isHovered = hoveredHex && hoveredHex.q === hex.q && hoveredHex.r === hex.r;
             const isHighlighted = highlightedSet.has(`${hex.q},${hex.r}`);
             
-            drawSketchTile(hex.px, hex.py, hex.terrainData, isSelected, isHovered);
+            // 只绘制selected效果，不绘制hover效果
+            drawSketchTile(hex.px, hex.py, hex.terrainData, isSelected, false);
             
             // 绘制永久高亮效果（呼吸边缘）
             if (isHighlighted) {
@@ -924,19 +929,13 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 }
                 ctx.closePath();
                 
-                // 呼吸效果：alpha从0.5到1.0之间变化，更亮
                 const alpha = 0.5 + 0.5 * (0.5 + 0.5 * Math.sin(breathePhase));
                 ctx.strokeStyle = `rgba(255, 148, 71, ${alpha})`;
                 ctx.lineWidth = 5 * scale;
                 ctx.shadowColor = 'rgba(255, 148, 71, 0.6)';
-                ctx.shadowBlur = 15 * scale;
+                ctx.shadowBlur = 8 * scale;
                 ctx.stroke();
                 ctx.shadowBlur = 0;
-                
-                // 内发光效果
-                ctx.shadowColor = `rgba(255, 148, 71, ${alpha * 0.5})`;
-                ctx.shadowBlur = 12 * scale;
-                ctx.stroke();
                 ctx.restore();
             }
         }
@@ -970,11 +969,11 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             ctx.arc(0, baseSize * 0.5, baseSize * 0.8 * pulseScale, 0, Math.PI * 2);
             ctx.fill();
             
-            // 绘制旗杆
+            // 绘制旗杆 - 简化阴影提升性能
             ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-            ctx.shadowBlur = 4;
-            ctx.shadowOffsetX = 2;
-            ctx.shadowOffsetY = 2;
+            ctx.shadowBlur = 2; // 从4降到2
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
             
             const poleGradient = ctx.createLinearGradient(-2, 0, 2, 0);
             poleGradient.addColorStop(0, '#8B7355');
@@ -1014,9 +1013,9 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             ctx.lineWidth = 2;
             ctx.stroke();
             
-            // 绘制旗帜上的文字/图标
+            // 绘制旗帜上的文字/图标 - 简化阴影
             ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-            ctx.shadowBlur = 3;
+            ctx.shadowBlur = 1; // 从3降到1
             ctx.fillStyle = '#FFFFFF';
             ctx.font = `bold ${baseSize * 0.45}px var(--font-game)`;
             ctx.textAlign = 'center';
@@ -1024,8 +1023,9 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             const markerText = marker.marker_type || marker.event_name || '✓';
             ctx.fillText(markerText.substring(0, 2), flagWidth * 0.45, -flagHeight * 0.57);
             
-            // 绘制旗帜顶端的装饰
+            // 绘制旗帜顶端的装饰 - 简化阴影
             ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 1; // 添加shadowBlur设置
             ctx.fillStyle = '#FFD700';
             ctx.beginPath();
             ctx.arc(0, -flagHeight * 0.9, 5, 0, Math.PI * 2);
@@ -1109,18 +1109,18 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                         ctx.restore();
                     }
                     
-                    // 绘制中文名称（上方）
+                    // 绘制中文名称（上方） - 优化阴影
                     ctx.save();
                     ctx.font = `bold ${fontSize}px var(--font-game)`;
                     ctx.shadowColor = 'rgba(255, 255, 255, 0.9)';
-                    ctx.shadowBlur = 15 * scale;
+                    ctx.shadowBlur = 8 * scale; // 从15降到8
                     ctx.fillStyle = '#1a0f0a'; // 更深的颜色
                     ctx.fillText(chineseName, centerX, cnY);
                     
-                    // 绘制英文名称（下方，稍小）
+                    // 绘制英文名称（下方，稍小） - 优化阴影
                     ctx.font = `bold ${englishFontSize}px var(--font-game)`;
                     ctx.fillStyle = '#4a3520'; // 更清晰的对比色
-                    ctx.shadowBlur = 10 * scale;
+                    ctx.shadowBlur = 5 * scale; // 从10降到5
                     ctx.fillText(englishName, centerX, enY);
                     ctx.restore();
                 }
@@ -1139,7 +1139,7 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             ctx.strokeStyle = 'rgba(13, 34, 48, 0.85)';
             ctx.lineWidth = 3;
             ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
-            ctx.shadowBlur = 6;
+            ctx.shadowBlur = 3; // 从6降到3
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.font = `bold ${seaFont}px var(--font-game)`;
@@ -1205,19 +1205,22 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 ctx.restore();
             }
         }
-    }, [width, height, offset, scale, terrainMap, hoveredHex, selectedHex, markers, highlightedTiles, breathePhase]);
+    }, [width, height, offset, scale, terrainMap, selectedHex, markers, highlightedTiles, breathePhase]);
 
     useEffect(() => {
         drawMap();
     }, [drawMap]);
     
-    // 加载地名底板图片
+    // 加载地名底板图片（仍需动态加载，因为是小图）
     useEffect(() => {
         const img = new Image();
         img.src = '/assets/UI/地名底板02.webp';
         img.onload = () => {
             labelBgImgRef.current = img;
             drawMap(); // 图片加载完成后重新绘制
+        };
+        img.onerror = () => {
+            console.warn('[HexCanvas] 地名底板加载失败');
         };
     }, [drawMap]);
 
@@ -1229,40 +1232,34 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
             maskImgRef.current = img;
             drawMap();
         };
+        img.onerror = () => {
+            console.warn('[HexCanvas] 主页遮罩图加载失败');
+        };
     }, [drawMap]);
 
-    // 预加载landmark插画
+    // 使用预加载的landmark插画缓存
     useEffect(() => {
-        const landmarkNames = [
-            '黑龙之河', '幸运森林', '遥远和平',
-            '北方之都', '天国之渡', '山之影', '河之卫',
-            '山之晨', '长江腹地', '海上明珠', '弯曲河流', '财富建设', '高台湾地',
-            '黄河身躯', '神秘湖泊',
-            '狭窄西部', '宁静之夏', '绿松石海',
-            '西部宝藏', '双重庆典',
-            '岭南大地', '芳香的港湾', '海湾之门', '海之南',
-            '新边疆', '四河洼地', '珍贵大陆'
-        ];
+        // 从全局缓存获取已预加载的图片
+        const cachedImages = getAllCachedLandmarkImages();
         
-        let loadedCount = 0;
-        landmarkNames.forEach(name => {
-            const img = new Image();
-            img.src = `/assets/landmark/${name}.webp`;
-            img.onload = () => {
-                landmarkImagesRef.current.set(name, img);
-                loadedCount++;
-                if (loadedCount === landmarkNames.length) {
+        if (cachedImages.size > 0) {
+            // 直接使用缓存的图片
+            landmarkImagesRef.current = cachedImages;
+            drawMap();
+        } else {
+            // 如果缓存为空（预加载未完成），等待并重试
+            const checkInterval = setInterval(() => {
+                const retryCache = getAllCachedLandmarkImages();
+                if (retryCache.size > 0) {
+                    landmarkImagesRef.current = retryCache;
                     drawMap();
+                    clearInterval(checkInterval);
                 }
-            };
-            img.onerror = () => {
-                console.warn(`Failed to load landmark: ${name}`);
-                loadedCount++;
-                if (loadedCount === landmarkNames.length) {
-                    drawMap();
-                }
-            };
-        });
+            }, 100);
+            
+            // 5秒后停止重试
+            setTimeout(() => clearInterval(checkInterval), 5000);
+        }
     }, [drawMap]);
 
     // 呼吸动画
@@ -1291,7 +1288,6 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
         if (!canvas) return;
         
         const dpr = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
         
         // 设置canvas实际像素大小
         canvas.width = width * dpr;
@@ -1314,7 +1310,9 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
     const wasDraggingRef = useRef(false);
     const mouseDownPosRef = useRef({ x: 0, y: 0 });
     const rafIdRef = useRef(null); // requestAnimationFrame ID
+    const lastRenderTimeRef = useRef(0); // 上次渲染时间
     const DRAG_THRESHOLD = 5; // 移动超过5像素才算拖拽
+    const RENDER_INTERVAL = 50; // 渲染间隔（毫秒）- 限制为最多20fps
 
     const getLogicalCanvasCoords = useCallback((event) => {
         const canvas = canvasRef.current;
@@ -1393,58 +1391,51 @@ export function HexCanvas({ width = 1920, height = 1080, onSelectHex, markers = 
                 const newY = e.clientY - dragStart.y;
                 const MAX_OFFSET = 3500;
                 
-                // 使用 requestAnimationFrame 节流更新，避免频繁渲染
-                if (rafIdRef.current) {
-                    cancelAnimationFrame(rafIdRef.current);
-                }
+                const newOffset = {
+                    x: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newX)),
+                    y: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newY)),
+                };
                 
-                rafIdRef.current = requestAnimationFrame(() => {
-                    setOffset({
-                        x: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newX)),
-                        y: Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, newY)),
-                    });
-                    rafIdRef.current = null;
-                });
-            }
-        } else {
-            const logicalPos = getLogicalCanvasCoords(e);
-            if (!logicalPos) return;
-            const hex = findHexAtCanvasPoint(logicalPos);
-            setHoveredHex((prev) => {
-                if (!hex) return null;
-                if (prev && prev.q === hex.q && prev.r === hex.r) {
-                    return prev;
+                // 立即更新pendingOffset用于交互计算
+                pendingOffsetRef.current = newOffset;
+                
+                // 基于时间的节流：限制重绘频率为20fps
+                const now = performance.now();
+                if (now - lastRenderTimeRef.current >= RENDER_INTERVAL) {
+                    lastRenderTimeRef.current = now;
+                    setOffset(newOffset);
                 }
-                return hex;
-            });
+            }
         }
-    }, [isDragging, dragStart, getLogicalCanvasCoords, findHexAtCanvasPoint]);
+        // 移除hover效果，不再响应鼠标移动高亮
+    }, [isDragging, dragStart]);
 
     const handleMouseUp = useCallback(() => {
         setIsDragging(false);
+        // 确保最后的位置被应用
+        if (pendingOffsetRef.current.x !== offset.x || pendingOffsetRef.current.y !== offset.y) {
+            setOffset(pendingOffsetRef.current);
+        }
         // 清理未完成的动画帧
         if (rafIdRef.current) {
             cancelAnimationFrame(rafIdRef.current);
             rafIdRef.current = null;
         }
-    }, []);
+    }, [offset]);
 
     const handleWheel = useCallback((e) => {
         e.preventDefault();
-        const delta = -e.deltaY * 0.0005; // 增加缩放灵敏度
+        const delta = -e.deltaY * 0.0005;
         
-        // 使用 requestAnimationFrame 节流缩放
-        if (rafIdRef.current) {
-            cancelAnimationFrame(rafIdRef.current);
-        }
-        
-        rafIdRef.current = requestAnimationFrame(() => {
+        // 基于时间的节流：限制缩放更新频率
+        const now = performance.now();
+        if (now - lastRenderTimeRef.current >= RENDER_INTERVAL) {
+            lastRenderTimeRef.current = now;
             setScale(prev => {
                 const newScale = prev + delta;
                 return Math.max(0.1, Math.min(0.8, newScale));
             });
-            rafIdRef.current = null;
-        });
+        }
     }, []);
 
     const handleClick = useCallback((e) => {

@@ -3,6 +3,7 @@
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
+    user_id VARCHAR(20) UNIQUE,
     email VARCHAR(255) UNIQUE NOT NULL,
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
@@ -12,6 +13,8 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS user_id VARCHAR(20) UNIQUE;
 ALTER TABLE users
     ADD COLUMN IF NOT EXISTS profession_json JSONB DEFAULT '{}';
 ALTER TABLE users
@@ -152,6 +155,7 @@ CREATE TABLE IF NOT EXISTS user_game_state (
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_user_id ON users(user_id);
 CREATE INDEX IF NOT EXISTS idx_ai_recipes_hash ON ai_recipes(recipe_hash);
 CREATE INDEX IF NOT EXISTS idx_entities_user ON entities(user_id, x, y);
 CREATE INDEX IF NOT EXISTS idx_deck_cards_user ON deck_cards(user_id, card_id);

@@ -4,15 +4,16 @@ import { AuthScreen } from './components/auth/AuthScreen.jsx';
 import { GameShell } from './components/game/GameShell.jsx';
 import { Lobby } from './components/lobby/Lobby.jsx';
 import { MessageStack } from './components/common/MessageStack.jsx';
-import { CardsDatabase } from './components/admin/CardsDatabase.jsx';
-import { PlayerArchivesPanel } from './components/admin/PlayerArchivesPanel.jsx';
+import { TutorialGuide } from './components/common/TutorialGuide.jsx';
 import { EditorPage } from './pages/EditorPage.jsx';
 import { loginRequest } from './services/api.js';
-import { preloadUIAssets } from './utils/preloadImages.js';
+import { preloadUIAssets, preloadLandmarkImages } from './utils/preloadImages.js';
+import { useHelpTrigger } from './hooks/useHelpTrigger.js';
 
 const STORAGE_KEYS = {
     token: 'inf-synth-token',
     user: 'inf-synth-user',
+    tutorialShown: 'inf-synth-tutorial-shown',
 };
 
 const createMessageId = () => {
@@ -37,12 +38,14 @@ function App() {
     });
     const [authLoading, setAuthLoading] = useState(false);
     const [messages, setMessages] = useState([]);
+    const [showTutorial, setShowTutorial] = useState(false);
     const [activeView, setActiveView] = useState(() => {
         // 检查URL路径来确定初始视图
         const path = window.location.pathname;
         if (path.startsWith('/editor')) return 'editor';
-        if (path.startsWith('/cardsdatabase')) return 'cardsdatabase';
-        if (path.startsWith('/playerarchives')) return 'playerarchives';
+        if (path.startsWith('/adminai')) return 'admin';
+        if (path.startsWith('/cardsdatabase')) return 'admin';
+        if (path.startsWith('/playerarchives')) return 'admin';
         return 'lobby';
     });
 
@@ -82,6 +85,15 @@ function App() {
         setToken(payload.token);
         setUser(payload.user);
         setActiveView('lobby');
+        
+        // 检查是否首次登录
+        const tutorialShown = localStorage.getItem(STORAGE_KEYS.tutorialShown);
+        if (!tutorialShown) {
+            // 首次登录，延迟显示引导
+            setTimeout(() => {
+                setShowTutorial(true);
+            }, 500);
+        }
     }, []);
 
     const handleLogin = useCallback(
@@ -127,24 +139,28 @@ function App() {
         }, 100);
     }, []);
 
-    const handleEnterCardsDatabase = useCallback(() => {
-        setActiveView('cardsdatabase');
-        window.history.pushState({}, '', '/cardsdatabase/');
+    const handleEnterAdmin = useCallback(() => {
+        setActiveView('admin');
+        window.history.pushState({}, '', '/adminai/');
     }, []);
 
-    const handleOpenPlayerArchives = useCallback(() => {
-        setActiveView('playerarchives');
-        window.history.pushState({}, '', '/playerarchives/');
+    const handleCloseTutorial = useCallback(() => {
+        setShowTutorial(false);
+        // 标记引导已展示
+        localStorage.setItem(STORAGE_KEYS.tutorialShown, 'true');
     }, []);
+
+    // 监听 "help" 触发引导
+    useHelpTrigger(() => {
+        setShowTutorial(true);
+    }, true);
 
     // 监听浏览器前进后退
     useEffect(() => {
         const handlePopState = () => {
             const path = window.location.pathname;
-            if (path.startsWith('/cardsdatabase')) {
-                setActiveView('cardsdatabase');
-            } else if (path.startsWith('/playerarchives')) {
-                setActiveView('playerarchives');
+            if (path.startsWith('/adminai') || path.startsWith('/cardsdatabase') || path.startsWith('/playerarchives')) {
+                setActiveView('admin');
             } else {
                 setActiveView('lobby');
             }
@@ -171,28 +187,15 @@ function App() {
                     token={token}
                     onEnterGame={handleEnterGame}
                     onLogout={handleLogout}
-                    onEnterCardsDatabase={handleEnterCardsDatabase}
-                    onOpenPlayerArchives={handleOpenPlayerArchives}
+                    onEnterAdmin={handleEnterAdmin}
                 />
             );
         }
 
-        if (activeView === 'cardsdatabase') {
-            return (
-                <CardsDatabase
-                    token={token}
-                    onBack={handleBackLobby}
-                />
-            );
-        }
-
-        if (activeView === 'playerarchives') {
-            return (
-                <PlayerArchivesPanel
-                    token={token}
-                    onBack={handleBackLobby}
-                />
-            );
+        if (activeView === 'admin') {
+            // 管理后台直接跳转到独立HTML页面
+            window.location.href = '/adminai/';
+            return <div className="loading">正在跳转到管理后台...</div>;
         }
 
         if (activeView === 'editor') {
@@ -208,13 +211,18 @@ function App() {
                 pushMessage={queueMessage}
             />
         );
-    }, [activeView, authLoading, handleBackLobby, handleEnterCardsDatabase, handleEnterGame, handleLogin, handleLogout, handleOpenPlayerArchives, queueMessage, token, user]);
+    }, [activeView, authLoading, handleBackLobby, handleEnterAdmin, handleEnterGame, handleLogin, handleLogout, queueMessage, token, user]);
 
     useEffect(() => {
-        // 预加载 UI 素材后再触发 app-ready
-        preloadUIAssets().then(() => {
+        // 并行预加载 UI 素材和 Landmark 插画
+        Promise.all([
+            preloadUIAssets(),
+            preloadLandmarkImages(),
+        ]).then(() => {
+            console.log('[App] 所有资源预加载完成');
             window.dispatchEvent(new Event('app-ready'));
-        }).catch(() => {
+        }).catch((err) => {
+            console.error('[App] 资源预加载出错', err);
             // 即使预加载失败也要触发 app-ready
             window.dispatchEvent(new Event('app-ready'));
         });
@@ -224,6 +232,7 @@ function App() {
         <div id="app">
             {screen}
             <MessageStack messages={messages} onDismiss={dismissMessage} />
+            {showTutorial && <TutorialGuide onClose={handleCloseTutorial} />}
         </div>
     );
 }

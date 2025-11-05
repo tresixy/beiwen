@@ -1,15 +1,27 @@
+import { useState, useEffect } from 'react';
 import './VictoryModal.css';
 import { CardSvg } from './CardSvg';
 
 export function VictoryModal({ show, onClose, eventName, reward, cardsAdded = [], cardName, isFullVictory, onBackToLobby, unlockedRewardCards = [] }) {
     // 如果有 onBackToLobby 回调，说明是合成触发的胜利结算
     const isGameVictory = !!onBackToLobby;
+    const [isReturning, setIsReturning] = useState(false);
+    
+    // 当show状态变化时重置isReturning
+    useEffect(() => {
+        if (show) {
+            setIsReturning(false);
+        }
+    }, [show]);
     
     if (!show) return null;
     
     const handleBackToLobby = () => {
+        if (isReturning) return; // 防止重复点击
+        
         if (isGameVictory && onBackToLobby) {
             // 合成胜利：返回主页
+            setIsReturning(true);
             onBackToLobby();
         } else {
             // 普通胜利弹窗：继续游戏
@@ -26,11 +38,13 @@ export function VictoryModal({ show, onClose, eventName, reward, cardsAdded = []
                     alt="胜利结算" 
                     className="victory-settlement-bg"
                 />
+                
                 <button 
-                    className="victory-back-to-lobby-btn" 
+                    className={`victory-back-to-lobby-btn ${isReturning ? 'returning' : ''}`}
                     onClick={handleBackToLobby}
+                    disabled={isReturning}
                 >
-                    返回主页
+                    {isReturning ? '返回中...' : '返回主页'}
                 </button>
             </div>
         );

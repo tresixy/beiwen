@@ -18,6 +18,7 @@ import audioService from '../../services/audioService.js';
 import { VictoryModal } from './VictoryModal.jsx';
 import { KeyCardRevealModal } from './KeyCardRevealModal.jsx';
 import { PendingCardsArea } from './PendingCardsArea.jsx';
+import { ChronicleToast } from './ChronicleToast.jsx';
 
 const detectMobile = () => {
     if (typeof navigator === 'undefined') {
@@ -27,6 +28,9 @@ const detectMobile = () => {
 };
 
 export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
+    // 禁用所有游戏提示
+    pushMessage = null;
+    
     const [victoryModalData, setVictoryModalData] = useState(null);
     const [keyCardRevealData, setKeyCardRevealData] = useState(null);
     
@@ -90,6 +94,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
         clearHandFromServer,
         fillHandToMax,
         restartGame,
+        chronicleLogEntry,
     } = useGameSimulation({ pushMessage, token });
 
     const [resourcePulse, setResourcePulse] = useState({ food: false, production: false, research: false });
@@ -100,6 +105,7 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
     const [escMenuOpen, setEscMenuOpen] = useState(false);
     const [volume, setVolume] = useState(70);
     const [guideOpen, setGuideOpen] = useState(false);
+    const [chronicleVisible, setChronicleVisible] = useState(true);
     
     const quotes = [
         '「思考正在发酵中……」',
@@ -293,6 +299,12 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
             EventBus.emit('forge:flash', { status: overlayState.status });
         }
     }, [overlayState]);
+
+    useEffect(() => {
+        if (chronicleLogEntry) {
+            setChronicleVisible(true);
+        }
+    }, [chronicleLogEntry]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -586,6 +598,8 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
             <KeyCardRevealModal
                 show={!!keyCardRevealData}
                 keyCard={keyCardRevealData?.keyCard}
+                reward={keyCardRevealData?.reward}
+                unlockedCards={keyCardRevealData?.unlockedCards}
                 onNext={() => {
                     const callback = keyCardRevealData?.onNext;
                     setKeyCardRevealData(null);
@@ -601,7 +615,13 @@ export function GameShell({ user, token, onLogout, onBackLobby, pushMessage }) {
                 cardName={victoryModalData?.cardName}
                 isFullVictory={victoryModalData?.isFullVictory}
                 onBackToLobby={victoryModalData?.onBackToLobby}
+                unlockedRewardCards={victoryModalData?.unlockedRewardCards}
                 onClose={() => setVictoryModalData(null)}
+            />
+
+            <ChronicleToast
+                logEntry={chronicleLogEntry}
+                visible={chronicleVisible}
             />
         </div>
     );

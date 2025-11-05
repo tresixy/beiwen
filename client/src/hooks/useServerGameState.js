@@ -26,6 +26,9 @@ function createEmptyHand(size) {
 }
 
 export function useServerGameState({ token, pushMessage }) {
+    // 禁用所有游戏提示
+    pushMessage = null;
+    
     const [loading, setLoading] = useState(true);
     const [resources, setResources] = useState({ food: 0, production: 0, research: 0 });
     const [turn, setTurn] = useState(1);

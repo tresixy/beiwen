@@ -1,0 +1,61 @@
+
+.chronicle-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 400px;
+    max-width: calc(100vw - 40px);
+    background: linear-gradient(135deg, #2d1810 0%, #1a0f0a 100%);
+    border: 3px solid #8b6947;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8),
+                inset 0 0 20px rgba(139, 105, 71, 0.2);
+    z-index: 999;
+    opacity: 0;
+    transform: translateX(120%);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chronicle-toast.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.chronicle-toast-content {
+    padding: 20px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #d4c5a8;
+    font-style: italic;
+    text-indent: 2em;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.typing-cursor {
+    color: #d4af37;
+    animation: blink 0.8s infinite;
+    margin-left: 2px;
+}
+
+@keyframes blink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .chronicle-toast {
+        top: 70px;
+        right: 10px;
+        width: 320px;
+    }
+    
+    .chronicle-toast-content {
+        font-size: 13px;
+        padding: 14px;
+    }
+}
+

@@ -105,14 +105,16 @@ export function HUD({
             <div className="hud-user">
                 <span className="era-badge">{era}</span>
             </div>
-            <button 
-                type="button" 
-                className="hud-guide-btn"
-                onClick={onShowGuide}
-                title="游玩指南"
-            >
-                ❓
-            </button>
+            <div className="hud-actions">
+                <button 
+                    type="button" 
+                    className="hud-guide-btn"
+                    onClick={onShowGuide}
+                    title="游玩指南"
+                >
+                    ❓
+                </button>
+            </div>
         </header>
     );
 }

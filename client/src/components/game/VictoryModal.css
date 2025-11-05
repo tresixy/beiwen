@@ -151,6 +151,7 @@
     height: 100vh;
     z-index: 10000;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     background: #000;
@@ -187,12 +188,25 @@
 }
 
 .victory-back-to-lobby-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 12px 32px rgba(230, 57, 70, 0.6);
+    transform: translateX(-50%) scale(1.1); /* 保持居中的同时放大 */
+    box-shadow: 0 12px 32px rgba(230, 57, 70, 0.8);
+    background: linear-gradient(135deg, #ff4555, #ff7a88);
 }
 
 .victory-back-to-lobby-btn:active {
-    transform: scale(0.98);
+    transform: translateX(-50%) scale(1.05); /* 保持居中的同时缩小 */
+}
+
+/* 返回中状态 */
+.victory-back-to-lobby-btn.returning {
+    opacity: 0.7;
+    cursor: not-allowed;
+    animation: none; /* 停止脉动动画 */
+}
+
+.victory-back-to-lobby-btn.returning:hover {
+    transform: translateX(-50%); /* 禁用时不放大 */
+    background: linear-gradient(135deg, #E63946, #ff6b7a);
 }
 
 @keyframes victoryBtnPulse {
@@ -202,6 +216,74 @@
     50% {
         box-shadow: 0 8px 32px rgba(230, 57, 70, 0.8);
     }
+}
+
+/* 胜利结算页解锁钥匙卡信息 */
+.victory-unlocked-keycard-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    text-align: center;
+    animation: keycardInfoFadeIn 1s ease 0.5s both;
+}
+
+@keyframes keycardInfoFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.victory-unlocked-keycard-text {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 
+        0 0 20px rgba(230, 57, 70, 1),
+        0 0 40px rgba(230, 57, 70, 0.8),
+        0 4px 8px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    padding: 24px 48px;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6));
+    border-radius: 16px;
+    border: 3px solid #E63946;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(230, 57, 70, 0.6);
+    animation: keycardTextPulse 2s ease infinite;
+    font-family: 'Kaiti', 'STKaiti', serif;
+}
+
+@keyframes keycardTextPulse {
+    0%, 100% {
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.8),
+            0 0 40px rgba(230, 57, 70, 0.6);
+    }
+    50% {
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.8),
+            0 0 60px rgba(230, 57, 70, 0.9);
+    }
+}
+
+.victory-keycard-name {
+    color: #FFD700;
+    font-size: 2.2rem;
+    font-weight: 800;
+    text-shadow: 
+        0 0 20px rgba(255, 215, 0, 1),
+        0 0 40px rgba(255, 215, 0, 0.8),
+        0 4px 8px rgba(0, 0, 0, 0.8);
+    letter-spacing: 4px;
+    display: inline-block;
+    margin-left: 8px;
 }
 
 /* 奖励卡样式 */

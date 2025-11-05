@@ -11,9 +11,15 @@ export function InventoryPanel({ open, cardBook, onClose }) {
     const filteredCards = useMemo(() => {
         const allCards = Array.isArray(cardBook?.cards) ? cardBook.cards : [];
         if (pageType === 'keys') {
-            return allCards.filter(card => card.type === 'key' || card.card_type === 'key');
+            return allCards.filter(card => {
+                const cardType = card.card_type || card.type;
+                return cardType === 'key';
+            });
         } else {
-            return allCards.filter(card => card.type !== 'key' && card.card_type !== 'key');
+            return allCards.filter(card => {
+                const cardType = card.card_type || card.type;
+                return cardType !== 'key';
+            });
         }
     }, [cardBook, pageType]);
 
@@ -59,23 +65,17 @@ export function InventoryPanel({ open, cardBook, onClose }) {
                         type="button"
                         className={`inventory-toggle-btn inventory-toggle-up ${pageType === 'items' ? 'active' : ''}`}
                         onClick={handleSwitchToItems}
-                        title="物品页"
+                        title="普通卡"
                     >
-                        <img 
-                            src="/assets/UI/左箭头.webp" 
-                            alt="物品页"
-                        />
+                        普通卡
                     </button>
                     <button
                         type="button"
                         className={`inventory-toggle-btn inventory-toggle-down ${pageType === 'keys' ? 'active' : ''}`}
                         onClick={handleSwitchToKeys}
-                        title="钥匙页"
+                        title="关键钥匙卡"
                     >
-                        <img 
-                            src="/assets/UI/左箭头.webp" 
-                            alt="钥匙页"
-                        />
+                        关键钥匙卡
                     </button>
                 </div>
 
@@ -94,7 +94,7 @@ export function InventoryPanel({ open, cardBook, onClose }) {
                             </div>
                         ) : (
                             currentCards.map((card, idx) => (
-                                <div key={`${card.name}-${idx}`} className="inventory-card-slot">
+                                <div key={card.id || `${card.name}-${idx}`} className="inventory-card-slot">
                                     <CardSvg 
                                         card={card} 
                                         className="inventory-card-svg"

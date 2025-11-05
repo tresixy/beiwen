@@ -37,22 +37,12 @@ export function PendingCardsArea({ cards = [] }) {
                     return (
                         <div
                             key={card.id}
-                            className={`pending-card ${rarityClass} ${hasSvg ? 'has-svg' : ''} ${isKeyCard ? 'is-keycard' : ''}`}
+                            className={`pending-card ${rarityClass} has-svg ${isKeyCard ? 'is-keycard' : ''}`}
                             draggable
                             onDragStart={(event) => handleDragStart(event, card)}
                             data-card-id={card.id}
                         >
-                            {hasSvg ? (
                                 <CardSvg card={card} className="pending-card__svg" />
-                            ) : (
-                                <>
-                                    <div className="pending-card__name">{card.name}</div>
-                                    <div className="pending-card__meta">
-                                        <span className={`pending-card__rarity ${card.rarity}`}>{card.rarity}</span>
-                                    </div>
-                                    <div className="pending-card__type">{card.type}</div>
-                                </>
-                            )}
                         </div>
                     );
                 })}

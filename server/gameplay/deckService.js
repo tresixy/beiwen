@@ -163,3 +163,35 @@ export async function unlockCard(userId, cardId) {
   }
 }
 
+// 更新卡牌类型（将inspiration卡标记为keycard）
+export async function updateCardType(userId, cardName, cardType, rarity) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // 更新cards表中的card_type和rarity
+    const updateResult = await client.query(
+      `UPDATE cards 
+       SET card_type = $1, rarity = $2
+       WHERE name = $3 AND source_type = 'user_generated'
+       RETURNING id`,
+      [cardType, rarity, cardName]
+    );
+    
+    if (updateResult.rows.length === 0) {
+      throw new Error(`Card ${cardName} not found`);
+    }
+    
+    await client.query('COMMIT');
+    logger.info({ userId, cardName, cardType, rarity }, 'Card type updated');
+    
+    return true;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    logger.error({ err, userId, cardName, cardType }, 'UpdateCardType error');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+

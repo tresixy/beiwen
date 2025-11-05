@@ -35,7 +35,7 @@ const FEATURE_CARDS = [
     },
 ];
 
-export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase, onOpenPlayerArchives }) {
+export function Lobby({ user, token, onEnterGame, onLogout, onEnterAdmin }) {
     const containerRef = useRef(null);
     const frameRef = useRef(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
@@ -158,18 +158,35 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
             // 选中新区域：只设置临时高亮
             setSelectedRegion(regionKey);
             const tiles = regionToTiles.get(regionKey) || [];
+            
+            // 检查该区域是否所有地块都已被点亮（已完成）
+            const allTilesCompleted = tiles.length > 0 && tiles.every(t => 
+                permanentHighlights.some(p => p.q === t.q && p.r === t.r)
+            );
+            
+            if (allTilesCompleted) {
+                console.log('🚫 该区域所有地块已完成，无法再次游戏', regionKey);
+                // 不设置临时高亮，不选择任何地块
+                return;
+            }
+            
             setTemporaryHighlights(tiles);
             
             // 自动选择该区域的第一个地块作为起始位置（优先选择未被永久点亮的地块）
             if (tiles.length > 0) {
                 const availableTile = tiles.find(t => 
                     !permanentHighlights.some(p => p.q === t.q && p.r === t.r)
-                ) || tiles[0];
+                );
                 
-                setSelectedLocation(availableTile);
-                localStorage.setItem('selectedHex', JSON.stringify(availableTile));
-                localStorage.setItem('selectedRegion', regionKey);
-                localStorage.setItem('selectedRegionTiles', JSON.stringify(tiles));
+                if (availableTile) {
+                    setSelectedLocation(availableTile);
+                    localStorage.setItem('selectedHex', JSON.stringify(availableTile));
+                    localStorage.setItem('selectedRegion', regionKey);
+                    localStorage.setItem('selectedRegionTiles', JSON.stringify(tiles));
+                } else {
+                    // 所有地块都已完成，不允许选择
+                    console.log('🚫 该区域没有可用地块');
+                }
             }
         }
     }, [regionToTiles, selectedRegion, permanentHighlights]);
@@ -540,22 +557,13 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterCardsDatabase
                             <span className="volume-value">{volume}%</span>
                         </div>
                         <div className="settings-actions">
-                            {isAdmin && onEnterCardsDatabase && (
+                            {isAdmin && onEnterAdmin && (
                                 <button 
                                     type="button" 
                                     className="settings-admin" 
-                                    onClick={onEnterCardsDatabase}
+                                    onClick={onEnterAdmin}
                                 >
-                                    🎴 卡牌数据库
-                                </button>
-                            )}
-                            {isAdmin && onOpenPlayerArchives && (
-                                <button 
-                                    type="button" 
-                                    className="settings-admin" 
-                                    onClick={onOpenPlayerArchives}
-                                >
-                                    📁 玩家存档管理
+                                    🎮 管理后台
                                 </button>
                             )}
                             <button 

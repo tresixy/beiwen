@@ -27,3 +27,22 @@ export async function drawCards(token, count = 3) {
   }
   return response.json();
 }
+
+/**
+ * 更新卡牌类型（将inspiration卡标记为keycard）
+ */
+export async function updateCardType(token, cardName, cardType, rarity) {
+  const response = await fetch(`${API_BASE}/deck/update-card-type`, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}` 
+    },
+    body: JSON.stringify({ cardName, cardType, rarity }),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update card type');
+  }
+  return response.json();
+}

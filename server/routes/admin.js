@@ -47,7 +47,7 @@ router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
     const offset = (page - 1) * limit;
     
     const result = await pool.query(
-      `SELECT id, email, username, role, created_at 
+      `SELECT id, user_id, email, username, role, created_at 
        FROM users 
        ORDER BY created_at DESC 
        LIMIT $1 OFFSET $2`,

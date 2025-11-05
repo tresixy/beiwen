@@ -28,9 +28,22 @@ const OVERLAY_POSITIONS = [
     { x: 60, y: 44 },
 ];
 
+// event 解锁卡牌映射表
+const EVENT_UNLOCK_CARDS = {
+    '寒冷': ['智慧'],
+    '饥饿': ['部落'],
+    '纷争': ['价值'],
+    '遗忘': ['历史'],
+    '隔绝': ['繁荣'],
+    '入侵': ['团结'],
+};
+
 const pickOverlayPosition = () => OVERLAY_POSITIONS[Math.floor(Math.random() * OVERLAY_POSITIONS.length)];
 
 export function useGameSimulation({ pushMessage, token }) {
+    // 禁用所有游戏提示
+    pushMessage = null;
+    
     const [serverSyncEnabled, setServerSyncEnabled] = useState(!!token);
     const [loading, setLoading] = useState(!!token);
     const [resources, setResources] = useState(INITIAL_RESOURCES);
@@ -327,6 +340,7 @@ export function useGameSimulation({ pushMessage, token }) {
     }, [pushMessage, stopForgeTimers]);
 
     const [forgeResultCard, setForgeResultCard] = useState(null);
+    const [chronicleLogEntry, setChronicleLogEntry] = useState(null);
 
     const finishForge = useCallback(async (resultCard, forgedCardIds = null) => {
         // 如果没有传入实际合成的卡牌ID，使用selectedIds
@@ -361,11 +375,15 @@ export function useGameSimulation({ pushMessage, token }) {
         setOverlayState((prev) => ({ ...prev, visible: false }));
         
         // 显示合成详情
-        pushMessage?.(`✨ 合成成功：${forgedCardNames} → 「${resultCard.name}」`, 'success');
+        // pushMessage?.(`✨ 合成成功：${forgedCardNames} → 「${resultCard.name}」`, 'success');
     }, [hand, selectedIds, updateCardBook, pushMessage, token, serverSyncEnabled]);
 
     const clearForgeResult = useCallback(() => {
         setForgeResultCard(null);
+    }, []);
+
+    const clearChronicleLog = useCallback(() => {
+        setChronicleLogEntry(null);
     }, []);
 
     const scheduleLocalForge = useCallback(() => {
@@ -494,58 +512,81 @@ export function useGameSimulation({ pushMessage, token }) {
                         // 清除熔炉选中状态
                         setSelectedIds([]);
                         
-                        // 更新库存和卡牌图鉴
-                        setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
-                        updateCardBook((prev) => addCardToBook(prev, resultCard));
-                        
                         // 清理状态
                         setForgeLoading(false);
                         setForgePanelOpen(false);
                         setForgeName('');
                         setOverlayState({ visible: false });
                         
-                        // 播放合成音效（检查是否为钥匙卡）
-                        const isKeyCard = resultCard.rarity === 'ruby';
-                        audioService.playSynthesis(isKeyCard);
-                        
-                        // 显示合成详情
-                        const inputNames = cards.map(c => c.name).join(' + ');
-                        pushMessage?.(`✨ 合成成功：${inputNames} → 「${actualName}」`, 'success');
-                        
-                        if (data.aiUsed && data.ideas && data.ideas.length > 0) {
-                            const idea = data.ideas[0];
-                            const ideaText = idea.name || idea.results || '未知灵感';
-                            pushMessage?.(`🤖 AI灵感：${ideaText}`, 'info');
+                        // 显示史官记录
+                        if (data.chronicleLogEntry) {
+                            setChronicleLogEntry(data.chronicleLogEntry);
                         }
                         
-                        // 检测是否合成了任何官方 key card（放宽条件）
-                        const OFFICIAL_KEY_CARDS = [
-                            '火', '农业', '律法', '文字', '货币', '城防',
-                            '道路', '商业', '宗教', '史诗', '圣典', '教权',
-                            '印刷术', '艺术', '远洋航行', '官僚体系', '蒸汽机', '电力',
-                            '科学方法', '启蒙思想', '人权宣言', '计算机', '脑机接口', '全球协作',
-                            '可持续发展', '曲率引擎', '太空电梯', '冯诺依曼探针', '集体意识同步', '数字永生', '创世纪数据库'
-                        ];
-                        
+                        // 使用AI语义判断是否触发keycard
                         const cardName = resultCard.name;
                         let matchedKeyCard = null;
                         
-                        // 检查是否包含任何官方 key card 名称
-                        for (const keyCard of OFFICIAL_KEY_CARDS) {
-                            if (cardName.includes(keyCard) || cardName === keyCard) {
-                                matchedKeyCard = keyCard;
-                                break;
+                        if (activeEvent && activeEvent.required_key) {
+                            try {
+                                // 调用AI语义匹配API
+                                const requiredKeys = activeEvent.required_key.split('或').map(k => k.trim());
+                                
+                                for (const requiredKey of requiredKeys) {
+                                    const matchResponse = await fetch('/api/ai-match/match', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localToken}`,
+                                        },
+                                        body: JSON.stringify({
+                                            cardName: cardName,
+                                            requiredKey: requiredKey,
+                                        }),
+                                    });
+                                    
+                                    if (matchResponse.ok) {
+                                        const matchData = await matchResponse.json();
+                                        console.log('🤖 AI语义匹配结果:', { cardName, requiredKey, match: matchData.match });
+                                        
+                                        if (matchData.match === 'yes') {
+                                            matchedKeyCard = requiredKey;
+                                            console.log('✅ AI判断匹配成功！', { cardName, matchedKeyCard });
+                                            break;
+                                        }
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('AI语义匹配失败:', err);
                             }
                         }
                         
-                        // 如果包含 key card，触发展示和结算
+                        // 如果AI判断匹配，触发展示和结算
                         if (matchedKeyCard && activeEvent) {
                             console.log('🎉 检测到 key card！', { cardName, matchedKeyCard });
+                            
+                            // 将resultCard标记为keycard（设置正确的rarity和type）
+                            resultCard.rarity = 'ruby';
+                            resultCard.type = 'key';
+                            resultCard.card_type = 'key';
+                            
+                            // 播放钥匙卡合成音效
+                            audioService.playSynthesis(true);
+                            
+                            // 加入背包和卡册（作为keycard）
+                            setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
+                            updateCardBook((prev) => addCardToBook(prev, resultCard));
+                            
+                            // 获取对应的解锁卡牌
+                            const eventNameClean = activeEvent.name?.replace(/【|】/g, '') || '';
+                            const unlockedCards = EVENT_UNLOCK_CARDS[eventNameClean] || [];
                             setTimeout(() => {
                                 // 先展示key card放大效果
                                 if (window.showKeyCardReveal) {
                                     window.showKeyCardReveal({
                                         keyCard: resultCard,
+                                        reward: activeEvent.reward,
+                                        unlockedCards: unlockedCards,
                                         onNext: () => {
                                             // 用户点击"下一步"后，触发胜利结算
                                             if (window.showVictoryModal) {
@@ -587,7 +628,12 @@ export function useGameSimulation({ pushMessage, token }) {
                                         }
                                     });
                                 }
-                            }, 800);
+                                }, 800);
+                        } else {
+                            // 非keycard，作为普通卡加入背包
+                            audioService.playSynthesis(false);
+                            setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
+                            updateCardBook((prev) => addCardToBook(prev, resultCard));
                         }
                     } else {
                         // 如果没有消耗卡牌，直接从手牌中移除并显示合成结果
@@ -607,58 +653,81 @@ export function useGameSimulation({ pushMessage, token }) {
                         // 设置合成结果卡牌到结果区域显示
                         setForgeResultCard(resultCard);
                         
-                        // 更新库存和卡牌图鉴
-                        setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
-                        updateCardBook((prev) => addCardToBook(prev, resultCard));
-                        
                         // 清理状态
                         setForgeLoading(false);
                         setForgePanelOpen(false);
                         setForgeName('');
                         setOverlayState({ visible: false });
                         
-                        // 播放合成音效（检查是否为钥匙卡）
-                        const isKeyCard = resultCard.rarity === 'ruby';
-                        audioService.playSynthesis(isKeyCard);
-                        
-                        // 显示合成详情
-                        const inputNames = cards.map(c => c.name).join(' + ');
-                        pushMessage?.(`✨ 合成成功：${inputNames} → 「${resultCard.name}」`, 'success');
-                        
-                        if (data.aiUsed && data.ideas && data.ideas.length > 0) {
-                            const idea = data.ideas[0];
-                            const ideaText = idea.name || idea.results || '未知灵感';
-                            pushMessage?.(`🤖 AI灵感：${ideaText}`, 'info');
+                        // 显示史官记录
+                        if (data.chronicleLogEntry) {
+                            setChronicleLogEntry(data.chronicleLogEntry);
                         }
                         
-                        // 检测是否合成了任何官方 key card（放宽条件）
-                        const OFFICIAL_KEY_CARDS = [
-                            '火', '农业', '律法', '文字', '货币', '城防',
-                            '道路', '商业', '宗教', '史诗', '圣典', '教权',
-                            '印刷术', '艺术', '远洋航行', '官僚体系', '蒸汽机', '电力',
-                            '科学方法', '启蒙思想', '人权宣言', '计算机', '脑机接口', '全球协作',
-                            '可持续发展', '曲率引擎', '太空电梯', '冯诺依曼探针', '集体意识同步', '数字永生', '创世纪数据库'
-                        ];
-                        
+                        // 使用AI语义判断是否触发keycard
                         const cardName = resultCard.name;
                         let matchedKeyCard = null;
                         
-                        // 检查是否包含任何官方 key card 名称
-                        for (const keyCard of OFFICIAL_KEY_CARDS) {
-                            if (cardName.includes(keyCard) || cardName === keyCard) {
-                                matchedKeyCard = keyCard;
-                                break;
+                        if (activeEvent && activeEvent.required_key) {
+                            try {
+                                // 调用AI语义匹配API
+                                const requiredKeys = activeEvent.required_key.split('或').map(k => k.trim());
+                                
+                                for (const requiredKey of requiredKeys) {
+                                    const matchResponse = await fetch('/api/ai-match/match', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${localToken}`,
+                                        },
+                                        body: JSON.stringify({
+                                            cardName: cardName,
+                                            requiredKey: requiredKey,
+                                        }),
+                                    });
+                                    
+                                    if (matchResponse.ok) {
+                                        const matchData = await matchResponse.json();
+                                        console.log('🤖 AI语义匹配结果:', { cardName, requiredKey, match: matchData.match });
+                                        
+                                        if (matchData.match === 'yes') {
+                                            matchedKeyCard = requiredKey;
+                                            console.log('✅ AI判断匹配成功！', { cardName, matchedKeyCard });
+                                            break;
+                                        }
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('AI语义匹配失败:', err);
                             }
                         }
                         
-                        // 如果包含 key card，触发展示和结算
+                        // 如果AI判断匹配，触发展示和结算
                         if (matchedKeyCard && activeEvent) {
                             console.log('🎉 检测到 key card！', { cardName, matchedKeyCard });
+                            
+                            // 将resultCard标记为keycard（设置正确的rarity和type）
+                            resultCard.rarity = 'ruby';
+                            resultCard.type = 'key';
+                            resultCard.card_type = 'key';
+                            
+                            // 播放钥匙卡合成音效
+                            audioService.playSynthesis(true);
+                            
+                            // 加入背包和卡册（作为keycard）
+                            setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
+                            updateCardBook((prev) => addCardToBook(prev, resultCard));
+                            
+                            // 获取对应的解锁卡牌
+                            const eventNameClean = activeEvent.name?.replace(/【|】/g, '') || '';
+                            const unlockedCards = EVENT_UNLOCK_CARDS[eventNameClean] || [];
                             setTimeout(() => {
                                 // 先展示key card放大效果
                                 if (window.showKeyCardReveal) {
                                     window.showKeyCardReveal({
                                         keyCard: resultCard,
+                                        reward: activeEvent.reward,
+                                        unlockedCards: unlockedCards,
                                         onNext: () => {
                                             // 用户点击"下一步"后，触发胜利结算
                                             if (window.showVictoryModal) {
@@ -701,6 +770,11 @@ export function useGameSimulation({ pushMessage, token }) {
                                     });
                                 }
                             }, 800);
+                        } else {
+                            // 非keycard，作为普通卡加入背包
+                            audioService.playSynthesis(false);
+                            setInventory((prev) => [...prev, forgeResultToInventoryItem(resultCard)]);
+                            updateCardBook((prev) => addCardToBook(prev, resultCard));
                         }
                     }
                     
@@ -914,8 +988,9 @@ export function useGameSimulation({ pushMessage, token }) {
         const newKeyCard = {
             id: `key-${Date.now()}`,
             name: requiredKeyName,
-            type: '钥匙',
-            rarity: 'epic',
+            type: 'key',
+            card_type: 'key',
+            rarity: 'ruby',
         };
 
         // 计算实际手牌区的卡牌数量（不包括已放到画布上的）
@@ -971,6 +1046,9 @@ export function useGameSimulation({ pushMessage, token }) {
                             // 触发key card展示 -> 胜利结算（永久点亮）
                             if (isExactMatch || isPartialMatch) {
                                 console.log('🎉 作弊码触发 key card！', { cardName, isExactMatch, isPartialMatch, requiredKeys });
+                                // 获取对应的解锁卡牌
+                                const eventNameClean = activeEvent.name?.replace(/【|】/g, '') || '';
+                                const unlockedCards = EVENT_UNLOCK_CARDS[eventNameClean] || [];
                                 setTimeout(() => {
                                     // 先展示key card放大效果
                                     if (window.showKeyCardReveal) {
@@ -978,11 +1056,14 @@ export function useGameSimulation({ pushMessage, token }) {
                                             id: Date.now().toString(),
                                             name: cardName,
                                             type: 'key',
+                                            card_type: 'key',
                                             rarity: 'ruby',
                                             attrs: {}
                                         };
                                         window.showKeyCardReveal({
                                             keyCard: keyCard,
+                                            reward: activeEvent.reward,
+                                            unlockedCards: unlockedCards,
                                             onNext: () => {
                                                 // 用户点击"下一步"后，触发胜利结算
                                                 console.log('🎯 检查 window.showVictoryModal:', window.showVictoryModal);
@@ -1404,6 +1485,8 @@ export function useGameSimulation({ pushMessage, token }) {
         submitForge,
         forgeResultCard,
         clearForgeResult,
+        chronicleLogEntry,
+        clearChronicleLog,
         overlayState,
         professionState,
         professionPanelOpen,

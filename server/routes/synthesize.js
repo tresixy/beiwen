@@ -7,6 +7,7 @@ import * as aiService from '../services/aiService.js';
 import * as inventoryService from '../services/inventoryService.js';
 import * as eventService from '../services/eventService.js';
 import * as cardService from '../services/cardService.js';
+import * as chronicleService from '../services/chronicleService.js';
 import { isTechAllowed } from '../config/eraConfig.js';
 import env from '../config/env.js';
 import logger from '../utils/logger.js';
@@ -44,9 +45,10 @@ router.post('/', authMiddleware, validateRequest(synthesizeSchema), async (req, 
       inputItems = await synthService.getInputItems(inputs, isNameArray ? userId : null);
     }
     
-    // 获取时代信息
+    // 获取时代信息和当前困境
     const eventState = await eventService.getEventState(userId);
     const currentEra = eventState.era || '生存时代';
+    const currentDilemma = eventState.activeEvent?.name || null;
 
     // 生成配方哈希（需要统一格式：字符串数组）
     const inputNames = typeof inputs[0] === 'object' && inputs[0].name
@@ -189,7 +191,7 @@ router.post('/', authMiddleware, validateRequest(synthesizeSchema), async (req, 
     );
     
     // 记录本次合成日志（按顺序写入）
-    await synthService.logSynthesisEvent(userId, inputNames, item, recipe_hash, {
+    const synthesisLogId = await synthService.logSynthesisEvent(userId, inputNames, item, recipe_hash, {
       era: currentEra,
       mode,
       aiUsed,
@@ -199,6 +201,28 @@ router.post('/', authMiddleware, validateRequest(synthesizeSchema), async (req, 
     
     // 增加用户合成次数
     await synthService.incrementSynthesisCount(userId);
+    
+    // 生成史官编年史记录（同步生成，返回给前端）
+    let chronicleLogEntry = null;
+    if (synthesisLogId && item?.name) {
+      try {
+        const chronicleData = await chronicleService.generateChronicleEntry(userId, item.name, currentDilemma);
+        chronicleLogEntry = chronicleData.logEntry;
+        logger.info({ userId, chronicleLogEntry }, 'Chronicle entry generated');
+        
+        // 异步保存到数据库
+        chronicleService.saveChronicleLog(userId, synthesisLogId, {
+          ...chronicleData,
+          createdCardName: item.name,
+        }).catch((err) => {
+          logger.error({ err, userId, synthesisLogId }, 'Failed to save chronicle log');
+        });
+      } catch (err) {
+        logger.error({ err, userId, synthesisLogId }, 'Failed to generate chronicle entry');
+        // 失败时使用默认文案
+        chronicleLogEntry = '文明的进程又迈出了新的一步，历史的车轮滚滚向前。';
+      }
+    }
     
     // 判断是否需要消耗卡牌：如果inputs是字符串数组（卡牌名称），则需要消耗
     const needConsumeCards = typeof inputs[0] === 'string' && !inputs[0].match(/^\d+$/);
@@ -255,6 +279,7 @@ router.post('/', authMiddleware, validateRequest(synthesizeSchema), async (req, 
       inventoryFull,
       cardsConsumed: needConsumeCards ? inputNames : null, // 告知客户端哪些卡牌被消耗
       needRefreshHand: needConsumeCards, // 提示客户端需要刷新手牌
+      chronicleLogEntry, // 史官记录
     };
 
     if (aiIdeas) {

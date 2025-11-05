@@ -646,26 +646,48 @@ html:has(.lobby-shell) #app {
     font-weight: 600;
 }
 
-.hud-guide-btn {
+.hud-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.hud-guide-btn,
+.hud-witness-btn {
     padding: 8px 12px;
     border-radius: 50%;
     border: 3px solid #8b6f47;
-    background: linear-gradient(135deg, #ff9447, #ffb66f);
     color: #fff;
     font-size: 1.2rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 3px 8px rgba(42, 24, 16, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     width: 44px;
     height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1001;
+}
+
+.hud-guide-btn {
+    background: linear-gradient(135deg, #ff9447, #ffb66f);
+    box-shadow: 0 3px 8px rgba(42, 24, 16, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.hud-witness-btn {
+    background: linear-gradient(135deg, #d4af37, #c9a55c);
+    box-shadow: 0 3px 8px rgba(42, 24, 16, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    border-color: #8b7147;
 }
 
 .hud-guide-btn:hover {
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 6px 14px rgba(255, 148, 71, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.hud-witness-btn:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 14px rgba(212, 175, 55, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .hud-logout {
@@ -1841,20 +1863,28 @@ html:has(.lobby-shell) #app {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-left: 50px;
 }
 
 .inventory-toggle-btn {
-    width: 60px;
+    min-width: 120px;
     height: 60px;
-    padding: 0;
-    background: transparent;
-    border: none;
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid #8b6f47;
+    border-radius: 8px;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: all 0.2s;
+    font-size: 18px;
+    font-weight: bold;
+    color: #d4af37;
+    white-space: nowrap;
+    text-align: center;
 }
 
 .inventory-toggle-btn:not(.active):hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
+    background: rgba(139, 111, 71, 0.3);
 }
 
 .inventory-toggle-btn:not(.active) {
@@ -1863,7 +1893,9 @@ html:has(.lobby-shell) #app {
 }
 
 .inventory-toggle-btn.active {
-    opacity: 0.5;
+    opacity: 1;
+    background: rgba(212, 175, 55, 0.3);
+    border-color: #d4af37;
     cursor: default;
 }
 
@@ -1886,7 +1918,7 @@ html:has(.lobby-shell) #app {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 150px 120px 120px 120px;
+    padding: 170px 200px 120px 60px;
 }
 
 .inventory-page-items {
@@ -1925,10 +1957,9 @@ html:has(.lobby-shell) #app {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto;
-    gap: 30px;
-    row-gap: 50px;
+    gap: 50px;
     width: 100%;
-    max-width: 420px;
+    max-width: 480px;
     margin-bottom: 70px;
 }
 
@@ -1942,7 +1973,6 @@ html:has(.lobby-shell) #app {
     border: 2px solid #8b7147;
     border-radius: 6px;
     transition: box-shadow 0.2s;
-    max-height: 140px;
     width: 100%;
 }
 
@@ -1991,6 +2021,7 @@ html:has(.lobby-shell) #app {
 
 .inventory-page-next {
     right: 60px;
+    bottom: 120px;
 }
 
 .inventory-page-btn img {
@@ -2796,7 +2827,7 @@ html:has(.lobby-shell) #app {
 .lobby-bottom-right {
     position: absolute;
     bottom: 15px;
-    right: 200px;
+    right: 100px;
     display: flex;
     gap: 24px;
     align-items: flex-end;

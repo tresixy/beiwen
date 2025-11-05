@@ -146,10 +146,11 @@ export async function logSynthesisEvent(userId, inputNames, outputItem, recipeHa
     const aiModel = options.aiModel ?? null;
     const prompt = options.prompt ?? null;
 
-    await pool.query(
+    const result = await pool.query(
       `INSERT INTO synthesis_logs 
        (user_id, inputs_json, output_item_id, output_name, recipe_hash, era, mode, ai_used, ai_model, prompt)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       RETURNING id`,
       [
         userId,
         JSON.stringify(inputNames),
@@ -164,10 +165,13 @@ export async function logSynthesisEvent(userId, inputNames, outputItem, recipeHa
       ]
     );
 
-    logger.info({ userId, outputItemId: outputItem?.id, outputName: outputItem?.name }, 'Synthesis event logged');
+    const synthesisLogId = result.rows[0].id;
+    logger.info({ userId, synthesisLogId, outputItemId: outputItem?.id, outputName: outputItem?.name }, 'Synthesis event logged');
+    return synthesisLogId;
   } catch (err) {
     // 记录失败不应阻断合成流程
     logger.error({ err, userId, outputItemId: outputItem?.id }, 'Failed to log synthesis event');
+    return null;
   }
 }
 

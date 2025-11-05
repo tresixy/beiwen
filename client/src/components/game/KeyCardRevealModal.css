@@ -145,6 +145,24 @@
     padding: 0 20px;
 }
 
+.keycard-reveal-reward {
+    font-size: 1.4rem;
+    color: #FFD700;
+    margin: 12px 0;
+    text-shadow: 0 2px 8px rgba(255, 215, 0, 0.6);
+    font-weight: 600;
+    font-family: 'Kaiti', 'STKaiti', serif;
+}
+
+.keycard-reveal-unlocked {
+    font-size: 1.4rem;
+    color: #87CEEB;
+    margin: 12px 0;
+    text-shadow: 0 2px 8px rgba(135, 206, 235, 0.6);
+    font-weight: 600;
+    font-family: 'Kaiti', 'STKaiti', serif;
+}
+
 .keycard-reveal-next-btn {
     padding: 16px 64px;
     font-size: 1.5rem;

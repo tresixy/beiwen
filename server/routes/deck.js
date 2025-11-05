@@ -36,5 +36,16 @@ router.post('/unlock', authMiddleware, async (req, res) => {
   }
 });
 
+// 更新卡牌类型（将inspiration卡标记为keycard）
+router.post('/update-card-type', authMiddleware, async (req, res) => {
+  try {
+    const { cardName, cardType, rarity } = req.body;
+    await deckService.updateCardType(req.userId, cardName, cardType, rarity);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
 

@@ -1,0 +1,820 @@
+/* 遮罩层 - 饥荒风格 */
+.tutorial-overlay {
+    position: fixed;
+    inset: 0;
+    background: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0, 0, 0, 0.02) 10px, rgba(0, 0, 0, 0.02) 11px),
+        rgba(45, 24, 16, 0.88);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 350ms ease;
+}
+
+.tutorial-overlay.visible {
+    opacity: 1;
+}
+
+.tutorial-overlay.closing {
+    opacity: 0;
+    transition: opacity 280ms ease;
+}
+
+/* 主容器 - 全屏羊皮纸手绘风格 */
+.tutorial-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    padding: clamp(40px, 5vh, 80px) clamp(32px, 5vw, 80px);
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(139, 111, 71, 0.04) 15px, rgba(139, 111, 71, 0.04) 16px),
+        rgba(244, 232, 216, 0.98);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    animation: tutorial-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', 'Noto Sans SC', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+@keyframes tutorial-entrance {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* 主题变体 */
+.tutorial-container.theme-void {
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(100, 80, 120, 0.05) 15px, rgba(100, 80, 120, 0.05) 16px),
+        rgba(230, 220, 235, 0.98);
+    border-color: #9a7fb5;
+}
+
+.tutorial-container.theme-forge {
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(255, 107, 53, 0.06) 15px, rgba(255, 107, 53, 0.06) 16px),
+        rgba(255, 245, 235, 0.98);
+    border-color: #ff9447;
+    box-shadow: 
+        0 16px 48px rgba(42, 24, 16, 0.7),
+        0 0 100px rgba(255, 107, 53, 0.35),
+        inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+
+.tutorial-container.theme-player {
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(111, 175, 232, 0.05) 15px, rgba(111, 175, 232, 0.05) 16px),
+        rgba(240, 248, 255, 0.98);
+    border-color: #6fafe8;
+}
+
+.tutorial-container.theme-rules {
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(167, 112, 213, 0.05) 15px, rgba(167, 112, 213, 0.05) 16px),
+        rgba(248, 240, 255, 0.98);
+    border-color: #a770d5;
+}
+
+.tutorial-container.theme-mission {
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(127, 176, 105, 0.06) 15px, rgba(127, 176, 105, 0.06) 16px),
+        rgba(240, 255, 245, 0.98);
+    border-color: #7fb069;
+    box-shadow: 
+        0 16px 48px rgba(42, 24, 16, 0.7),
+        0 0 100px rgba(127, 176, 105, 0.3),
+        inset 0 2px 0 rgba(255, 255, 255, 0.4);
+}
+
+.tutorial-container.theme-start {
+    background: 
+        repeating-linear-gradient(0deg, transparent, transparent 15px, rgba(255, 148, 71, 0.08) 15px, rgba(255, 148, 71, 0.08) 16px),
+        rgba(255, 250, 240, 0.98);
+    border-color: #ff9447;
+    box-shadow: 
+        0 16px 48px rgba(42, 24, 16, 0.7),
+        0 0 120px rgba(255, 148, 71, 0.4),
+        inset 0 2px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* 粒子效果 - 手绘风格 */
+.tutorial-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle, rgba(255, 198, 107, 0.8), rgba(212, 140, 71, 0.4));
+    border-radius: 50%;
+    animation: float-up 6s infinite ease-in-out;
+    box-shadow: 0 0 8px rgba(255, 198, 107, 0.5);
+}
+
+@keyframes float-up {
+    0% {
+        transform: translateY(110vh) translateX(0) scale(0.5);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    90% {
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-80px) translateX(30px) scale(1.2);
+        opacity: 0;
+    }
+}
+
+/* 内容区域 */
+.tutorial-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(24px, 4vh, 48px);
+    padding: 20px 0;
+}
+
+/* 标题 - 手绘风格 */
+.tutorial-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 800;
+    color: #2a1810;
+    text-shadow: 
+        4px 4px 0 rgba(255, 148, 71, 0.3),
+        2px 2px 0 rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.08em;
+    margin: 0 0 clamp(20px, 3vh, 40px);
+    text-transform: uppercase;
+    position: relative;
+    transform: rotate(-1deg);
+    animation: title-wiggle 4s ease-in-out infinite;
+}
+
+@keyframes title-wiggle {
+    0%, 100% {
+        transform: rotate(-1deg);
+    }
+    50% {
+        transform: rotate(1deg);
+    }
+}
+
+.tutorial-title::after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: clamp(100px, 12vw, 160px);
+    height: 4px;
+    background: #ff9447;
+    border-radius: 2px;
+    box-shadow: 0 2px 6px rgba(255, 148, 71, 0.4);
+}
+
+/* 文字内容 */
+.tutorial-texts {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2.5vh, 32px);
+    max-width: 900px;
+}
+
+.tutorial-text {
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: #5a3f2a;
+    line-height: 1.7;
+    margin: 0;
+    animation: text-fade-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+    letter-spacing: 0.02em;
+    font-weight: 600;
+}
+
+@keyframes text-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px) rotate(-1deg);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) rotate(0);
+    }
+}
+
+/* 视觉元素 */
+.tutorial-visual {
+    margin: clamp(24px, 4vh, 48px) 0;
+    animation: visual-appear 0.7s ease-out 0.25s both;
+}
+
+@keyframes visual-appear {
+    from {
+        opacity: 0;
+        transform: scale(0.85) rotate(-3deg);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+    }
+}
+
+/* 卡牌演示 - 饥荒风格 */
+.cards-visual {
+    display: flex;
+    align-items: center;
+    gap: clamp(24px, 3vw, 48px);
+    font-size: clamp(3rem, 5vw, 5rem);
+}
+
+.card-demo {
+    width: clamp(100px, 12vw, 160px);
+    height: clamp(125px, 15vw, 200px);
+    background: 
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139, 111, 71, 0.03) 2px, rgba(139, 111, 71, 0.03) 4px),
+        rgba(244, 232, 216, 0.95);
+    border: 5px solid #8b6f47;
+    border-radius: 16px 14px 15px 17px / 15px 17px 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        0 8px 0 rgba(90, 63, 42, 0.6),
+        0 12px 24px rgba(42, 24, 16, 0.4);
+    animation: card-float 2.5s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.card-demo.result {
+    background: 
+        repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 148, 71, 0.04) 2px, rgba(255, 148, 71, 0.04) 4px),
+        rgba(255, 245, 235, 0.95);
+    border-color: #ff9447;
+    box-shadow: 
+        0 10px 0 rgba(192, 104, 45, 0.7),
+        0 14px 28px rgba(255, 148, 71, 0.5),
+        0 0 40px rgba(255, 148, 71, 0.4);
+    animation: card-result 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes card-float {
+    0%, 100% {
+        transform: translateY(0) rotate(-1deg);
+    }
+    50% {
+        transform: translateY(-8px) rotate(1deg);
+    }
+}
+
+@keyframes card-result {
+    0% {
+        opacity: 0;
+        transform: scale(0.4) rotate(15deg);
+    }
+    60% {
+        transform: scale(1.1) rotate(-5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0);
+    }
+}
+
+.plus-sign, .equals-sign {
+    color: #ff6b35;
+    font-weight: 900;
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    text-shadow: 
+        3px 3px 0 rgba(255, 148, 71, 0.4),
+        2px 2px 0 rgba(255, 255, 255, 0.5);
+    animation: symbol-bounce 2s ease-in-out infinite;
+}
+
+@keyframes symbol-bounce {
+    0%, 100% {
+        transform: scale(1) rotate(-2deg);
+    }
+    50% {
+        transform: scale(1.15) rotate(2deg);
+    }
+}
+
+/* 玩家头像 */
+.avatar-visual {
+    width: clamp(140px, 18vw, 220px);
+    height: clamp(140px, 18vw, 220px);
+}
+
+.player-avatar {
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(135deg, rgba(111, 175, 232, 0.3), rgba(90, 150, 200, 0.2)),
+        #f4e8d8;
+    border: 6px solid #6fafe8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(4rem, 8vw, 7rem);
+    box-shadow: 
+        0 10px 0 rgba(90, 63, 42, 0.6),
+        0 16px 32px rgba(42, 24, 16, 0.5),
+        inset 0 3px 0 rgba(255, 255, 255, 0.3);
+    animation: avatar-wiggle 3s ease-in-out infinite;
+}
+
+@keyframes avatar-wiggle {
+    0%, 100% {
+        transform: rotate(-2deg) scale(1);
+    }
+    50% {
+        transform: rotate(2deg) scale(1.05);
+    }
+}
+
+/* 熔炉图标 */
+.forge-visual {
+    position: relative;
+    width: clamp(160px, 20vw, 260px);
+    height: clamp(160px, 20vw, 260px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.forge-icon {
+    font-size: clamp(6rem, 10vw, 10rem);
+    filter: drop-shadow(4px 4px 0 rgba(255, 148, 71, 0.4));
+    animation: forge-shake 2.5s ease-in-out infinite;
+}
+
+.forge-glow {
+    position: absolute;
+    inset: -10px;
+    background: radial-gradient(circle, rgba(255, 148, 71, 0.3), transparent 65%);
+    border-radius: 50%;
+    animation: forge-glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes forge-shake {
+    0%, 100% {
+        transform: rotate(-3deg);
+    }
+    50% {
+        transform: rotate(3deg);
+    }
+}
+
+@keyframes forge-glow-pulse {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+}
+
+/* 进度条 */
+.progress-visual {
+    width: 100%;
+    max-width: 700px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: clamp(36px, 4vh, 48px);
+    background: rgba(90, 63, 42, 0.2);
+    border: 5px solid #8b6f47;
+    border-radius: 14px 12px 13px 15px / 13px 15px 12px 14px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 3px 6px rgba(42, 24, 16, 0.3);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #7fb069, #92c47f);
+    transition: width 1.2s ease-out;
+    box-shadow: 0 0 12px rgba(127, 176, 105, 0.6);
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 255, 255, 0.15) 10px,
+        rgba(255, 255, 255, 0.15) 20px
+    );
+    animation: progress-shine 1.5s linear infinite;
+}
+
+@keyframes progress-shine {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
+
+.progress-label {
+    margin-top: clamp(12px, 2vh, 20px);
+    color: #7fb069;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+    text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* 控制栏 */
+.tutorial-controls {
+    margin-top: auto;
+    padding-top: clamp(24px, 3vh, 40px);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(20px, 2.5vh, 32px);
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+/* 进度指示 */
+.tutorial-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tutorial-progress .progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(139, 111, 71, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(42, 24, 16, 0.2);
+}
+
+.tutorial-progress .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff9447, #ffb66f);
+    transition: width 0.4s ease-out;
+    box-shadow: 0 0 8px rgba(255, 148, 71, 0.5);
+}
+
+.progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    background: rgba(139, 111, 71, 0.3);
+    border: 2px solid #8b6f47;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 0 rgba(90, 63, 42, 0.4);
+}
+
+.dot.active {
+    background: #ff9447;
+    border-color: #ff6b35;
+    transform: scale(1.3);
+    box-shadow: 
+        0 3px 0 rgba(192, 104, 45, 0.6),
+        0 0 12px rgba(255, 148, 71, 0.5);
+}
+
+.dot.completed {
+    background: #7fb069;
+    border-color: #6a9456;
+}
+
+.dot:hover {
+    transform: scale(1.2);
+}
+
+/* 按钮组 - 饥荒风格立体按钮 */
+.tutorial-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+}
+
+.tutorial-nav-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.tutorial-btn {
+    padding: clamp(16px, 2vh, 22px) clamp(32px, 4vw, 48px);
+    background: linear-gradient(135deg, #ff9447, #ffb66f);
+    border: 4px solid #2a1810;
+    border-radius: 16px 14px 15px 17px / 15px 17px 14px 16px;
+    color: #f4e8d8;
+    font-weight: 700;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 
+        0 8px 0 #c0682d,
+        0 12px 24px rgba(42, 24, 16, 0.4);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', 'Noto Sans SC', sans-serif;
+    position: relative;
+}
+
+.tutorial-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 
+        0 11px 0 #c0682d,
+        0 14px 28px rgba(42, 24, 16, 0.45);
+}
+
+.tutorial-btn:active {
+    transform: translateY(6px);
+    box-shadow: 
+        0 2px 0 #c0682d,
+        0 4px 12px rgba(42, 24, 16, 0.35);
+}
+
+.tutorial-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.tutorial-btn:disabled:hover {
+    transform: none;
+    box-shadow: 
+        0 8px 0 #c0682d,
+        0 12px 24px rgba(42, 24, 16, 0.4);
+}
+
+.tutorial-btn.btn-skip {
+    background: linear-gradient(135deg, rgba(168, 153, 104, 0.5), rgba(150, 138, 92, 0.6));
+    border-color: #8b6f47;
+    color: #5a3f2a;
+    box-shadow: 
+        0 6px 0 rgba(90, 63, 42, 0.6),
+        0 8px 16px rgba(42, 24, 16, 0.3);
+}
+
+.tutorial-btn.btn-skip:hover {
+    background: linear-gradient(135deg, rgba(168, 153, 104, 0.7), rgba(150, 138, 92, 0.8));
+    box-shadow: 
+        0 9px 0 rgba(90, 63, 42, 0.6),
+        0 11px 20px rgba(42, 24, 16, 0.35);
+}
+
+.tutorial-btn.btn-skip:active {
+    box-shadow: 
+        0 2px 0 rgba(90, 63, 42, 0.6),
+        0 4px 10px rgba(42, 24, 16, 0.25);
+}
+
+.tutorial-btn.btn-next {
+    background: linear-gradient(135deg, #ff9447, #ffb66f);
+    box-shadow: 
+        0 8px 0 #c0682d,
+        0 12px 24px rgba(42, 24, 16, 0.4),
+        0 0 30px rgba(255, 148, 71, 0.3);
+}
+
+/* 提示文字 */
+.tutorial-hint {
+    text-align: center;
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    color: #8b6f47;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+}
+
+/* 关闭按钮 - 饥荒风格 */
+.tutorial-close {
+    position: absolute;
+    top: clamp(20px, 3vh, 40px);
+    right: clamp(20px, 3vw, 40px);
+    width: clamp(52px, 6vw, 72px);
+    height: clamp(52px, 6vw, 72px);
+    background: linear-gradient(135deg, #c94f4f, #e06666);
+    border: 4px solid #2a1810;
+    border-radius: 50%;
+    color: #f4e8d8;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 
+        0 6px 0 rgba(90, 63, 42, 0.7),
+        0 8px 20px rgba(42, 24, 16, 0.4);
+}
+
+.tutorial-close:hover {
+    background: linear-gradient(135deg, #d96666, #f07777);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 
+        0 8px 0 rgba(90, 63, 42, 0.7),
+        0 12px 28px rgba(42, 24, 16, 0.5);
+}
+
+.tutorial-close:active {
+    transform: rotate(90deg) scale(1.05) translateY(4px);
+    box-shadow: 
+        0 2px 0 rgba(90, 63, 42, 0.7),
+        0 6px 16px rgba(42, 24, 16, 0.4);
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+    .tutorial-container {
+        padding: clamp(32px, 4vh, 60px) clamp(24px, 4vw, 48px);
+    }
+
+    .tutorial-title {
+        font-size: clamp(1.7rem, 5vw, 2rem);
+        margin-bottom: 14px;
+    }
+
+    .tutorial-title::after {
+        width: 60px;
+    }
+
+    .tutorial-text {
+        font-size: clamp(1rem, 3vw, 1.2rem);
+    }
+
+    .tutorial-content {
+        min-height: 260px;
+        gap: 18px;
+    }
+
+    .tutorial-buttons {
+        flex-direction: column-reverse;
+        gap: 14px;
+    }
+
+    .tutorial-nav-buttons {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .tutorial-btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+
+    .tutorial-btn.btn-skip {
+        width: 100%;
+    }
+
+    .cards-visual {
+        font-size: 1.7rem;
+        gap: 12px;
+    }
+
+    .card-demo {
+        width: 60px;
+        height: 75px;
+    }
+
+    .plus-sign, .equals-sign {
+        font-size: 1.5rem;
+    }
+
+    .forge-visual {
+        width: 110px;
+        height: 110px;
+    }
+
+    .forge-icon {
+        font-size: 3.5rem;
+    }
+
+    .player-avatar {
+        font-size: 2.5rem;
+    }
+
+    .avatar-visual {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tutorial-container {
+        padding: clamp(28px, 4vh, 48px) clamp(20px, 4vw, 36px);
+    }
+
+    .tutorial-title {
+        font-size: 1.5rem;
+    }
+
+    .tutorial-text {
+        font-size: 0.95rem;
+    }
+
+    .tutorial-content {
+        min-height: 220px;
+        gap: 16px;
+    }
+
+    .tutorial-btn {
+        padding: 11px 18px;
+        font-size: 0.85rem;
+    }
+
+    .cards-visual {
+        font-size: 1.5rem;
+        gap: 10px;
+    }
+
+    .card-demo {
+        width: 52px;
+        height: 65px;
+    }
+
+    .plus-sign, .equals-sign {
+        font-size: 1.3rem;
+    }
+
+    .tutorial-hint {
+        font-size: 0.75rem;
+    }
+
+    .progress-visual {
+        max-width: 100%;
+    }
+
+    .progress-bar {
+        height: 24px;
+    }
+
+    .progress-label {
+        font-size: 1rem;
+    }
+}
+
+/* 滚动条样式 - 饥荒风格 */
+.tutorial-container::-webkit-scrollbar {
+    width: 12px;
+}
+
+.tutorial-container::-webkit-scrollbar-track {
+    background: rgba(90, 63, 42, 0.2);
+    border-radius: 6px;
+}
+
+.tutorial-container::-webkit-scrollbar-thumb {
+    background: #8b6f47;
+    border-radius: 6px;
+    border: 2px solid rgba(244, 232, 216, 0.3);
+    transition: all 0.25s ease;
+}
+
+.tutorial-container::-webkit-scrollbar-thumb:hover {
+    background: #ff9447;
+}
+
+.tutorial-container::-webkit-scrollbar-thumb:active {
+    background: #ff6b35;
+}

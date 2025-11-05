@@ -93,23 +93,13 @@ export function CardDock({
         return (
             <div
                 key={card.id}
-                className={`dock-slot ${rarityClass} ${hasSvg ? 'has-svg' : ''} ${isKeyCard ? 'is-keycard' : ''}`}
+                className={`dock-slot ${rarityClass} has-svg ${isKeyCard ? 'is-keycard' : ''}`}
                 draggable
                 onDragStart={(event) => handleDragStart(event, card)}
                 onDragEnd={(event) => handleDragEnd(event, card)}
                 data-card-id={card.id}
             >
-                {hasSvg ? (
                     <CardSvg card={card} className="dock-slot__svg" />
-                ) : (
-                    <>
-                        <div className="dock-slot__name">{card.name}</div>
-                        <div className="dock-slot__meta">
-                            <span className={`dock-slot__rarity ${card.rarity}`}>{card.rarity}</span>
-                        </div>
-                        <div className="dock-slot__type">{card.type}</div>
-                    </>
-                )}
             </div>
         );
     };

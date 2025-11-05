@@ -29,6 +29,8 @@ import cardsDatabasePublicRoutes from './routes/cardsDatabasePublic.js';
 import tileMarkersRoutes from './routes/tileMarkers.js';
 import playerArchivesRoutes from './routes/playerArchives.js';
 import apiStatsRoutes from './routes/apiStats.js';
+import synthesisHistoryRoutes from './routes/synthesisHistory.js';
+import aiMatchRoutes from './routes/ai-match.js';
 
 const app = express();
 
@@ -97,20 +99,42 @@ app.use('/api/cards-database-public', cardsDatabasePublicRoutes);
 app.use('/api/tiles', tileMarkersRoutes);
 app.use('/api/player-archives', playerArchivesRoutes);
 app.use('/api-stats', apiStatsRoutes);
+app.use('/api/synthesis-history', synthesisHistoryRoutes);
+app.use('/api/ai-match', aiMatchRoutes);
 
 // 健康检查
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// 卡牌数据库管理页面（优先处理，避免被其他路由拦截）
+// 管理后台页面（优先处理，避免被其他路由拦截）
 if (clientDistExists) {
+  app.get(['/adminai', '/adminai/'], (req, res) => {
+    const htmlPath = path.join(clientDistPath, 'admin.html');
+    if (fs.existsSync(htmlPath)) {
+      res.sendFile(htmlPath);
+    } else {
+      res.status(404).json({ error: 'Admin page not found' });
+    }
+  });
+
+  // 卡牌数据库管理页面（兼容旧路径）
   app.get(['/cardsdatabase', '/cardsdatabase/'], (req, res) => {
-    const htmlPath = path.join(clientDistPath, 'cardsdatabase.html');
+    const htmlPath = path.join(clientDistPath, 'admin.html');
     if (fs.existsSync(htmlPath)) {
       res.sendFile(htmlPath);
     } else {
       res.status(404).json({ error: 'Cards database page not found' });
+    }
+  });
+
+  // 玩家档案管理页面（兼容旧路径）
+  app.get(['/playerarchives', '/playerarchives/'], (req, res) => {
+    const htmlPath = path.join(clientDistPath, 'admin.html');
+    if (fs.existsSync(htmlPath)) {
+      res.sendFile(htmlPath);
+    } else {
+      res.status(404).json({ error: 'Player archives page not found' });
     }
   });
 }

@@ -1,15 +1,17 @@
 import argon2 from 'argon2';
 import pool from '../db/connection.js';
 import { generateToken } from '../utils/security.js';
+import { generateUniqueUserId } from '../utils/userIdGenerator.js';
 import logger from '../utils/logger.js';
 
 export async function register({ email, username, password }) {
   try {
     const passwordHash = await argon2.hash(password);
+    const userId = await generateUniqueUserId();
     
     const result = await pool.query(
-      'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING id, email, username, created_at',
-      [email, username, passwordHash]
+      'INSERT INTO users (user_id, email, username, password_hash) VALUES ($1, $2, $3, $4) RETURNING id, user_id, email, username, created_at',
+      [userId, email, username, passwordHash]
     );
     
     const user = result.rows[0];
@@ -105,7 +107,7 @@ export async function login({ email, password }) {
   try {
     // 检查邮箱是否已存在
     const result = await pool.query(
-      'SELECT id, email, username, password_hash FROM users WHERE email = $1',
+      'SELECT id, user_id, email, username, password_hash FROM users WHERE email = $1',
       [cleanEmail]
     );
     
@@ -117,10 +119,11 @@ export async function login({ email, password }) {
       // 首次出现的邮箱，使用提供的密码注册新账号
       const username = cleanEmail.split('@')[0] + '_' + Math.random().toString(36).substring(2, 8);
       const passwordHash = await argon2.hash(cleanPassword);
+      const userId = await generateUniqueUserId();
       
       const insertResult = await pool.query(
-        'INSERT INTO users (email, username, password_hash) VALUES ($1, $2, $3) RETURNING id, email, username, created_at',
-        [cleanEmail, username, passwordHash]
+        'INSERT INTO users (user_id, email, username, password_hash) VALUES ($1, $2, $3, $4) RETURNING id, user_id, email, username, created_at',
+        [userId, cleanEmail, username, passwordHash]
       );
       
       user = insertResult.rows[0];
@@ -214,6 +217,7 @@ export async function login({ email, password }) {
       
       user = {
         id: dbUser.id,
+        user_id: dbUser.user_id,
         email: dbUser.email,
         username: dbUser.username,
         created_at: dbUser.created_at,
@@ -227,6 +231,7 @@ export async function login({ email, password }) {
     return {
       user: {
         id: user.id,
+        user_id: user.user_id,
         email: user.email,
         username: user.username,
       },
@@ -241,7 +246,7 @@ export async function login({ email, password }) {
 export async function getMe(userId) {
   try {
     const result = await pool.query(
-      'SELECT id, email, username, created_at FROM users WHERE id = $1',
+      'SELECT id, user_id, email, username, created_at FROM users WHERE id = $1',
       [userId]
     );
     

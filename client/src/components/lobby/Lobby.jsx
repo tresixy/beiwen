@@ -309,6 +309,7 @@ export function Lobby({ user, token, onEnterGame, onLogout, onEnterAdmin }) {
                         .map(card => ({
                             name: card.name,
                             type: card.type,
+                            card_type: card.card_type,
                             rarity: card.rarity,
                             count: card.count,
                             firstObtained: Date.now(),

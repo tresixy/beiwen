@@ -238,6 +238,15 @@ export async function completeEvent(userId, eventId, unlockedKey, selectedHex = 
     // 添加解锁的钥匙
     if (unlockedKey && !unlockedKeys.includes(unlockedKey)) {
       unlockedKeys.push(unlockedKey);
+      
+      // 将 keycard 添加到用户的卡牌池（deck_cards）
+      try {
+        const unlockResult = await cardService.unlockCard(userId, unlockedKey);
+        logger.info({ userId, unlockedKey, unlockResult }, 'Keycard unlocked to deck');
+      } catch (keyErr) {
+        logger.error({ err: keyErr, userId, unlockedKey }, 'Failed to unlock keycard to deck');
+        // 不抛出错误，继续执行
+      }
     }
 
     // 获取下一个event

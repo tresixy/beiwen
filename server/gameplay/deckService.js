@@ -124,10 +124,11 @@ export async function drawCards(userId, count = 3) {
 export async function getDeckState(userId) {
   try {
     const result = await pool.query(
-      `SELECT c.id, c.name, c.type, c.rarity, dc.discovered, dc.count
+      `SELECT c.id, c.name, c.type, c.rarity, c.card_type, dc.discovered, dc.count
        FROM deck_cards dc
        JOIN cards c ON dc.card_id = c.id
        WHERE dc.user_id = $1
+         AND (c.created_by_user_id = $1 OR c.created_by_user_id IS NULL OR c.is_base_card = TRUE)
        ORDER BY dc.discovered DESC, c.rarity, c.name`,
       [userId]
     );
